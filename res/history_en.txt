@@ -1,0 +1,3563 @@
+UoPilot v.0.96 beta,          by Blade[RBG]
+http://rbg.nm.ru,       blade17@rambler.ru
+
+UoPilot v.2.42,            (c) 2002-21 by WK
+http://uopilot.uokit.com
+                              uopilot@ultimasoft.ru
+
+=================================
+ - Work with several windows UO
+ - Recording movements of the mouse
+ - Capture of the screen (ScreenShot)
+ - Extended script language
+ - And much another
+=================================
+
+
+Script:
+=================================
+Click the right button of the mouse above the text to choose the command from the menu.
+
+The first word in the line - a command, other words - parameters.
+
+The words consist of symbols 0-9, A-z, А-я, '_'
+Symbols * $ of % + - * / > < = (). []: are services, other separators.
+
+In one line there can be only one command.
+
+Case-insensitive.
+
+That goes after '//' considered as the comment.
+
+Example:
+wait 5000 // here there is a comment...
+
+
+Advice:
+=================================
+
+To specify a point, guide the cursor on the purpose and press Ctrl+A, and the UO windowPilot should be active!
+
+Do not forget to write End_Repeat, End_IF etc.
+
+At lags put in UO on the button in the end 'waitfortarget', and in script the similar command, then UO and UoPilot will wait, when the cursor will appear.
+
+I recommend putting, for example, Ctrl+1 - meditation. Then in game by pressing Ctrl+1 character will begin to meditate, once again - will cease. That is it is not necessary each time to be switched in UoPilot
+
+Theoretically the names of all functions with the parameters in parentheses can be written together with parentheses: 'set $a Copy(String 1 2)'.
+
+Floating Point in commands 'readmem' and 'writemem' has not been tested. theoretically, should work.
+
+Supported clients 1.26.4a, 1.26.4b, 1.26.4e, 2.0.0, 2.0.0b, 2.0.3, 3.0.0c, 3.0.0g, MU, ML 6.0.7.0, 6.0.12.3, 6.0.12.4, 6.0.13.0, 6.0.14.1, 6.0.14.2, 7.0.4.3-5, 7.0.5.0, 7.0.6.3
+
+
+=================================
+History of development
+=================================
+
+UoPilot v.0.98 beta, (c) 2002 by WK
+http://wknight.chat.ru wknight@chat.ru
+
+Has added a changing a quality of jpeg compression. By default has put 75.
+
+Has added a panel of house governing.
+
+Has added the ship control panel.
+Is born on the separate form, which is lagged behind atop of a UO window (as however and others:)
+There is an opportunity to hide the main form during sailing.
+
+Has established the switch "Automatically insert coordinates into script".
+
+Has established "Pause between lines, in milliseconds" by default 100.
+As sometimes forget and system halts.
+
+Has inserted into script processing ProcessMessages, now practically not halts.
+
+Has corrected some discrepancies with hotkey of start script (Alt+Del).
+
+At dragging a file on UoPilot, script is filled by contents of a file. The checks any are not present.
+
+Has corrected the 'say' command.
+
+Has added the 'sendex' command. Sends practically all combinations of keys.
+The keys Ctrl, Alt, Shift are coded by symbols ^, @ and ~ accordingly.
+All function keys should be made in braces: {Enter}
+In one command there can be a whole offer from keys:
+sendex ~closing ~application @{f4}
+There is a following property: the application will accept only those keys (symbolical), which correspond established in it language of the keyboard.
+In execution time of the command, focused the application, and the system is blocked.
+Under some circumstances the following command is carried out before end current.
+
+Has corrected clicks by the mouse.
+
+Has added an opportunity of alternative definition of color in a point on the screen. As at prompting by the mouse the subjects are highlighted, and the true color of a subject was not determined.
+The new method works in 2 stages: a choice of a point, definition of color (At the mouse, removed in the party).
+
+From addition "a key and pause" has left only "key". Because of lack of a free place, and to change the initial interface to me it would not be desirable yet.
+
+Has added an alarm clock. At approach of event plays all the same file msg.wav during following 9 minutes,
+With a break on one minute; or plays the unitary above mentioned file and starts current script.
+
+Has added variable.
+In a name variable the symbols are allowable - ['0'..'9','A'..'z','А'..'я'], case-insensitive.
+Henceforth word the following for '#' is considered by a name variable also is replaced with its value, if it was appropriated earlier. Exception is the first word after commands 'set' and 'for'. Variable change only at participation 'set' and 'for', the command 'repeat' uses value, not changing it.
+
+Has added the 'set' command - setting and adding variable
+Set $ <name> <value> or
+Set # <name> < value1> [<operator> < value2>]
+Between the operator and values there should be a separator.
+The following operations are supported: +, -, *, /
+At division the result is approximated to nearest whole.
+// Set #i #i + 1
+// Set $s test string
+
+Has added a cycle for... end_for.
+for #<name> <beginning> <end> [a step]
+...
+end_for
+If variable existed, she is replaced, differently is added.
+After end of a cycle variable is equal <end> +1
+
+Has added display of the current values variable
+
+Has added an opportunity of change of the current adjustments of the client:
+Show Names of Approaching Players - on a 'Insert' key (at lags is very urgent, is especial at BB);
+Use circle of Transparency (radius is established 200);
+Query before performing criminal actions;
+Enable pathfinding with double-right-click
+
+At presence of a folder 'Scripts' scripts undertake from it, differently from the catalogue of the program.
+
+Has added a shortcut for dragging items from under the mouse, in the beforehand chosen place (for example of monsters loot is fast :)
+(While works not so qualitatively, figure in a window - delay)
+
+Henceforth in the command 'drag' it is necessary to specify 'all' for dragging all items.
+The absence of third parameter means, that item unary, and window with amount does not emerge.
+(it was made for struggle with superfluous clicks on target)
+
+Has added switching UoPilot <-> UO on Ctrl+U
+
+The help is born in the menu. After pressing opens\closing the form of the help.
+
+Has added an opportunity to send the messages without use the script. The message is made till two lines for time. At the long messages you almost for certain will call spammer:)
+On shortcut Ctrl+M it is made unitary.
+
+Has added the command waitfortarget [wait time = 10000]
+Stops performance of the script, while the cursor in UO will not take the form of a sight, or yet interval of time specified as parameter in ms will not expire.
+
+The UO window is automatically defined at start UoPilot.
+
+Has added an opportunity to turn off shortcuts. (for example if two pilots are started)
+At start of the second pilot, the shortcuts in it are turning off automatically.
+
+The file msg.wav is placed in a resource, and does not require any more distribution with UoPilot.
+
+=================================
+
+UoPilot v.0.99 alfa 8,       (c) 2002 by WK
+http://wknight.chat.ru   wknight@chat.ru
+
+Has added an option for GMs: To blink at arrival page.
+UoPilot will blink in taskbar at arrival from the server of a line beginning with 'GM Page from'.
+For a choice of an analyzed window, press the appropriate button, guide the cursor on the purpose and press Ctrl+A, thus the UO windowPilot should be active! On the button the name of the character will appear, whose window is chosen. The auto choice occurs at start UoPilot. The analysis is made 2 times per one second.
+
+At preservation of the script, the name of last loaded file will be specified.
+
+Has added an opportunity to fill in value of a delay between lines at loading of the script.
+The delay undertakes from a name of a file: file_name.delay.extension
+That is number directly ahead of extension allocated with points.
+
+The processing of parameters of the character and coordinates of the current site is added.
+Parameters: name, hits, mana, stam, wght, ar, gold, lastmsg, coordx, coordy
+Can be used practically in any operators and combinations:
+say my x: coordx y: coordy and armor: ar
+
+The operations are added: >, <, =, < >
+if <value> <a mark of operation> <value>
+...
+end_if
+Between is a mark of operations and values there should be a separator.
+
+The check of last message from the server is added
+if lastmsg <last message from the server>
+...
+end_if
+It is possible to write the message from the server not wholly.
+
+The start UO and login, with a login name and password, stored in config is added.
+UoPilot itself will login, if not will arise of problems, or will close a UO window at the message from the server that for you there is no place, will start it again and so on...
+There is it through pressing the button 'Next Screen', and time per seven seconds in that place at the centre of the screen, where there is a tick at any mistake.
+That the tick 'Save Password' has appeared, add in a file uo.cfg, located in the catalogue with game a line RememberAcctPW=on
+
+The comments are modified. That consider everything, that goes after '//'
+
+The command 'Goto' <label> - go to the specified label is added, the label should begin with a colon ':'
+
+The cycle while ... end_while is added.
+While <coordinates> <color> [color2]
+ The color in a point <coordinates> is equal to <color>,
+ If is given [color2], color of a point is checked on an accessory to range from <color> up to [color2]
+Or
+While <parameter> <a mark operation> <value>
+ Parameters: hits, mana, stam, wght, ar, coordx, coordy or variable
+ The following operations are supported: >, <, =, < >
+ Between is a mark operation and values should be separator.
+Or
+While lastmsg <last message>
+ It is possible to write the message from the server not wholly.
+...
+End_While
+
+Before closing UoPilot, began unessential to stop the script.
+
+Is added auto login in UO, without restart UO.
+At use of the given way, the client takes away a little memory with each new attempt. In result the swap-file is a little inflated.
+The client through a pair of minutes of work is recommended to restart.
+
+The mistake bringing in wrong definition of a name of the following file at preservation of a screenshot under number is corrected.
+
+The screenshots are kept with 3-digits numbers, i.e. 001..021..321
+
+Has added an opportunity to load the script from the command line
+UoPilot /sC:\UO\my_script.txt
+
+Has added an opportunity to specify a path to the client in the command line
+UoPilot /c"C:\Ultima Online\client.exe"
+
+Has added an opportunity to selectively turn off hotkeys.
+
+Has added the module of the messages macros.dll. Adjustment is made right click on buttons. The reproduction of the message occurs in the current UO window.
+
+=================================
+
+UoPilot v.1.00 beta 1,      (c) 2002 by WK
+http://wknight.chat.ru   wknight@chat.ru
+http://wknight.mailru.com
+                                wknight@mailru.com
+
+Has added an opportunity to keep adjustments in a file uopilot.ini with the help of the appropriate item of the menu.
+At start UoPilot they are loaded automatically.
+
+Has added commands for pressing and releasing of buttons of the mouse
+left_down <coordinates>
+left_up <coordinates>
+right_down <coordinates>
+right_up <coordinates>
+
+At inclusion of display of parameters of the character, some of them are displayed in heading of a UO window.
+The presence of the panel of the status in UO in the minimized or maximized kind is necessary.
+After the current weight the maximal weight is displayed, at which the character is still capable to move.
+
+Break [a level] - to interrupt a cycle (to leave from a cycle), if the level is more 1, interrupts given quantity parental cycles
+Continue - continue from the following step
+Can be used in cycles repeat, for, while
+
+Completely got rid from recursion. A mistake of overflow stack hence is corrected, at long work script.
+The restrictions on cycles connected with same mistake are removed.
+
+Has added the command of start of the application
+exec <command> [parameters]
+Has added the command of end of the application
+terminate <caption of a window>
+It is necessary to use with care, differently it is possible to close at all that would be desirable
+For use reserved variable, put before them an attribute variable '#'
+exec c:\test.exe #name #lastmsg
+
+At last has made UoPilot multiline. Henceforth you should not load for everyone the script the separate pilot.
+The buttons '+' and '- ' adding and, accordingly, delete new script. The button start starts and stops current script. On bookmarks numbers of the scripts are designated, and with their help the scripts are switched.
+For everyone scripts it is necessary to choose the UO window, differently it will be carried out for last chosen.
+The performance of the current script is displayed as well as earlier.
+
+=================================
+
+UoPilot v.1.01 beta 7,      (c) 2002 by WK
+http://wknight.chat.ru   wknight@chat.ru
+http://wknight.mailru.com
+                                wknight@mailru.com
+
+Has added work with the client of the version 2.0.0.
+
+Has built the panel of the messages in UoPilot. The adjustments are kept in a file uopilot.ini with the help of the appropriate item of the menu.
+At start UoPilot they are loaded automatically.
+
+The mistake in the command 'exec' is corrected, as a result of which the files with the certain names were not started.
+For use reserved variable, put before them an attribute variable '#'
+exec c:\test.exe #name #lastmsg
+
+Has added in the menu the list to ten last used scripts. The list is updated at loading\saving of the script.
+
+Has corrected a mistake in the command 'break'
+
+Has added commands for work with the subroutines
+gosub <label> - go to the specified label
+return - the return to last caused gosub, if calls were not, nothing is made.
+The subroutines it is recommended to place in the end of the script and before them to put either 'end_script', or 'goto' on a beginning of the script
+
+Has added an opportunity "Add spaces" in the beginning of a line after pressing Enter. Is in adjustments, is kept.
+
+Has changed the command 'send'. Now if its parameter is not recognized as a managing key, it is sent as the text.
+Works similarly to command say, except for finishing enter
+
+The mistake of delayed start of the script through an alarm clock is corrected
+
+The processing of the current system time is added: hour, min, sec
+Can be used practically in any operators and combinations:
+say current time is hour : min . sec
+
+The names variable now can consist of more than one symbol
+
+Has added an opportunity to edit a file login.cfg and to choose the necessary server UO
+
+The logic (and, or, xor) in the conditional operators is added
+The priorities are not present, is processed consistently
+if hour = 23 and min = 45 or #count = 100
+  end_script
+end_if
+
+=================================
+
+UoPilot v.1.02 beta 11,     (c) 2002 by WK
+http://wknight.chat.ru   wknight@chat.ru
+http://wknight.mailru.com
+                                wknight@mailru.com
+
+Has added an opportunity to change commands of management of the house (right click on the button), the changes are remembered at preservation of adjustments
+
+The house control panel is born on the separate form, which is lagged behind atop of a UO window (as however and others)
+
+Has added an opportunity to choose shortcuts, the changes are remembered at preservation of adjustments
+The disconnect shortcuts resets their on installations by default
+
+The command 'move' is changed, now she moves the cursor of the mouse to the specified point. it should be used before pressing by the left button in a backpack
+
+Has added the timer on to drink of bottles. Shows when it is possible to drink the following. As at all bottles time any other business, it is selected by practical consideration
+
+Has added an opportunity, at editing the script, to stretch its window up to the necessary sizes with the help of the appropriate item of the popup menu
+
+Has corrected a mistake of sending a key F1 from the tab 'General'
+
+In function "AutoMove" has added two coordinates, and an opportunity to specify amount of relocatable items. Practically speed of dragging twice has increased
+
+The position of a UO windowPilot is remembered at preservation of adjustments
+
+Has corrected a mistake in function "Add spaces"
+
+Has added an opportunity to have UoPilot atop of all windows, is remembered at preservation of adjustments
+
+Has added an opportunity to choose alphanumeric keys on the tab "General"
+
+Has added an opportunity to turn off display of parameters of the character in caption of a UO window
+
+Has added an opportunity to turn off display of coordinates in caption of a UO window
+
+Has added preservation of number of repetitions of the messages
+
+Has turn off the hint in the script "Press the right button of the mouse to receive the list of commands"
+
+Henceforth the help window can be stretched up to the necessary sizes
+
+Has added an opportunity to send 'BackSpace' after a sending of an alphanumeric key on the tab "General", that the unnecessary symbols were not printed
+
+Has added work with absolute coordinates, i.e. concerning the left top corner of the screen.
+Can be used with all mouse commands except for 'drag'. As the identifier of absolute coordinates the keyword "abs", being in last parameter in the command serves
+double_left 218, 242 abs
+On execution time of the command there is a capture of the mouse
+
+Has returned processing parameters of the character str, int, dex
+Can be used practically in any operators and combinations
+
+Has added work with the clients of the versions 1.26.4b and 3.0.0c
+
+Has added definition of a direction of a sight of the character 'chardir'
+0 - the character looks at north, everyone 45 degrees of turn of the character clockwise add 1, i.e. 7 - the character looks at northwest
+Can be used practically in any operators and combinations
+if chardir = 2 // we look at east
+
+The reserved word 'ar' is replaced with one longer 'armor'
+
+Has added an opportunity of display of coordinates of the cursor in caption of a UO windowPilot
+
+Has added auto preservation of adjustments of the UoPilot
+
+Has added the button pause/resume of the script
+Shortcut 'Pause'
+
+Has added an opportunity of step-by-step performance of the script
+
+The adjustments of shortcuts are born on the separate form
+
+Has added an opportunity of selective display of parameters of the character in heading of a UO window
+
+Has added work with the client of the version 1.26.4a
+
+The item 'features' is complemented, concerning than the clients is more younger 2.0.3
+
+At deployment of the script, button of start of the script, the pauses etc. creep after it
+
+Has added an opportunity automatically to hide a UO windowPilot at deployment of the script
+
+It is a little cosmetic, both external, and internal. And also a few bags are corrected
+
+For inclusion, before switched off, shortcuts, all any more is not required to disconnect others
+At inclusion, its adjustments are established by default
+
+Has added an opportunity to keep movements of the mouse in a file. To edit it extremely it is not desirable, but basically it is possible. Structure following:
+One line - one event. The first word - event, second and third - parameters (for example coordinates), fourth - time from a beginning, fifth - handle of a window (is usual only for clicks)
+
+Has added commands of work with macros
+
+macro_load <a name of a file> // to load macros. If not the path is specified, is searched in the catalogue of the UoPilot. For use reserved variable, put before them an attribute variable '#'
+
+macro_play [number] // to start macros [number] of time, and to wait ending its performance. If [number] =0 that is carried out indefinitely, by default once. Stop\start it manually is possible by standard shortcuts
+
+Has added the command 'flash' - to blink in taskbar
+
+Has added an opportunity to use in second UoPilot those shortcuts, which are not used in first
+
+Now UoPilot works best under in Windows on the basis of NT technology
+
+Has added variable timer, considers quantity ms from a beginning of performance of the script
+Can be used practically in any operators and combinations
+set timer // establishes value timer in 0
+
+=================================
+
+UoPilot v.1.03 beta 2,      (c) 2002 by WK
+http://wknight.mailru.com
+                                wknight@mailru.com
+
+Has added an opportunity of change 'lastobject' and 'lasttarget' in UO.
+The definition of the current values is made through a double click by the mouse in the appropriate cell of the table on the tab "Add".
+By buttons located from below from each table is possible to add or to delete (not) the necessary elements.
+The installation is made by the command
+set <lastobject | lasttarget> <number> //number - number of the appropriate cell of the table
+If number > 550, it is considered as ready value, and enters the name in memory without changes.
+//set lastobject 1
+//send f4 100  //lastobject
+Contents of the tables are remembered at preservation of adjustments
+
+Has corrected a mistake of redefinition of windows. Now it is possible to use all opportunities of the UoPilot at different windows of the UO
+
+Has corrected the next mistake with definition of last message
+
+Has corrected a mistake in the command 'goto'
+
+Has added an opportunity to use the comments in a file login.cfg
+Settle down in the same line, as address of the server, begin with '//'
+
+Has added shortcuts for installation of coordinates of AutoMoving
+
+Henceforth function AutoMove moves items in an active window (taking place under the cursor)
+The algorithm of dragging is slightly changed
+
+The delay of function AutoMove now is remembered at preservation of adjustments
+
+At start of the UoPilot, all scripts are loaded, which were on the moment of preservation of adjustments or exit
+
+---------------------
+v.1.03 beta 3
+
+During step-by-step performance of the script, the color allocates the following command
+
+Has added an opportunity to stop the script, at detection of the unknown command, with the help of the appropriate item of the menu
+
+---------------------
+v.1.03 beta 4
+
+Has corrected a mistake in the command 'set timer'
+
+Has added commands for work with procedures
+call <name> // a call of procedure. The procedure with the specified name is searched at first in current script, and then, if not is found, in "a file of procedures" - script with number 99. To load there something it is possible with help of the appropriate item of the menu. The enclosed call of procedures is supported.
+proc <name> // a beginning of procedure. Procedures it is possible to have in any place of the program. At detection of a beginning of procedure, its end is automatically searched, and the performance proceeds with next lines. The enclosed description is not supported.
+end_proc // the end of procedure
+//proc saying_message
+//  say test passed
+//end_proc
+//call saying_message
+//end_script
+The process of performance of procedure is not displayed, the parameters yet are not transferred
+
+---------------------
+v.1.03 beta 5
+
+Has added an opportunity to interchange the position a 'Source' and 'Destination' of function AutoMove. Parameter 'Move mouse' thus it is not taken into account
+
+At prompting the cursor of the mouse on bookmarks with designations of numbers of the scripts, occurs the pop-up help with a name of a file appropriate script. Is turned off with help of the appropriate item of the menu. Is remembered at preservation of adjustments
+
+Has corrected a mistake in the command 'drag x y all'
+
+Has corrected a mistake in commands 'break' and 'continue'
+
+Has corrected a mistake in the command 'set lasttarget'
+
+Henceforth, during editing of the script, the key 'tab' adds some spaces, instead of switches elements of management
+
+It is a little cosmetic, both external, and internal. And also a few bags are corrected
+
+Has corrected a mistake in the command 'double_right', earlier frequently cluck there, where there is a cursor
+
+=================================
+
+UoPilot v.1.04 beta 1,  (c) 2002-03 by WK
+http://wknight.mailru.com
+                                wknight@mailru.com
+
+Has corrected a mistake in procedure of loading of the scripts at start of the UoPilot
+The algorithm is slightly changed: now order of the scripts does not vary, and active scripts also is remembered
+
+Has added the command for start parallel script
+start_script <number>
+If the scripts with such number exists, it will be started
+
+Has added the command for a stop parallel script
+stop_script <number | all>
+If the scripts with such number exists, it(he) will be stopped
+
+Has corrected a mistake of a call of the subroutines from a file of procedures
+
+If at the reference to parameters of the character there is a mistake (for example have closed a UO window), the scripts, in which it has taken place, stops
+It concerns also option for the GMs
+
+The commands of management of the house and ship now are made in an active (top) UO window
+If any is not found, in a working UO windowPilot
+
+Has added some variants of the indication of time of delays in the scripts and between lines
+// wait 1 // 1 ms
+// wait 1s // 1 second
+// wait 1m // 1 minute
+// wait 1h // 1 hour
+
+It is a lot of the useful information is born on the separate form. The button "Char Parameters" is located on the tab "Add"
+
+The timer on drink of bottles now ticks in caption of a UO window
+
+The tab "Sett..." somewhere has disappeared
+
+It is a lot of cosmetics, both external, and internal. And also a few bags are corrected
+
+---------------------
+v.1.04 beta 2
+
+Has added a shortcut for a call of the panel with parameters of the character. By default Ctrl+P
+
+At closing the panel with parameters of the character, by pressing a cross in its heading, it is turned off in a certain rectangular, near the button "start". Is unwrapped back by similar way
+
+Has added an opportunity to choose, from what windows of the UO to display parameters of the character: active script, top UO window or working UO windowPilot
+
+Has added item of the menu 'Exit without save'. At its choice there is no preservation of the list of last open files, list open scripts and preservation of adjustments, if the option is chosen to keep at an exit
+
+Has added an opportunity to choose, to stop - whether the script at a mistake of reading of parameters of the character
+
+Has added string variable
+Henceforth symbol '$' is considered as the identifier string variable
+// set $s test string
+// set $t test passed
+// if lastmsg = $s or lastmsg <> $t ...
+
+Has added an opportunity to display 'id' and 'type', on the panel with parameters of the character, in 'hex' format
+
+Has added definition of a heap of any useful dust
+Target - kind of the cursor (0 - hand; 1 - sight)
+CoordZ - coordinate z of the character (height)
+LastObjectType - type of last used object
+LastObjectId - identifier of last used object
+LastTargetId - identifier of last purpose
+LastTargetX, LastTargetY, LastTargetZ - coordinate of last purpose
+LastTargetKind - class of last purpose (1 - item; 2 - ground; 3 - static's or water) (i.e. if you is necessary by a shovel to click on a surface of the cave in the given coordinates, it is necessary to specify '3'; if it is necessary to click through 'lasttarget' on a item, it is necessary to specify '1' and 'Id' of a item; catching a fish we indicate coordinates of a point and class '2')
+LastLiftedId - identifier of a thing, which by last was touched from a place (is moved, has visited in 'hand')
+LastSkill - number last Skill which was used through the menu Skills
+LastSpell - number of last spell which was used through the book
+LastStaticType - type of last static purpose (tree...)
+Can be used practically in any operators and combinations
+
+---------------------
+v.1.04 beta 3
+
+Some mistakes of last version are corrected
+
+reserved variable coordx, coordy, coordz, lastobject, lasttarget are renamed accordingly in charposx, charposy, charposz, lastobjectid, lasttargetid
+
+Has added the contextual menu with names all reserved variable
+
+---------------------
+v.1.04 beta 4
+
+Has corrected a mistake of preservation and use of the tables of last objects in an hex format
+
+Has added the comments in the tables of last objects
+It is not recommended to use in them a point ','
+
+At double click by the mouse on the identifier, in the tables of last objects, the value of the appropriate cell is inserted in the script
+
+At a double click by the mouse on values of last parameters, they is inserted in the script
+
+Has added an opportunity of saving and loading of the tables of last objects in a file, with the help of the appropriate item of the contextual menu
+
+UoPilot does not brake any more
+
+Has added an opportunity of change of a heap of any useful dust in the UO.
+set <parameter> <value> // where <parameter> is one of the following: target, lastobjectid, lastobjecttype, lasttargetid, lasttargetx, lasttargety, lasttargetz, lasttargetkind, lastliftedid, lastskill, lastspell, laststatictype
+
+Has corrected a mistake arising at switching between working scripts
+
+The algorithm of updating of the table variable is changed
+
+---------------------
+v.1.04 beta 5
+
+Has corrected a mistake of definition of parameters of the character in the client 1.26.4b
+
+Has corrected a mistake with clicks on absolute coordinates
+
+At a mistake of reading lastmsg, it will contain a word 'error'
+
+Has corrected a mistake with addition of new lines in the tables of last objects
+
+Has added an opportunity to clear the tables of last objects, with the help of the appropriate item of the contextual menu
+
+The items of the menu 'UO properties' now switch parameters in an active UO window. At switching show of names by a shortcut, the value of this parameter is inverted, irrespective of value of the appropriate item of the menu
+
+Has added an opportunity to remember at preservation of adjustments, position and sizes of windows of editing of the script and parameters of the character
+
+Has added an opportunity to open at start of the UoPilot of a window of editing of the script and parameters of the character
+
+---------------------
+v.1.04 beta 7
+
+Has added the command for suspension of performance of the parallel script
+pause_script <number | all>
+If the script with such number exists, it will be suspended
+
+Has added the command for continuation of performance of the parallel script
+resume_script <number | all>
+If the script with such number exists, its performance will be continued
+
+Has added the names of the skills and of the spells in the table of display of parameters
+
+Has added an opportunity to turn off  return of the cursor, after clicks by the mouse, in that position, in which it was up to the command move
+
+Has added an opportunity to choose a font of the editor, with the help of the appropriate item of the menu
+
+Has added an opportunity to choose a kind of the panel with parameters of the character
+
+Has added an opportunity to choose 'Tab size'
+
+Has added an opportunity to specify 'Delay between lines' for new scripts
+
+The maximal number of lines in the tables of the last objects is increased up to 550
+
+=================================
+
+UoPilot v.1.05 beta 1,  (c) 2002-03 by WK
+http://wknight.hotbox.ru
+                                wknight@hotbox.ru
+
+Has corrected discrepancy of the names of the skills and of the spells to their numbers
+
+Now it is possible to use any perverted formulas in the command 'set'. variable should be allocated with a blank
+//set #q ((5+4)/(3+-2)* #e )-(2-(-5+9))*3
+
+Has changed algorithm of processing of commands
+
+The mistake of creation of the list last used scripts is corrected
+
+Got rid of necessity of calibration of the UoPilot for the fine clients
+
+Next host is going down, temporarily have moved on http://wknight.hotbox.ru
+The old versions are dug together with the host
+
+---------------------
+v.1.05 beta 2
+
+The mistake of installation of values variable is corrected
+
+Has added preservation of coordinates clicks by the mouse on the tab 'General'
+
+---------------------
+v.1.05 beta 3
+
+The mistake in the conditional operators is corrected
+The algorithm is changed, now it is possible to unite some checks of color in one condition
+
+Has added an opportunity to remember quantity of relocatable items
+
+Has corrected a mistake in operations with negative numbers
+
+Has added an opportunity of change of the timer between sound signals of an alarm clock in a range from 0.5s up to 30s
+
+Has added an opportunity of use of brackets in the conditional operators
+//while (#a > 1 and #a < 3) or ((#a = 1 and 130, 9 7295) or #a = 5)
+
+Has added an opportunity, at a mistake of reading of parameters of the character, to stop the script (pause) and to inform on a mistake
+
+Has added an opportunity to use in the command alarm the sounds
+//alarm welcome.wav
+At a mistake of reproduction of a file (the incorrect format), is plays a standard sound. If the file is not found, the command is ignored
+
+Has added an opportunity to use random number in the conditional operators and command set. random <number> returns number in a range from 0 up to number-1
+//while #a = #b or random 5 > 3
+//set #a random 2
+
+At preservation of the script, with previous clearing, through the appropriate item of the menu, it will be offered to enter a new name of a file
+
+At the request of club ULTRA, there was an additional version of the UoPilot with some functional restrictions:
+The mask *.* is switched off at loading and recording of files, the function of start of the client is inaccessible, the commands 'exec' and 'terminate' are switched off
+
+At last has drawn unpretentious about
+
+=================================
+
+UoPilot v.1.07 beta 1,  (c) 2002-03 by WK
+http://wknight.hotbox.ru
+                                wknight@hotbox.ru
+
+The window of the unwrapped script is not turned off any more together with the UoPilot
+Henceforth at minimizing the UoPilot is turned off only UoPilot itself, leaving all open windows on the places
+
+Has added an opportunity to turn off the UoPilot in tray. Is unwrapped on left double click
+Is turned with the help of the appropriate item of the menu
+
+The mistake is corrected, as a result of which the quantity of repetitions of the macros after playing was reset
+
+Has added an opportunity to display started scripts with the help of change of color of their numbers: system (by default black) - is not started, dark blue - is running, red - is suspended
+Is turned with the help of the appropriate item of the menu
+
+Has added an opportunity, in second UoPilot, to nominate shortcuts to functions, which are already used in first
+
+The chosen shortcuts any more 'are lost' at disconnect
+
+The algorithm of function 'Add spaces' is slightly changed
+
+Has added an opportunity to establish a casual delay, sending of keys and clicks by the mouse on the tab 'general', from the specified range: '3000-500' will give a casual delay in a range from 3000 up to 3500
+
+The mistake with absolute clicks by the mouse brought in the version 1.05b1 is corrected
+
+The status of an option 'Enable HotKeys' is henceforth kept. At loading of the UoPilot with the switched off given option, and its subsequent inclusion, the adjustments all shortcuts are established by default
+
+Has added an opportunity to nominate to everyone script the shortcut:
+On the form of the editor of shortcuts there is a table containing numbers and names of files everything, open at present, scripts. In the right column the shortcut, in left its activity is displayed. The switching and editing of shortcuts of the scripts works by the same principle, as others.
+If the script, for which the shortcut is nominated is not started, it is started, if is suspended, its performance will proceed and if it is running, it will be accordingly stopped.
+Up to 99 shortcuts are supported. Are kept at preservation of adjustments
+
+---------------------
+v.1.07 beta 2
+
+Has corrected a mistake of occurrence of the message 'eexternal' on a not empty line not containing command
+
+Henceforth coordinates of control panels by the house and ship are remembered at preservation of adjustments
+The form of the information occurs at the left or to the right of a UO windowPilot, in depending on some conditions
+
+Has corrected a mistake of loading of shortcuts for scripts, at UoPilot loading with old by adjustments or in general without it
+
+Has corrected, it is not known whence undertaken, mistake of shortage of memory, at inclusion of display of parameters of the character in caption of a UO window
+
+Has corrected a mistake of definition GM Page, shown at inclusion of options 'On error reading character parameters :'
+
+Has corrected a mistake of definition of the message from the server in function 'Start and login', as a result of which there was its cycling
+
+Has corrected a mistake of definition of last message from the server: sometimes some messages were not determined, and instead of them variable lastmsg contained a word error, now last message from the server owes will be determined always
+
+Henceforth all messages deduced by the UoPilot will be deduced atop of all windows and to be accompanied by a sound signal
+
+Has added the control panel by animals and vendors
+
+Henceforth, at definition GM Page, will blink that window, in which it actually and was determined, instead of UoPilot, as was earlier
+
+Has removed function of a sending of the messages (flood)
+
+Has nominated a shortcut for the panel of the messages. By default Ctrl+M
+
+---------------------
+v.1.07 beta 3
+
+Henceforth path to the client in function 'Start and login' undertakes from the registry, if not is specified in the command line
+
+The path to a file login.cfg in function 'Select UO server' undertakes from function 'Start and login'
+
+At a stop of the suspended script, any more will not be will be executed the current command
+
+Has added an opportunity to issue a sound signal at arrival page
+
+Has added an opportunity to specify a path to a configuration file in the command line
+UoPilot /iC:\UO\my_config.ini
+
+Has learned the UoPilot to understand Russian last messages
+
+Now the UoPilot hardly best makes the messages written by Cyrillic
+On former the inclusion Russian language of the keyboard in the UO is required
+
+Has added an opportunity to specify a delay between lines for the panel of the messages. For each button separately. Is remembered at preservation of the messages
+
+Has added an opportunity to specify a delay between lines of the script not containing command. Is located on the tab 'Add'
+
+Has added an opportunity to disconnect display of a course of performance of the script, with the help of the appropriate item of the menu
+
+Has added an opportunity, with the help of the appropriate item of the menu, to choose a way of display of the panel of parameters of the character, window of the unwrapped script, control panels by the house, ship and animals: atop of all windows, or as a usual window.
+
+---------------------
+v.1.07 beta 4
+
+Has added an opportunity of change variable during performance of the script, through the table of display variable. The change variable occurs synchronously to a character set
+
+Henceforth symbol a point '.' Is a legal symbol and can not be used as a separator
+
+Has added an opportunity to use variable of parallel scripts, having added to a name variable number of the script through a point
+//set #i.2 5
+//say $test.2 #i.2
+
+Has corrected a mistake in the command 'drag', as a result of which parameter 'amount' was ignored, if it was specified with the variable
+
+Has added an opportunity to use the characteristics of the character from parallel scripts, having added to a name variable number of the script through a point
+//set lasttargetid.1 7
+//say hits.1
+
+Has corrected a mistake in the command 'flash', as a result of which taskbar was not removed from the screen, if at it the appropriate adjustment was switched on
+
+It is a little cosmetics
+
+Has added a shortcut for an attachment all scripts to the specified UO window. by default Ctrl+Alt+A
+
+Has added an opportunity automatically to attach all scripts, at start up of the UoPilot, on the top UO window.
+At inclusion of the given adjustment, the combination of keys Ctrl+A attaches all scripts to the specified UO window
+
+Henceforth, if in commands 'pause_script' and 'stop_script' number of the script is not specified, they work for current
+
+---------------------
+v.1.07 beta x
+
+Option 'Enable HotKeys' henceforth works and on shortcuts for scripts
+
+At inclusion of shortcuts the option 'Enable HotKeys', automatically nominates only what were included earlier
+
+Has corrected a mistake in the command 'break' at interruption of several cycles 'repeat' or 'for'
+
+Has added an opportunity to stop the script, if the client does not submit attributes of life. The performance will be continued from same line
+
+Has added an opportunity to send commands in injection of the version 309.05+ passing the client. If injection is not identified, the script will be suspended. The performance will be continued with next lines
+//injection waittargetself; usetype bandage; arm my_name
+
+The calculation of the complex formulas is slightly corrected
+
+---------------------
+v.1.07 beta 5
+
+The mistake in the command 'injection', connected with capital letters is corrected
+
+Has added an opportunity to copy the text typed in a window of the client, in a clipboard, with the help appropriate hotkey. Only for the client 2.0.3
+
+Has corrected a mistake in the command 'goto', as a result of which it has ceased to react to absence of labels
+
+Has added an opportunity without serious consequences to leave on the command 'goto' a cycle 'repeat'
+
+Has added an opportunity to blink by a UO window, to which the appropriate script is attached, having specified something as parameter of the command flash
+//flash something
+
+Has added arrays. Henceforth symbol of percent '%' is considered as the identifier of an array. The indexes of an array are specified after a name in square brackets '[' and ']'. The size of an array is equal to the maximal used index. The giving of values is carried out to each element individually. The elements of an array can contain both line, and number.
+Is allowable to refer to arrays of the parallel scripts, having specified after a name of an array, through a point, number of the script.
+At the instruction only of first index in a two-dimension array, result will be a line from all elements of the second dimension of a array appropriate to the specified index, and divided  by a space
+//set %ar [4] the test // an one-dimensional array on 4 elements
+//set %arr [50 1] 544
+//set %arr [50 2] 800 // two-dimension array on 50 times till 2 elements
+//set %ar.2 [5] // an one-dimensional array in the parallel script
+//left %arr [50] // click by the left button on coordinates 544 800
+! The elements of array cannot directly be used in the conditional operators
+//if charposx <> %arr [50 1]
+
+Has added support of the client of the version 1.26.4e
+
+Has added an opportunity to keep a copy of the screen of an active window and top window UO. a choice is made with the help of the appropriate item of the menu
+
+---------------------
+v.1.07 beta 7
+
+The mistake in the operator 'for', brought in last version is corrected
+
+Has added display variable 'timer' in the table variable. Is switched off with the help of the appropriate item of the menu
+
+The interface of the UoPilot is translated to the English language. The choice of language is made with the help of the appropriate item of the menu
+If language established in system by default, is supported by the UoPilot, that, at the first start, it gets out automatically, otherwise gets out English
+
+Has added support of the client of the version 2.0.0b
+By all at whom the version of the client is more senior, it is necessary anew to choose number of the version in the UoPilot and to keep adjustments
+
+Has corrected a mistake of giving to elements of a array of values variable
+
+---------------------
+v.1.07 beta 8
+
+Recording and reading of adjustments are cached
+
+At an attachment all scripts to the specified UO window, appropriate shortcut, also to the given window UoPilot is attached also
+
+The attempt is undertaken to change a priority of the clients, started by the pilot
+
+The interface of the UoPilot is translated to the Portuguese language
+
+The mistake with the comments in the conditional operators is corrected
+
+The mistake arising at opening of a file of procedures, under windows 9x is corrected
+
+All clicks by the mouse are altered. Now UoPilot waits, while the application will not process the click
+
+The sending of single keys by the command 'send' and from the tab 'General' is slightly changed
+
+Now, the tabs at the end of a line will be ignored as well as blanks
+
+The support of the client of the version 3.0.0g is added
+
+
+=================================
+UoPilot v.2.00,            (c) 2002-05 by WK
+http://wknight.hotbox.ru
+                                  wknight@hotbox.ru
+
+The opportunity of change 'Delay after entering items count' in the command 'drag' and function 'automove' is added
+
+Has corrected a mistake of allocation of huge amount of memory, at start of the large scripts
+
+Has added the link to a new forum in section 'about'
+
+Has removed a superfluous icon of the pilot from the list of windows deduced by alt+tab
+
+Henceforth panel of display of parameters of the character is not turned off any more in a certain small rectangular, and is closed by pressing the appropriate cross
+
+'waitfortarget' understands the reduced indication of time (10s, 5m, 1h)
+
+'msg' should jump out atop of the attached window.
+Error messages - atop of all windows
+
+'send' sends the text on one key. It is possible to set the list of keys, after the first unrecognized key, all up to the end of a line is sent by the continuous text. If the first word a key, and second a number, we consider, that it is a delay after a key
+
+Has corrected inadequate reaction to giving of variable lines containing the letter 'h'
+
+The calculation of a delay in the scripts is slightly optimized
+
+Has corrected mistakes with impossibility of editing of the script after step-by-step performance and other similar operations
+
+The mode of step-by-step performance is exposed for each script individually
+
+Are corrected mistakes with display variable 'timer' in the table of display variable
+
+The updating variable timer in the table of display variable is reduced up to 8 times per one second
+
+The line made in inverted commas, is considered as one word and is not processed for replacement variable
+
+The repeated informing on a mistake of reading of parameters of the character is corrected
+
+Has corrected to a fine mistake in calculation of expressions
+
+The commands of management of work of other scripts and procedures are slightly corrected
+
+The casual delay on the tab 'general' is calculated with any separator
+
+The opportunity of start of the client without an auto login is added
+
+Again we determine correctness of reading of last message more full
+
+The pilot again reacts to files, flying by above it
+
+Has corrected width of the table variable in XP
+
+By pressing Ctrl+A (choice of a window) we update the status of internal switches of the client
+
+Correctly we determine a delay between lines specified in a name of a file of the script
+
+The scripts are kept only with that extension, which is chosen in a mask in dialogue of preservation
+
+At the included tick of an alarm clock "script", the pilot will not issue any more sound signal, at approach of event
+
+Last open file always will be uppermost in the list of last open files
+
+Has removed transformation 'hex' numbers in the form $0xx in calculation of expressions
+
+Has added an opportunity to load arrays from a file. By default file is searched in the catalogue with the scripts
+load_array %array #array_x #array_y #start_file_x #start_file_y #count_x #count_y $filename
+Be absent any quantity of operands, since the end, up to a name of an array can. Last of the stayed operands is considered as a name of a file, it can be the name of an array. The default values, since the second operand 1,1,1,1,0,0. They are minimally allowable. If the smaller value is specified, it is replaced with a default value.
+The arrays are stored as [line, column]. The elements of a array are separated from each other by symbol with a code #9 (tab)
+
+Has added an opportunity of entering in variable colors of a point, on the given coordinates on the screen, with the help of a keyword Color in the command 'Get'. get color #color #x #y [abs] At the indication of a keyword 'abs', the coordinates undertake concerning the screen, differently concerning the attached window. If color to determine it was not possible, variable will contain value -1. If variable earlier did not exist, it is created.
+
+At preservation of a copy of the screen of the top UO window, and absence those, the copy of the screen of the top window will be kept
+
+Has added some checks in preservation of a copy of the screen. We test
+
+Has corrected a mistake, because of which were replaced not all variable in a line
+
+Some probable exceptions are corrected
+
+It is a lot of fine improvements
+
+It is a lot of fine corrections
+
+
+-v.2.01--
+
+Has added a prefix "Full" to commands of management of the ship
+
+Some fine corrections
+
+
+-v.2.02--
+
+Has corrected a small mistake in the conditional operators who have been brought in last version
+
+The status of internal switches of the client is readable from the top UO window and is updated at opening the appropriate menu
+
+Has corrected a mistake with not by understanding of numbers in 'hex'. now numbers beginning with 0x, are considered as 'hex'
+
+Has corrected a mistake with giving of values always only to last element of arrays, irrespective of specified
+
+Has corrected a mistake with giving of values to arrays of the script with number 0, from other scripts
+
+Has added the menu on the right click on a icon in a tray (unwrap, close)
+
+The shortcut of switching between the pilot and application, attached to it, now restores the pilot from the minimized status, even if it was in tray
+
+The shortcut of switching between the pilot and application, attached to it, now chooses the application according to adjustment of the menu "Show char parameters of:"
+
+Has corrected a fine mistake with change of the script, when it is chosen as a working window
+
+Has added display skills on the panel of parameters of the character for the clients 1.26.4a and 2.0.3
+
+Has increased up to 3 quantity of lines for display of last message by the panel of parameters of the character
+
+Has added an opportunity of definition of value of the skills from the script for the above mentioned clients, with the help of a keyword 'skills', with the subsequent indication of number or name of the skill. The names of the skills, containing spaces, can be written together. the skills 'Blacksmithing' also is defined as 'Blacksmithy'. value of the skills is given out in integers, i.e. 50.0 will be determined as 500
+set #a skills [35]
+
+
+-v.2.03--
+
+Has corrected a mistake with loading of arrays
+
+The command 'drag' now understands the indication of several coordinates with the help by one line variable
+
+
+-v.2.04--
+
+A small mistake in the operator 'random' is corrected
+
+At a mistake of reading of parameters of the character read out variable will contain value -1
+
+The mistake of updating of last message from the server on the panel of parameters of the character, at inclusion of display of the skills, is corrected
+
+Henceforth, at the active tab "Script", the pilot is possible to stretch up to the necessary sizes. Is remembered at preservation of adjustments. Item of the menu 'maximize' is removed from the contextual menu of the script
+
+
+-v.2.05--
+
+Has corrected a mistake in 'get number' with wrong recognition of a hex numbers beginning with 0
+
+Has added an opportunity of change of adjustment of the client 'Always Run' with the help variable 'arun'
+
+Has added the switch variable 'Always Run' in the menu 'UO properties'
+
+Has added variable 'hidden', whether allowing to determine the character for other players is seen
+
+Has added variable 'war', allowing determining a mode of aggression of the character. The change of value given variable changes behavior of the character only on the computer of the user
+
+Has corrected a mistake in the operator 'for' with a reuse variable
+
+Has added variable 'delimiter', is used for division of elements of a array
+set %a [1 1] 1
+set %a [1 2] 2
+set delimiter '+'
+msg %a [1]
+set #n %a [1]
+msg #n
+set delimiter
+set #n %a [1]
+msg #n
+
+Has added some shortcuts, for switching adjustments UO
+
+Has added variable 'spellname', returning the name of a spell on its serial number. The numbering begins with zero
+msg spellname [32]
+
+Has added an opportunity of the indication of quantity of recurrences of a sending of keys on the tab "General". The negative values correspond(meet) to infinity
+
+Has corrected a small mistake of a sending of keys on the tab "General"
+
+
+-v.2.07--
+
+Has added items to suspend current and to suspend all scripts in the main menu
+
+Has corrected a mistake at start of the pilot with the switched on tick to turn off in a tray
+
+If first and last symbols in a line - the double inverted commas, and in a line are more than such inverted commas is not present, they leave
+
+The problem with Portuguese and unprintable symbols is solved
+
+Has added reading coordinates of the character for MU. 'charposx', 'charposy' - appropriate coordinates of the character. 'charposz' - something also connected with coordinates, but not z
+
+
+-v.2.08--
+
+In coordinates of the character for MU, 'charposx' and 'charposy' are swapped by places, for were mixed
+
+The pilot has learned to determine color on absolute coordinates.
+if 931, 324 9933964 abs
+
+The command 'sendex' is completely rewritten. syntax same
+
+Has added an opportunity of a choice of a working window for the scripts from the list
+
+
+-v.2.09--
+
+Has corrected a mistake in the operator 'random', now understands variable and expressions. The syntax is slightly changed. random (expression)
+
+Henceforth adjustments 'Source<>Destination' are kept in a file of a configuration
+
+In coordinates of the character for UO, 'charposx' and 'charposy' swapped by places, for were casually mixed in last version
+
+Has corrected a fine mistake at impossibility to write down a file of adjustments
+
+Fine frauds with Unicode in last message from the server
+
+
+--v.2.10--
+
+Has translated to the English site, history and script language manual
+
+Has corrected a mistake at auto start of the script
+
+Has added an opportunity to stop and pause of all parallel scripts, except for current, with the help of the indication of parameter "allex" in commands stop_script and pause_script, accordingly. stop_script AllEx
+
+Has added definition of the current coordinates of the mouse, with the help of a keyword Mouse_Pos in the command Get. get mouse_pos *x *y [abs]. At the indication of a keyword 'abs', the coordinates undertake concerning the screen, differently concerning the attached window. If variable earlier did not exist, they are created.
+
+
+--v.2.11--
+
+In a debug mode almost all delays are ignored (except for waitfortarget)
+
+added allocation of the first number from a string, with the help of a key word Number in a command Get. get number #var #pos $string
+If the number is not revealed in the given string, first numerical variable will contain meaning -1, and second - amount of words. Differently, in first variable will be the found number, In second - number of a word. If variable did not exist, they are created.
+
+added allocation of a word from a string on his serial number, with the help of a key word Word in a command Get. get word $var #pos $string
+If a word with given number does not exist, the empty line will be returned. If the negative number is specified, the initial string without the specified amount of words in the beginning will be returned. If variable did not exist, she is created.
+
+added an opportunity to save arrays in a file. On default are saved in the script folder. save_array <%array> [#array_x] [#array_y] [#count_x] [#count_y] [$filename]. Be absent any amount of operands, since the end, up to a name of a array can. Last of the stayed operands is considered as a name of a file, it can be the name of an array. The arrays are stored as [a line, column]. The elements of an array are separated from each other by symbol with a code #9 (tab)
+
+Henceforth it is not required to specify a working window before start of the script. At program start of the not adhered script, the performance current stops for 3 seconds, with a conclusion of the message about a mistake, then the performance proceeds
+
+added an opportunity of moving of the chosen window and changes of its sizes 'set windowpos X Y width height handle'. At the instruction of the negative sizes, or their absence, the given parameters are ignored.
+At the instruction of handle of a window, the actions occur to the specified window, differently with current. If negative width is specified, parameter 'height' defines an arrangement of a window in a heap, and can accept the following meanings 1: TOP; 2: TOPMOST; 3: NOTOPMOST; 4: BOTTOM.
+set windowpos #x #y -1 2 #handle // TOPMOST
+
+added an opportunity of automatic start of the scripts at loading the program 'UoPilot /r0 /r12'
+
+corrected a mistake EExternal at use of the subroutines
+
+added commands of alternative clicks by the mouse kleft, kright, double_kleft, double_kright, kleft_down, kleft_up, kright_down, kright_up. work there, where the usual commands do not work, but grasp the mouse. Syntax same
+
+added an opportunity of the instruction of a delay between pressing and releasing of the mouse button in the mouse commands
+
+In connection with moving has corrected the links in about
+
+Henceforth, at a stop of the script, sendex stops a sending of keys
+
+
+--v.2.12--
+
+Has reduced a delay in 'sendex' almost twice
+
+Has corrected a mistake at start of the pilot with the switched on adjustment "Minimize UoPilot into tray icon"
+
+Has added display of all windows having heading
+
+Has added definition of the current date 'year', 'month', 'day'
+
+Has added some conditional operators: '==' is equivalent '=', '!=' - '<>', '&&' - 'and', '||' accordingly 'or'
+
+Has added processing several keys: '`', '-', '=', '\', ',', '.', '/', ';', ''', '[', ']'
+
+Has corrected check of colour on an accessory to a range. Now making colours will be checked up separately
+
+Has corrected an icon in a tray, for compatibility with old windows
+
+Has corrected definition of colour of points on the screen
+
+Has added job with global text variable of EasyUO. In EasyUO such variable are designated as *1, *2 and so on.
+set EasyUO*n $variable
+get EasyUO*n $variable //Where n - numerical variable displayed in EasyUO.
+In quality 'n' it is possible to use numerical and string variable (#n, $s). The name variable also can be string
+
+
+-- v.2.14 --
+
+added a command 'ShowWindow <handle> <state>'. Shows a window according to the specified parameters. HIDE: to hide a window; MAXIMIZE: to unwrap in all screen; MINIMIZE: to minimize; RESTORE: unwrap; SHOW: to show; TOP: to place on a surface. On default the following parameters are accepted: the current window, TOP
+
+added function 'FindWindow (<caption | PID>)'. Returns handle of a windows necessary for the previous command. The caption of a window should be specified completely, with observance of the register of symbols. If the necessary window is not found, then with case unsensitivity search for the specified line in the beginning of the name of all windows. The search in the latent windows depends on a condition of the switch "To show all windows". If again nothing have found, that is specified 'PID' of process and search for the first window of this process.
+
+added an opportunity of setting a working window from script 'set WorkWindow <handle>'
+
+'sendex' any more does not activate the chosen application. For activation it is necessary to use 'ShowWindow' without parameters
+
+added function 'GetWindow (<handle> <OWNER|CHILD|FIRST|NEXT>)'. Returns handle of a children window from specified. Second parameter sets a direction of search
+
+added function 'GetWindowtext (<handle>)'. Returns caption of the specified window
+
+added function 'SetWindowtext (<handle> <caption>)'. Changes caption of the specified window. Returns 1 if the change has passed successfully, otherwise 0.
+
+corrected availability of the button 'Pause' at start of the empty script
+
+added change of a priority for the again created scripts. Works for the new (added) scripts, or after restart of the pilot
+
+added an opportunity of change a priority of the script from the script with command 'set priority <1|2|3>' where 1,2,3, accordingly normal, high, maximal.
+
+added a command of preservation a copy of the screen in a file - 'PrintScreen <handle> <x> <y> <width> <height> <path>'. First parameter underlines handle of a working window, or 0 - all screen. If 'width' or 'height' =0 that undertakes the greatest possible meaning.
+set #x findwindow (Ultima Online - Admin)
+printscreen #x 0 0 0 0 c:\full client window.jpg
+
+added an opportunity to request meaning of the user from the script.
+'set $a prompt (<hint>)' - inquiry about input of meaning. Returns in the variable entered meaning.
+'set #b prompt (<hint1> <hint2> [hint3] [hint4] [hint5])' - inquiry about a choice of meaning. Returns number of the chosen meaning, or 0. choices prove to be true by closing of a window.
+
+added an opportunity to change a delay between symbols in a command 'sendex' on a tab 'Add'
+
+'terminate' kills all windows, which caption contains a required line. case unsensitivity
+
+the syntax of the operator 'random' in conditions is changed. Now he same as well as everywhere 'random (<expression>)'.
+if random (124) = 0
+
+the forgetfulness of the pilot about the sizes at switching from the tab 'Script' with the changed sizes, on two others in succession, and then again on 'Script', is corrected.
+
+corrected display of windows of the pilot at change the sizes of a font of system
+
+work above mistakes
+
+added the command 'readmem <variable> <address> <type> <size>'. Reads from the specified address of the variable specified type. If a type - the string, is necessary to specify the size. At occurrence of a mistake, variable will contain value '-1 '. B:byte = 1b; W:word = 2b; D:dWord = 4b; C:char = 1b; S:String = 1-255b;
+example:
+readmem #hi1 0x073B978 b
+readmem $hi2 0x073B978 s 10
+
+added the command 'writemem <variable> <address> <type> [result]'. Writes to the specified address value of the variable specified type. Unessential parameter 'result' returns amount written bytes. B:byte = 1b; W:word = 2b; D:dWord = 4b; C:char = 1b; S:String = 1-255b;
+
+added partial support of the UO ML Client 6.0.7.0 (Patch 81)
+
+
+--v.2.15--
+
+the error of reading string values from client memory is corrected
+
+an error, at completion work of active script on minimized in a tray pilot, is corrected
+
+added possibility to sort in alphabetical order the list of skills on the panel of character parameters, by the proper menu item
+
+added support of clients 6.0.12.3, 6.0.12.4 and 6.0.13.0
+in this connection added a few variables: PsysResist, FireResist, ColdResist, PoisResist, EnerResist, Luck, Damage, HitsMax, ManaMax, StamMax, DamageMax, Followers, FollowersMax, WghtMax.
+
+added the dialog of search to 'script language manual', 'history' and script. caused on pressure Ctrl+F
+
+added determination of coordinates for a client MU 1.04J(3 season). charposx, charposy - proper coordinates of character
+
+added a variable designating delay between lines in  a script: 'linedelay'. halt of script by the 'Pause' button  set it on default.
+set linedelay  5 + linedelay
+
+corrected mistake with disappearing of the reserved word  'random' from text messages.
+msg random 123
+
+corrected error of displaying process of the script, at the start of pilot
+
+added possibility to do the copy of screen of working window to the command 'printscreen', at pointing handle = 1.
+printscreen 1 0 0 0 0 c:\client window.jpg
+
+added possibility of change the colour of the text speech of character from a script.
+a not color is set, as such, but number of palette from the file hues.mul. used range 2 - 1057. supported clients 2.0.3, 6.0.12.3, 6.0.12.4 and 6.0.13.0
+set fontcolor 215
+
+added possibility to start and stop scripts without  switching current, by the little buttons on the tabs of every script.
+menu Settings\Display start-stop buttons on scripts tabs
+(on 64th bit windows does not work alike)
+
+corrected loading of scripts from a command line. now it is possible to load a few scripts at start of the pilot. loaded since a script 0 and further on an order.
+UoPilot /sa.txt /sb.txt /sc.txt
+
+added possibility to specify parameters at the call of procedures. transceiving array while is not supported
+call test #var1 $var2 "any text" word #var3
+proc test #var4 $var5 $var6     $var7 $var8
+
+added the command 'post', analogue of 'send'. must help LA2 players to defraud GG, happy owner of the windows XP sp2-3 32 bit and Vista Home 32 bit
+
+added the commands pleft, pright, double_pleft, double_pright, pleft_down, pleft_up, pright_down, pright_up. like the command 'post'
+
+added a number and file name of responsible script in message boxes
+
+added the process identifier PID in the list of processes, caused by W key.
+
+added parameter 'speed' to 'macro_play' command.
+Value on-default 100. The it is less, the faster.
+macro_play [count] [speed]
+
+
+--v.2.17--
+
+the alternative method of determining the color of points on the screen added. now it works in Lineage2. it is transparent for the user
+
+corrected 'stay on top' function
+
+corrected algorithm of execution of the script. fixed bug with re-execution
+
+added function 'size', returns length of the specified parametre
+example:
+set %q [4 3] test string here
+set %q [7 5] 0
+set $q 123 + 8645
+set #q 12
+msg size (%q [ 4 3 ] ) // 16 - length of element of array
+msg size (%q [ 4 ] ) // 5 - the second dimension of array
+msg size (%q ) // 7 - the first dimension of array
+msg size ($q) // 10 - length of a string
+msg size (#q) // 2 - quantity of categories
+msg size ( another test string ) // 19 - length of a string
+
+added function of search of points of certain colour in the set area. returns quantity of the found elements. in parametre "ResultArray" their coordinates are brought
+findcolor (StartX StartY EndX EndY ShiftX ShiftY RequiredColor ResultArray [type] [abs])
+ where 'type' = 1 - a usual way (by default)
+             = 2 - alternative
+example:
+set $a findcolor (0, 0 1024, 3  1 1 10243328 %s 2)
+set #w size (%s)
+msg size: #w  found: $a
+for #i 1 #w
+  set #x %arr [#i 1]
+  set #y %arr [#i 2]
+end_for
+
+fixed an error of allocation of a current line of the inactive suspended script
+
+added support of clients 6.0.14.1, 6.0.14.2
+
+
+--v.2.18--
+
+changed paths to scripts from absolute to the relative
+
+corrected an error of loss of the last changes in a current script when adding a new script
+
+added operation with a clipboard:
+set clipboard <var | text> // puts to the Clipboard the specified text
+get clipboard <$var | %var> // gets the text from the clipboard into a string variable, or array, by words. Last, an additional element of the array contains an empty string
+example:
+set clipboard any text
+get clipboard $a
+msg $a
+set $r one two three
+set clipboard $r
+get clipboard %a
+set #s size (%a [1]) -1
+for #i 1 #s
+    msg %a [1 #i]
+end_for
+end_script
+
+altered function 'GetWindowtext (<handle>)'. returns the title of specified window. If 'handle' is not specified or is zero, then uses the current working window. can take the text from various controls
+example:
+set #a findwindow (Notepad)
+if #a > 0
+    set workwindow #a
+    set #var getwindow (#a child)
+    set #var getwindow (#var next)
+    set workwindow #var
+    msg GetWindowtext ()
+    end_script
+end_if
+
+added support of clients 7.0.4.3-5, 7.0.5.0, 7.0.6.3
+
+corrected start of the client, from a tab 'Misc.'
+
+path to UO client is saved in the registry at saving preferences of the UOpilot
+
+
+added logs. 'set logging <option | text>'
+    where options:
+       'on' - log on
+       'off' - log off
+       'clear' - clear log
+       'save [path]' - save to file
+       'open [x y] [width height]' - open log window. default x=y=-1, w=303, h=336
+       'close' - close log window
+    if the options is not recognized, it is written in the log
+
+added display of the current line in the script
+
+corrected command 'kleft' on the relative coordinates
+
+corrected the mistake of passing parameters to the procedure introduced in the previous version
+
+added fuzzy string comparison. insensitive. supported operations <, >, =, <>, <= (S2 contained in S1), >= (S1 contained in S2)
+
+corrected a problem with the buttons start\stop scripts and display running scripts in 64 bit windows
+
+corrected 'Get Color' for Lineage
+
+corrected 'FindColor' for Lineage
+
+removed search UO window from the 'say' command. will send in the attached window
+
+corrected the error display coordinates in the header at start UOpilot
+
+corrected an error of saving arrays when specifying the parameters using variables
+
+added commands for click the middle mouse button: middle, double_middle, middle_down, middle_up; pmiddle, double_pmiddle, pmiddle_down, pmiddle_up; kmiddle, double_kmiddle, kmiddle_down, kmiddle_up
+
+removed search UO window from the panel of the messages. it sends the text in the window, which is attached to the current script
+
+added saving of parametres for the 'custom' client. edit panel opens when choosing the client on the tab 'Add'. saved when saving settings
+
+almost completely rewrote 'send' and 'post'. they no longer send the symbol as such, but presses key on which this character is drawn, respectively, that will - depends on what keyboard layout is selected in the application. if it is necessary then press the modifiers [Ctrl, Alt, Shift], this unfortunately works for the entire system, not only for the selected application
+
+added commands to press down\up key 'send_down <key> [time]', 'send_up <key>'
+
+
+--v.2.19--
+
+added the possibility to refer to 'workwindow' from other scripts
+
+keys, from the menus in the script, are inserted in the script in brackets '{}'
+
+slightly accelerated the 'send'
+
+corrected sending the function keys on 'send'
+
+slightly accelerated the script
+
+added low priority 'set priority 0'
+
+added function 'WindowFromCursor'. returns handle of the window or control under the mouse pointer
+move x y
+set WorkWindow WindowFromCursor
+
+fixed 'kleft' on absolute coordinates.
+
+corrected the error associated with a file p.txt
+
+added a function to get the selected text from the active control 'set $w GetSelectedText'
+
+added function to replace selected text at the cursor position in the active control 'set $w SetSelectedText (text)'. returns handle of a control
+
+when sending a 'sendex' without parameters, it's set off all modifiers
+
+added in the 'Settings' menu item 'Move cursor to a point of click'
+
+corrected an error while writing an empty array
+
+added '!','?' in the legal characters, otherwise not worked '!=' in comparison
+
+by default arrays are loaded from the same source and scripts
+
+corrected the error by loading an array (as a result of which were added in the end of an existing array)
+
+corrected the mistake of assigning array elements values similar to the calculated, for example '-'
+
+corrected work with variables in the calculation of random values
+
+added clicks with modifiers 'left x y [abs] [~^rlm]'. ~ - with 'shift', ^ - with 'ctrl', r - with right mouse button, l - with left mb, m - with middle mb. if there are several modifiers, they must be written together with each other.
+does not work for 'kleft' and other'k...'. with 'alt' just doesn't work that way, he will first pressed by 'sendex'
+
+anchored a button with 'defined' colour to a menu item 'Show numbers in hex format'
+
+removed the string 'uopilot' from the title. turn on the menu item 'Rename UoPilot'. works when you start the pilot
+
+added ability to determine the number of the script, with saving of their numbers, names and status in the array
+get scripts %a
+msg size (%a)
+save_array %a
+
+corrected writing in a log that was not recognized
+
+added variables, return the number of current script 'current_script'
+
+added variables, return the number of active script 'active_script'
+
+added scrolling the mouse wheel
+ 'wheel_down', 'wheel_up', 'pwheel_down', 'pwheel_up': 'wheel_down x y [abs] [~^rlm] count'
+ 'kwheel_down', 'kwheel_up': 'kwheel_down x y [abs] count'
+
+corrected command clicks of the mouse with the prefix 'p'
+
+corrected a freeze on construction 'set logging clear','set logging open'
+
+corrected a freeze when you are recording in an cleared and closed log
+
+corrected incorrect arrays recording. they ignored the specified number of columns
+
+added display of color in the pilot header when enabled displays the coordinates of the cursor
+
+changed PixelFormat to 24 bit in the PrintScreen function
+
+added logging to a file 'uopilot.log', in parallel to log window. enabled with the menu item 'Logging'
+
+many other fixes
+
+corrected problem with the change variables of other scripts. set #a.5 123
+
+corrected specifying color in 'findcolor' with the variable
+
+accelerated 'findcolor'
+
+turned off the alternative method to determine the color in 'get color'
+
+corrected error when switching tabs and start the script from another
+
+turned off the transformation coordinates in relative to the client window in an alternative way of searching color in 'findcolor'
+
+fixed the search in the history
+
+
+--v.2.20--
+
+added a function of getting the current keyboard layout 'set $var GetLayout'. returns an eight-digit hexadecimal number, without the prefix '0x'. example: a0000419
+
+taught uopilot 'Return the cursor after clicks' when its on. she previously referred only to the command 'move'
+
+on error alternative definition of the color in the 'findcolor', in string value returned is the value '-3' (previously returned something like '0---'). all negative values indicate an error
+
+added convert the hexadecimal value of the color on the button, and updated hint to where it was not
+
+in determining the color by pressing 'ctrl+a' or ' ctrl+b', arrow to the left of the button with color, painted in a colour
+
+updated message on the critical error in script. this message is also writed in the log
+
+on error reading array using the 'load_array', the script will continue to work with the writing message in the log. size of the array will depend on whether, at what stage an error occurred
+
+added the output line number and the command to the log
+
+command 'move' no longer writes to the log
+
+increased the size of the 'development history' window, appears in the center of the screen
+
+added the opportunity to place the log window on top of all windows. turn on in the menu. is retained if you save the settings. enabled by default
+
+updated the thanks section
+
+added a function of converting decimal to hexadecimal 'set $a dec2hex (#b)'
+
+added a function of converting hexadecimal to decimal 'set #b hex2dec ($a)'. if an error occurs both write to the log
+
+added in the 'findWindow' the opportunity to search for the window class
+
+added in the 'findWindow' ability to seek in the middle of the names of all windows. the search order is the following:
+    1. searching for the specified string as the name of the windows
+    2. as a class window
+    3. at the beginning of the names of windows
+    4. in the middle of the names of windows
+    5. as a 'pid 'window
+
+added in the 'findWindow' output info a log how the window found
+
+increased the width of the log window opened through the menu
+
+added set size of the array. if the array does not exist, it is created. if optional parameters are not available, it shall be equal to zero. 'set size (%arr <x> <y>)'
+
+added a blinking icon in the tray. green arrow if there is a running scripts, red - if at least one suspended. tied to the setting "Display running scripts"
+
+corrected the search for substring one register to another line register, containing alphabetic characters other than English and defined using variables
+    set $substr  AnyString
+    set $str textAnyStringanytext
+    if $substr >= $str
+        msg found
+    end_if
+
+corrected invested procedure call, located in the body of the parent script
+    set logging open 0 0 440 700
+    set linedelay 0
+    set #a 0
+    call proc
+    proc proc
+        wait 1
+        set logging on
+        if #a.0 < 20
+            set #a.0 #a.0 + 1
+            call proc
+        end_if
+    end_proc
+
+from now on 'findcolor' is looking in all the specified range, and not to the final point. 'set $a FindColor (10, 15 10, 15 1 1 84235 %arr)' will search for a color in one point
+
+taught 'findcolor' search on a range of colors and through separate channels of color. to search for a range of colors, the color options are specified in '()'. you can specify several parameters. if the color is specified without '()', it is searched for the exact match the color as before
+    'set $a FindColor (StartX StartY EndX EndY ShiftX ShiftY (RequiredColor) ResultArray [type] [abs])'
+     examples of specifying 'RequiredColor':
+        '84235' - the exact color
+        '84235-86027' - a range of colors
+        'R(11)' is the red channel value = 11, the rest are not checked
+        'G(73-80)' - the range of values of the green channel, the rest are not checked
+        'R(11)+G(73-80)+B(1)' - the specified values on all of the channels
+        '84235, R(0), R(11)+G(73-80)+B(1)' - combined indication of the desired colors
+
+added limit to the number of points for the search in the 'findcolor', in connection with this syntax has slightly changed
+    'set $a FindColor (StartX StartY EndX EndY ShiftX ShiftY (RequiredColor) ResultArray [type [count]] [abs])'
+
+wean the pilot set Russian keyboard layout there, where it is not needed
+
+corrected display of the buttons start stop script in Win x64
+
+added a command to search for images 'set $a FindImage (StartX StartY EndX EndY (filename) ResultArray [type [accuracy [count]]] [abs])'.
+    looking for a unique color on the image. may find nothing, if this color is blocked by something. the color in the upper-left corner of the image is the background color, and is not analyzed. the image should be a 24-bit bmp.
+    in the 'ResultArray' returns the coordinates of the upper left corner of the founded images. in a string variable returns the number of images, or the percentage of accuracy of the sole found.
+        type: 1 - reliable (default)
+              2 - fast
+        accuracy: the accuracy of the search in percent (default: 80)
+        count: maximum number of found images (default: 1, all: -1)
+
+
+corrected small bug with buttons to start and stop scripts
+
+added the command to determine the position and size of the specified window 'get windowpos <handle> [#X #Y [#width #height [#result]]]'. If 'handle' = 0, then takes the current working window. error status is returned in the variable '# result'
+    '#result':
+        0: 'ok';
+        1: 'width or height not recognized';
+        2: 'x or y not recognized';
+        3: 'windowpos false';
+        4: 'handle not recognized';
+
+'set windowpos #X #Y #width $height #handle' now interacts with the current working window, if '#handle' is not only not recognized but is zero
+
+corrected the appearance of the form 'prompt', and added the 'Ok' button
+
+corrected 'prompt' for compliance with the declared functional, and added the ability to choose several options:
+    set $a prompt (hint) / / ask for the value. returns the value entered in the variable
+    set #b prompt (choice1 <choice2 choice3 choice4 choice5>) // prompted to select values. returns the selected value, or 0. choice is confirmed by closing the window.
+    set %c prompt (choice1 <choice2 choice3 choice4 choice5>) // asked to select multiple values. returns the specified array containing in the first row in columns corresponding to the numbers of values, 1 - if the item is selected, or 0
+    example:
+         set %s prompt (ch1 ch2 ch3 ch4 ch5)
+         set #a size (%s [1]) // line is always one, but it has some columns
+         set #b %s [1 #a] // last element
+         set $c %s [1] // get something such as 10010, ie, all items at once
+
+
+--v.2.21--
+
+add lowest "New script Priopity"
+
+added command for load scripts 'load_script <scriptNumber> <file>'. on default scripts are loaded from folder 'Scripts'
+    load_script 7 example.txt
+
+disabled write in the log 'findWindow' how the window found
+
+added output messages in a tooltip in the bottom right corner of the screen 'hint <text>'. does not stop the script, disappears after 4 seconds, pops up on top. the characters '|' and '\n' are newlines. text length is limited to 255 characters
+
+corrected output messages on top of all windows
+
+added to the 'prompt' timeout in seconds. indicated after all the options in parentheses 'set #b prompt (ch1 ch2 ch3 [(timeout)])'
+
+learned conditional operators to understand the array elements as parameters. reference index array elements in the array is not supported
+
+taught conditional operators to make the array as a parameter for determining the color of the point
+example:
+    set %a[1] 110 120 8030463
+    set %a[2] 110 120
+    set %a[5 1] 110,
+    set %a[5 2] 120,
+    set %a[5 3] 8030463
+    if (%a[1]) and (%a[2] 8030463) and %a[5]
+
+taught to make conditional operators as parameters to determine the color point coordinates and color specified on one line
+example:
+    set $a 110 120 8030463
+    set $b 110 120
+    if ($a) and ($b 8030463)
+
+added variables that returns the color and coordinates determined by pressing 'Ctrl+A': 'defColor', 'defX', 'defY', 'defXabs', 'defYabs'.
+
+added variable that returns the PID of the process that owns the operating window 'WorkWindowPID'
+
+added a hot key to stop all scripts. the default is disabled, 'Ctrl+Alt+End'
+
+added a hot key to set the working window, and determining the color and coordinates. The default is disabled, 'Ctrl+A'
+
+corrected another unauthorized movement of an indicator of the current line in the script
+
+corrected the stretching the panel of the character parameters for the best perception of the variables (stretch panels of types ь2 and ь5)
+
+script editor changed back to a regular 'memo', to deal with different-sized fonts when typing\insert new text
+
+fixed a bug occurring when calculating the second function 'size' in the same expression
+
+corrected a minor error in the 'prompt' function. do not reset the array results
+
+added support for plugins. loaded from 'Plugins\*.dll' on startup. filename should not contain dots and other illegal characters for the pilot. function list of all loaded plug-ins located in the corresponding sub-menu, that appears by right-clicking in the script. the function name is formed from the name of the plug-in file and the actual name of the function, separated by dot '.'. after the name specify parameters in parentheses. the plugin returns one string, length up to 32kb. the character with code '#00' is the end of the string. the combination of characters with codes '#0d0a' or '\n' are control, to increase the first dimension of the array (string). the character with code '#09' is managing to increase in the second dimension of the array (columns). i.e. the return value of the form '1#092#093\n4#095#096', where'#09' means the character with code 9, will create an array of 2x3 the following content
+    1  2  3
+    4  5  6
+example:
+    set $a myPlugin.function1 (many a lot of parameters) // in the string variable $a is all that will return the plugin
+    set %a myPlugin.function1 (many a lot of parameters) // return the value is converted to an array %a
+an example text of the plugin lies somewhere near
+
+corrected the error with the definition of the path to the file when saving a script
+
+corrected the error 'invalid class typecast' when you press 'Ctrl+B' on tab different from the script
+
+
+--v.2.21.1--
+
+corrected saving and restoring the position of the cursor in the editor when switching tabs
+
+corrected loss of changes in the current script, when you add a new script with '+' button
+
+fixed a bug in the command 'load_script'
+
+fixed a bug in the command 'load_array' introduced in version 2.20
+
+corrected display messages on top of all windows
+
+corrected the loading hotkeys, broken in the previous version
+
+if an array element did not exist, then instead of it the output is an empty string
+
+in the plug-in instead of the class 'TApplication' is passed to handle
+
+added a dialog for finding and replacing text. hotkey is 'Ctrl+H'
+
+
+--v.2.21.2--
+
+when you click on the button with absolute coordinates, in the script, after the coordinates will be inserted the word 'abs'
+
+when enabled hotkey 'Set work window', the old combination of keys 'Ctrl+A' works only on select all text in the script
+
+set a limit on the number of lines in a log. when reaching the number of rows 1024, outdated half of the log is cleared. log file does not affect
+
+corrected error when exit without saving the settings
+
+corrected error with the definition of the path to the file of picture in the 'findimage' after saving the script via the menu item 'save as'
+
+
+--v.2.22--
+
+removed the reminder that it is not specified operating window on startup scripts
+
+corrected 'hint'. eliminate blinking, accelerated to 4 times
+
+removed output in the log of the script name in the derivation of system messages (not from script)
+
+the message 'cannot find a working window' when you press Ctrl+a redirected to the log, correct definition of coordinates and color
+
+error opening log file message redirected to the log file. output the following messages in the file is not made until the next restart of the pilot
+
+corrected output in the log messages about loading plugins, added some error messages
+
+made a syntax highlighting. colors are configured only in the configuration file in the section '[Highlighter]'
+reserved words are divided into groups according to the semantic purpose. their colors are specified in the options beginning with the string 'RW' in the format: Background,Foreground,Style
+Style can take the values:
+  0 - normal;
+  1 - bold;
+  2 - italic;
+  4 - underlined;
+  8 - strikeout;
+  and their combinations.
+
+corrected the algorithm to search and replace text in the script on the hot key 'Ctrl+H'
+
+corrected variable 'delimiter'. to specify in the delimiter illegal characters they must be enclosed in single brackets. calculation and variable substitution is not performed
+theoretically, with the help of this variable can be operated with any symbols
+    set delimiter '/'
+    set %a [1 3]
+    set logging %a [1]
+
+added to the 'hint' ability to set some parameters. slightly changed syntax. the old version still works. 'hint ([fontSize fontColor [posX posY [width height]]] (any text))'
+parentheses are required, may not have any parameters, starting from the end. If a parameter is specified '-1' then it is ignored as if it was not specified. coordinates can be negative, with the exception of '-1'.
+
+rewrote the command 'hint', now, each script has its own hint. output hints from the procedures is supported but not recommended. from the procedure, closing the hint is not on a timer, and at the exit of the procedure
+
+corrected function 'Display running scripts' when it is disabled
+
+added saving log window location on screen. depends on the tick 'Remember the position of the windows...'\'Uopilot'. remembered when the settings are saved with the log window open
+
+fixed loading of scripts in the scripts that are currently running 'load_script'
+
+
+--v.2.23--
+
+corrected display of three-digit line number at the start of the pilot
+
+moved the command 'say' from group 'msg' in group 'keyboard' in the highlighting of syntax
+
+added syntax highlighting 'RW CharParam' (psysresist, fireresist, coldresist, poisresist, enerresist, luck, damage, hitsmax, manamax, stammax, wghtmax, damagemax, followers, followersmax), 'RW Keyboard' (getlayout, post), 'RW Script' (scripts)
+
+added listed above in the menu by right-clicking in the script
+
+added a function set the current keyboard layout 'set $var setlayout (layout)'. returns 1 if the installation layout was successful, otherwise 0. 'layout', you can specify a four to eight-digit hexadecimal value.
+set $var setlayout (0419)
+
+added the ability to minimize the log window
+
+corrected display messages containing parentheses, in a 'hint' command
+
+increased stability of the 'get color'
+
+remade 'findimage'. increased stability. accelerated to ~27 times in search type 2
+
+corrected calculation of the accuracy of the found images in the 'findimage' command
+
+added the ability to output to a log current line of script. turn on 'set logging commands', off 'set logging off'
+
+added functions for string manipulation:
+  PosEx(SubStr String [Offset=1]) - returns the index of <SubStr> in <String>, beginning the search at [Offset] (default Offset=1)
+  Copy(String Index Count) - returns a substring from <String> containing <Count> characters starting at <Index>
+  Delete(String Index Count) - Delete removes a substring of <Count> characters from <String> starting with <Index>, and returns a new string
+  Insert(Source String Index) - merges <Source> into <String> at the position <Index>, and returns a new string
+  ex:
+    set $a delete(Osupuk 2 4) // Ok
+
+added limit on size of the log file. configured in the config file, section [UoPilot], the parameter LogLimitMb=10. after reaching the specified size in MB, the log file is renamed to '*. log.bak', and creates a new.
+
+fixed structure 'get color #c %ar[1 1] %ar[1 2]' broken in version 2.20
+
+when you run the pilot, "The pause between the lines" for a blank script with the number '0' is specified in accordance with the configuration
+
+added the ability to make "transparent" hotkeys. activated using the appropriate menu item. may not work in applications with protection against bots
+
+added ability to disable the display line numbers of the script
+
+added the German translation
+
+added color deviation in 'findimage'. indicated in %. slightly changed syntax 'set $a FindImage (StartX StartY EndX EndY (filename) ResultArray [type [accuracy [count [deviation]]]] [abs])'
+  example: there is accuracy of 3%. point has a color 100 120 130, 255*3%=7, respectively, 100+/-7. Then all the colors in the range (93,113,123)-(107,127,137) will be considered a coincidence.
+
+corrected return the size of array in the 'findcolor' on search error with the result of -1
+
+corrected the error when saving the new scripts press the "save"
+
+turned off highlighting Pascal-style comments (* *)
+
+corrected change the delay between the lines of working scripts when changing tabs. for those who use this bug as a feature, I will remind, that the latency between the lines of a working script is updated when resuming from pause
+
+when selecting of the working window by pressing 'W' and pressed 'shift', the title of the selected window is inserted into the script
+
+
+--v.2.24.1--
+
+added floating point operations in the 'readmem' and 'writemem' commands
+B:byte = 1b; W:word = 2b; D:dWord = 4b; C:char = 1b; S:String = 1-255b;
+DO:double = 8b; F:float = 4b; R:real = 6b;
+due to the fact that the pilot operates only with integers, floating point numbers can only be stored in string variables.
+
+added saving scripts when closing the pilot. enabled the appropriate menu item. default is enabled.
+modified scripts are stored under their own names, the original renamed to '*.*.bak'. the new scripts are stored with the names 'Scripts\autosaved_N.txt'
+
+added display on the taskbar windows 'history of the program' and 'Help in scripting language'. turn on by appropriate menu item. default is off.
+
+added assignment of arrays
+    'set %b [2] %a [2]' // assignment of the second element of B, all elements of the second row of the array A (and it worked before)
+    'set %b %a [2]' // the creation of one-dimensional array B, from the second row of the array A
+    'set %b %a' // creating an array B, from array A (copy)
+
+corrected output messages in command 'msg' and possibly other places, broken in last version
+
+fixed functions for string manipulation
+
+moved 'windowfromcursor' from section 'Options' to 'Windows' in the menu on rmb
+
+corrected calculation of the window height specified in the command 'windowpos'
+
+function 'getwindow', without parameters (but with parentheses), or 'handle'=0 returns the handle of active window
+set #w getwindow (0)
+
+corrected clicks in negative coordinates
+
+added ability to specify an arbitrary pilot caption. configured in the config file, section '[UoPilot]', parameter 'RenameSelfTo'. Enables by menu item 'rename the pilot.'
+
+
+
+--v.2.25--
+
+removed the sign subroutine '^' from the return value of the 'current_script'
+
+fixed a synedit bug, due to which, when you drag the scroll slider of the script by the mouse, there was a spontaneous selection of text
+
+added variables from other scripts in the format '#a.#b', '#a.$b', '#a.active_script'
+
+corrected the variable 'timer', broken in the last version
+
+taught to take screenshots of overlapped windows
+
+when specifying the 'save screenshot of the working window of the pilot' and the absence of binding, will be saved a screenshot of the active window
+
+remade 'printscreen' and 'findcolor'. increased stability
+
+fixed playback of macros, broken in 2.23
+
+a screenshot of the 'top uo window' by hotkeys, remade into a screenshot of the 'work window'
+
+
+--v.2.27--
+
+corrected exception eRangeError in conditional statements
+
+added output to log message on error eRangeError, off in the settings "Output to a log"
+
+corrected title of the message window in the command 'msg' and script error messages
+
+taught 'findimage' search images in the overlapped windows. searches in specified window, not full-screen. the window handle is specified as a type of search
+    set #w findwindow (test.bmp)
+    set $a FindImage ( 0 0 1300 1300 (2.bmp) %a workwindow 70 10 15)
+    set $a FindImage ( 0 0 1300 1300 (2.bmp) %a #w 70 10 15)
+
+taught 'findcolor' search color in the overlapped windows. searches in specified window, not full-screen. the window handle is specified as a type of search
+
+added a hot key suspend\continuation of all scripts. works in that order. continues only those scripts that have been suspended by this hot key
+
+added option of the panel parameters of the character that only contains the table of variables
+
+
+--v.2.27.1--
+
+added the error code '-4' with message 'file not found' in the command 'findimage'
+
+fixed a bug in command 'for', when it should not even be in the loop to go 'for #i 2 1 1'. slightly optimized
+
+correct search in the overlapped windows in commands 'findimage', 'findcolor'
+
+corrected small bug with autosave the current script
+
+
+--v.2.27.2--
+
+fixed a bug in command 'for', when not working 'for #i 1 1'
+
+added possibility of line feed with '\n' to the 'msg' command
+
+corrected the error assignment letter 'h' variables
+
+disabled the 'Hide UoPilot when expanding the script', for a long time redesigned
+
+minor correction 'lastmsg'
+
+fixed resizing windows UoPpilot when switching tabs
+
+fixed crash script on constructions like 'if %var = #var', and added the error message
+
+added error code -4 in the command 'findcolor' - the search type is wrong, or the current window not choosed
+
+corrected output the variables in the command 'hint'
+
+some items prefixed with 'Show', moved to the bottom of the menu
+
+tweaked command 'prompt':
+  corrected hint when prompted a string value
+  added closing the dialog box by pressing 'Enter'
+  added closing the dialog box when you select with the mouse
+  added ability to specify multi-line comment with '\n' in the query string
+  added ability to easily select a numeric value from the keyboard
+  removed limitation on the choice of 5 items
+  corrected display of the specified timeout in the form of an additional item
+  some cosmetics
+  if the dialog was closed by timeout and it did not select, it returns 0 or empty string, otherwise - the selected item
+  button 'Ok' is even more symbolic role than ever before
+
+
+--v.2.28--
+
+taught the 'wait' to calculate the delay 'wait 1000 + random(10000)'
+
+added hotkeys to pause\continue of individual scripts. configured it the same where to start\stop. left to run, right to pause.
+
+added near the "pause between lines", the output of the remaining waiting time for delays in the active script that exceed 1000 ms. turn on in the settings 'Show remaining waiting time'
+
+added variable 'errorlevel', contains the return code of the command 'ExecAndWait'
+
+added a command to start the application with the expectation of its completion 'ExecAndWait <command> [options]'. completion code of the program returns to the variable 'errorlevel'
+
+fixed the 'hint' with the functions as parameters
+
+a few small but significant internal fixes
+
+added ability to pass arrays to subroutines. make sure to match the types of the variables
+pass the array as a pointer. i.e. change it in the procedure may lead to a change in the parent script
+but if the procedure will change its dimension, it is theoretically after this change will happen pass-by-value (copy)
+    set %var [1 1] abc
+    set %var [1 2] 123
+    set #e 1
+    set delimiter '_'
+    call test2 %var [1 2]  %var [#e]  %var  %var.5
+    end_script
+    proc test2 #v1  $v2  %v3  %v4
+      set delimiter '^'
+      set logging Dump:  #v1  $v2  %v3 [1]  %v4 [1]
+      // Dump:  123  abc_123  abc^123  abc^123
+    end_proc
+
+added return the string value from the subroutine, using the reserved variable '$result'. when you exit the subroutine for the keyword 'end_proc', the variable '$result' is assigned to a string variable with the name of the subroutine
+    call test
+    msg $test
+    end_script
+    proc test
+    set $result Test Passed
+    end_proc
+
+fixed a bug with closing of the character parameters panel of type 7
+
+made a correct copy of the Russian-speaking text from the window of the pilot and help, when the English keyboard layout
+
+made the correct insertion of the Russian-language text in the script
+
+made the correct insertion of script examples from the forum forum.ultimasoft.ru
+
+
+--v.2.29--
+
+corrected the error in the derivation of the remaining waiting time for delays in the active script
+
+corrected the error output of some characters at the beginning of the message in the command 'msg'. 'msg [1]'.
+
+corrected an error processing step, which is zero in the command 'for', by which the cycle of working out the only 1 time. 'for #i 1 5 0'
+
+added the reserved variables 'desktopheight', 'desktopwidth' - size of the desktop, 'screenheight', 'screenwidth' - size of the screen, 'monitorheight', 'monitorwidth' - size of the monitor, 'monitor' - (default=0) set the currently selected monitor for 'monitorheight' and 'monitorwidth'
+        msg desktopwidth  monitorwidth
+        set monitor 1
+        msg monitorwidth
+
+slightly corrected the command 'send' in terms of specifying keys in parentheses with a space. now
+	send {num_4}   // 4
+	send { num_4 } // 4
+but if more than one pair of parentheses in a row, then
+	send {num_4} { num_4 } // 4[4]
+
+added the ability to continue an active script with the specified string. if you continue the script after a pause, execution will continue with the line in which the cursor is positioned
+
+fixed the button 'apply' when you change the font of the log window
+
+added a link to 'UOPilot Wiki' in the menu '?'
+
+added the ability to specify a template for new scripts, using the menu item 'Save script template'. it saves an active script as a template in the section '[ScriptTemplate]' config file
+
+corrected a bit 'prompt'
+
+slightly corrected display variables
+
+corrected command 'wait'
+
+corrected switching tabs
+
+corrected 'prompt', when you stop the script, a window opened by 'prompt' command is closed
+
+added 'Esc' and 'Space' in the list of "understood" keys
+
+added the ability to manage tabs and numbers of scripts using the pop-up menu when you click RMB on the number of script (Delete, Clear, Close with preservation, Rename)
+
+added command 'send217' equivalent of the command 'send' version 2.17
+
+fixed a potential crash when closing various small forms
+
+fixed 'getwindow ( #var OWNER )'
+
+added to the log the error message to open the file in the command 'load_array'
+
+added check to stop the script in the command 'load_array'
+
+fixed the 'load_array', for some reason, released in unfinished state (size of the array gave out 50001)
+
+added output to a log size of the array after loading the file into the command 'load_array'
+
+fixed many possible crashes
+
+fixed 'set size(%arr 1 1)', required space before the bracket
+
+
+--v.2.30--
+
+fixed the error when calling the missing procedures and added the output of the message
+
+corrected command 'send' when you send a sequence of characters. brought to a variant of 'send217'
+
+corrected the test in conditions of a string variables, which were not declared previously
+
+function 'findwindow', caused by without parameters (but with brackets), returns a handle of the active window
+
+corrected error output of some characters at the beginning of the text in command 'set logging'
+
+added commands for working with files. If at a command is more than one parameter, the long file names must be enclosed in quotes.
+Variable 'errorlevel' contains the exit code of commands.
+when you turn on the appropriate checkboxes in the menu, commands output in the log description of the code completion.
+    filerename ("C:\tmp\anty gg.log" gg.log)
+    filecopy (C:\tmp\gg.log "anty gg.log")
+    filedelete (gg.log)
+    dircreate (gg) // creates all necessary directories to the specified
+    dirremove (gg) // only removes empty directories
+    msg fileexists (gg.log) // returns 1 if the file exists, otherwise 0
+    msg filegetattr(gg.log) // returns a string such as "RASH", in which each letter indicates the present existence of the corresponding attribute
+    msg filegetdate(gg.log) // returns a string date and time the file was modified. structure of the data returned depends on regional settings
+    filesetdate (gg.log 01.02.03 04:05:06) // sets the date and time of the file. structure specifies the date depends on the locale. in the absence of the parameters of time, it is replaced with zeros
+    filesetattr (gg.log -r-h-s+a) // sets '+', or removes '-' the specified file attributes. can be specified in any order or omitted.
+
+corrected an error when closing the program with working scripts
+
+added command output directory tree 'dir (%resultArray [path [filemask]])'. returns a tree in a specified array by columns. file name can be omitted. when used as parameters only the name of the array, returns the current directory. Variable 'errorlevel' contains the number of found items
+     date_time size attributes folder folder file
+    15.10.2008 15:14:04 271696 A util VNC4 vncviewer.exe
+    example:
+        set logging on
+        set $path \
+        set $file *pilot*
+        dir (%dir $path $file)
+        for #i 1 size(%dir)
+          set $s
+          for #ii 4 size(%dir[1])
+              if %dir [#i #ii] = ""
+                  break
+              end_if
+            set $s $s \%dir [#i #ii]
+          end_for
+          set logging #i -> $path$s
+        end_for
+        end_script
+    supports searching for files by mask, insensitively:
+        '*.ini;*.wav'          - matches any file with the extension 'ini' and 'wav'
+        '*.*|*.exe'            - matches any files, except files with the extension 'exe'
+        '*.mp3;*.wav|?.*;??.*' - matches any file with the extension 'mp3', and 'wav', except for files whose name consists of one or two characters.
+
+repaired structures such as 'workwindow.#sn'
+
+corrected the error display variables in the table of variables, when you assign the variables of the script by referring to them as if they belong to another script, after a normal assignment
+    set $a "string 1"
+    set $a.current_script "string 2"
+
+corrected the negative coordinates of clicks on in the command 'kleft'
+
+added a function, which returns the handles of all the windows that are in a given point of the screen, in descending order of the values of TOP 'windowfrompoint (#x #y [one|all|child])'.
+    one - returns a handle to the window (default)
+    all - returns the handles of all windows. Search by alternate hiding unnecessary windows
+    child - returns a handle to the control. if the element is inactive, then returns the parent
+
+added search by process name in the command 'findwindow'
+
+corrected disabling a menu item "Stay on top\UoPilot"
+
+fixed save dialog box appears beneath the pilot, located on top of all windows, when you select "Save As"
+
+corrected a problem with the Russian letter ':e'
+
+fixed a bug in the commands '*wheel_down'
+
+If the characters '//' are enclosed in double quotes, they are not considered a sign of comments
+    set $a "test // passed"
+
+added a command assignment of several elements in the array on one line 'init_arr %arr [(startRow [colCount [startCol]])] set of values'. words are separated by the same symbols as in other commands. the original array is not removed. Missing default parameters are assumed equal to '1'
+    init_arr %a 11 32 43 46 // one-dimensional array, 4 elements (elements [1] [2] [3] [4])
+    init_arr %a (2) 13 24 35 // the 2nd line writing in 3 column, starting from the 1st (elements [2, 1] [2, 2] [2, 3])
+    init_arr %a (3, 2) 5 6 7 8 // in the third line write a 2-column, starting from the 1st (get 2 lines, elements [3, 1] [3, 2] [4, 1] [4, 2])
+    init_arr %a (3, 2, 7) 5 6 7 8 // in the third line write in 2 columns, beginning with the 7th (get 2 lines, elements [3, 7] [3, 8] [4, 7] [4, 8]
+
+added search string in the array. the default looks for an exact match, case-insensitively. 'set %result indexOf ( %arr [noabs] [case] [[startRow [EndRow]] count] (text) )'
+    options:
+        noabs - if specified, the search for the substring, otherwise, a perfect match, except for the register
+        case  - if specified, then the comparison is case sensitive
+        count - the maximum number of items found. If > 0, then looking in the direction "from the beginning" if < 0, then looking in the direction "from the end." If not specified, then look for "all". this parameter has precedence in the order of recognition before the start and end position of the search.
+searches in columns. returns the address of the found items in the format "row|column/". example: '3|7/3|8/4|7/4|8/'. this format is well aware of the command 'set' to assign an array pack. If nothing is found, returns an empty string.
+If the receiver is specified as an integer variable ('set #e indexOf...'), then return only one row number. and 'count' indicates how the entry of the order must be sought. if the element with the specified number is not found, then the result is -1.
+    examples:
+        set #a indexOf ( %arr case -1 (Test) ) // looking for the number of the last element of the array, which has a value exactly equal to the "Test" (case sensitive)
+        set #b indexOf ( %arr (12) ) // looking for the number of the first element of the array, which has a value exactly equal to "12"
+        set #c indexOf ( %arr noabs 3 (admin) ) // looking for the number of the third element of the array containing the string "admin"
+        set %r indexOf ( %arr case 5 15  2 (Passed) ) // looks at the array elements, with the fifth row on the fifteenth, and returns the address of the cells in the array, containing the first two matches with the exact search string
+        set %r indexOf ( %a (14) ) // returns an array of addresses of all cells that match the specified string
+
+if as a receiver in the team 'findwindow' was specified array, then write in it the handles, and the names of all windows, whose titles contain the specified string, or processes, fully coincide with this. is case-sensitive.
+    set %arr FindWindow (World of Warcraft)
+
+corrected 'clipboard', so as not to fall for conflicts with other programs. variable 'errorlevel' contains the number of read\written characters.
+
+'wait' now understand the delay as a '10sec', '5min', '1hour'
+
+added a check box "Automatically open log" when using the 'set logging text'
+
+removed the limitation to 255 characters in a string variable
+
+added command 'log', is almost an analogue 'set logging'
+
+corrected calculation of the mathematical operations, and added the error message when one of the operands is missing or contains an illegal value, and thus was ignored
+
+corrected the error by replacing the text in the dialog "search and replace"
+
+
+--v.2.31--
+
+Removed the restriction out of the loop 'for' using 'goto'.
+
+Fixed return arrays from procedures, when changing in procedure the last column or row of the array.
+
+Fixed command 'start_script' and the error when switching tabs running with this command.
+
+Fixed unnecessary activation of the UoPilot windows when executing scripts. Critical for commands such as 'sendex', 'kleft'.
+
+Added a command to send keystrokes by using a macro 'macro_send <list of keys>'. The syntax is similar to the command 'sendex'. Tested only on xp32.
+
+Now 'findimage' understands the indication of coordinates with using the array elements.
+
+Fixed assignment to the variables of negative numbers 'set #sn -1', broken in the previous version.
+
+Fixed 'hint', broken in the previous version.
+
+Fixed return a string value from the subroutine, using the reserved variable '$result', with a nested procedure call. The variable with the return value of procedure created in the main script, not the caller.
+
+Command 'set logging', specified without parameters, output to the log an empty string.
+
+added ability to customize the output to a log for each script, with the command 'set logging mode [options]'. If, during the next call to this command, a parameter is not specified, it is set to default.
+options:
+    noTime   - not output the time to the log
+    noNumber - not output the number of the script to the log
+    noScript - not output the name of the script to the log
+    noLine   - not output the line number to the log
+    compact  - all of the above
+    no parameters - set the default settings (show all)
+
+
+--v.2.32--
+
+Corrected display of icons in the system tray at startup of the pilot.
+
+Redid the settings menu in the form.
+
+Added new operators in the syntax highlighting:
+    CharParam: fireresist
+    ColorAndCord: desktopheight, desktopwidth, monitor, monitorheight, monitorwidth, screenheight, screenwidth
+    Function: windowfrompoint
+    Macros: macro_send
+    Keyboard: send217
+    Array: init_arr
+    Proc: dir, dircreate, dirremove, errorlevel, execandwait, filecopy, filedelete, fileexists, filegetattr, filegetdate, filerename, filesetattr, filesetdate
+    Msg: log
+    Other: copy, delete, insert, posex, indexof.
+
+Fixed a bug in the command 'prompt', due to which ignored everything that comes after the empty variables.
+
+Corrected re-call the 'prompt', after stopping the script with the active prompt window.
+
+Added personal logs for each script. Upon reaching the 1000 lines, cut to 500. Switch when switching tabs script (with the active main log 'M', there is no change), or directly in the log window.
+In this regard, the command 'set logging' added two parameters:
+    clear_current - clear the current personal log
+    save_current <path> - save the current personal log to the specified file
+
+Added setting the range of colors using variables in a command 'findcolor (725 48 813 123 1 1 (#color2a-#color2b) %Centr2 2)'
+
+Added processing of comments in style (* *). The string must start with these characters (spaces are ignored).
+
+Corrected the fall of the UoPilot when: you delete a script, the exit from the working\stopped scripts, work with procedures.
+
+Added in the 'findcolor' the deviation of the shade. Is expressed as a percentage. Slightly changed the syntax of a command.
+example: there is a deviation of 3%. the point has the color 100 120 130, 255*3%=7, accordingly 100+/-7. All the colors within (93 113 123)-(107 127 137) be deemed to be a coincidence.
+To account for deviations of color, the color should be specified in the brackets, otherwise, the deviation will be ignored.
+'set $a FindColor (StartX StartY EndX EndY ShiftX ShiftY (RequiredColor) ResultArray [type [count [deviation]]] [abs])'.
+
+Fixed combination with the Shift key 'sendex ~{end}'.
+
+Added a bit of information content in the table of hot keys for scripts.
+
+Added a tooltip on the icon in the system tray with a list of running scripts. But its length is limited to 64 characters.
+
+Slightly corrected assignment delay between the lines from the script, with the help of the variable 'linedelay'. The suspension of the script using the 'Pause' is no longer resets it to the default value.
+
+Added in the 'prompt' ability to output a string without checkboxes with an exclamation mark at the beginning of the line.
+'set #s prompt (!Test ! Passed)'
+
+Corrected the probable cause of damage of the configuration file.
+
+Added in the 'prompt' the possibility to display any title with an exclamation point, specified in the beginning of the first line.
+
+Corrected sending keys in constructions of the form:
+set $fishing 10
+sendex {F$fishing}
+
+Has made loading scripts under numbers on which they were at closing the pilot, instead of the order.
+
+Added display a list of running scripts in the task bar and the title of the window of the UoPilot.
+
+Added to the command 'get color' ability to search for a color in the covered windows, when specifying the handle of the window. Slightly changed the syntax of the command 'get color #color #x #y [handle] [abs]'. If you specify both optional parameters 'handle' and 'abs', the point with coordinates '#x, y #' should get into the specified window, otherwise no color will be defined and the command will return an error.
+
+Added a few unnecessary reserved variables 'mousepos_x', 'mousepos_y', 'mouseposabs_x', 'mouseposabs_y'.
+
+Added a function determining the color on the screen 'color (#x #y [handle] [abs])', the work is fully identical to the command 'get color'.
+
+Added calculation of functions in conditional statements.
+
+Fixed specify colors using variables in the construction 'set $a findcolor (4, 1 13, 38 1 1 (B(#i)) %watch 2)'.
+
+Added some unnecessary processing functions of real numbers and strings. Decimal separator is a comma. Almost all functions on error return '-1'.
+    abs(x) - Returns the absolute value of x.
+    round(x) - Returns x rounded to the closest whole number.
+    floor(x) - Returns x rounded to the nearest whole number that is less than x.
+    ceil(x) - Returns x rounded to the nearest whole number that is greater than x.
+    frac(x) - Returns the fractional part of x, that is part of the standing behind the decimal point.
+    sqrt(x) - Returns the square root of the absolute value of x.
+    power(x n) - Returns the x of degree n.
+    exp(x) - Returns the e of degree x.
+    ln(x) - Returns the natural logarithm of x.
+    log(n x) - Returns the logarithm of x to base n.
+    sin(x) - Returns the sine of x (in radians).
+    cos(x) - Returns the cosine of x (in radians).
+    tan(x) - Returns the tangent of x (in radians).
+    arcsin(x) - Returns the inverse sine of x.
+    arccos(x) - Returns the inverse cosine of x.
+    arctan(x) - Returns the arctangent of x.
+    degtorad(x) - Converts degrees to radians.
+    radtodeg(x) - Converts radians to degrees.
+    trunc(x) - Discards the fractional part.
+    minx(val1 val2 val3 ...) - Returns the minimum of the values.
+    maxx(val1 val2 val3 ...) - Returns the maximum of the values.
+    mean(val1 val2 val3 ...) - Returns the arithmetic mean.
+    point_distance(x1 y1 x2 y2) - Returns the distance between the point (x1,y1) and (x2,y2).
+    point_direction(x1 y1 x2 y2) - Returns the angle (in degrees) between the X-axis and the vector from the origin at the point (x1,y1) and the point (x2,y2).
+    lengthdir_x(len dir) - Returns the horizontal x-leg vector of a specified length and direction.
+    lengthdir_y(len dir) - Returns the vertical y-leg vector of a specified length and direction.
+    is_real(x) - Returns 1 if x is a number.
+    is_string(x) - Returns 1 if x is a string (not a number).
+    chr(val) - Returns the character from the ASCI code val.
+    ord(str) - Returns ASCI code of the first character in the string str.
+    string_replace(str substr newstr [all]) - Returns the string str, in which occur the substring substr will be replaced by the string newstr.
+    string_count(substr str) - Returns a number that indicates how many times the substring substr is found in the string str.
+    string_lower(str) - Returns the string str, written in small letters.
+    string_upper(str) - Returns the string str, written in large letters.
+    string_letters(str) - Returns the string str, throwing out all the numbers.
+    string_digits(str) - Returns the string str, throwing out all the alphabetic characters.
+    Pi - 3,1415926535897932385.
+
+Added the opportunity to expect completion of the running script in the command 'start_script <number> [wait]'. Accordingly slightly changed syntax.
+
+Added the ability to edit suspended script.
+
+Added stretching horizontally tables display the variables (only the latter).
+
+Corrected the error output of some characters at the beginning of the message in the command 'log'.
+
+Added the ability to start, stop and pause scripts by their names (by file name). First, looking at the numbers, if not found, then process the first matching name. Syntax has changed.
+
+Added hot-key to run all scripts.
+
+Added in the 'findimage' return end coordinates of the found images in the third and fourth element of the returned array.
+
+Corrected the mistake of assigning variables to existing, but not running scripts.
+
+Corrected displacement of variables in the table of display variables, under certain conditions.
+
+Small visual correction in the editor hotkeys for scripts.
+
+Added hot-key, which allows to switch the display of the progress of the script "ShowScriptProcessing".
+
+Added display of the handle of the window to which is attached the active script, in the lower right corner of the window of a script.
+
+Corrected the error when you hold the hot key to run script.
+
+Added a hint in the script on the syntax of a command has been entered. Displayed in the same place, where and file names of the scripts.
+
+Corrected the error when window of the save the script appears under the window of the pilot.
+
+Added the output in brackets the values of the variables after their names, for the command 'set logging commands'.
+set #a #a + #b * %arr [ 2 #c ] //  set #a(5) #a(5) + #b(8) * %arr [ 2 #c(11) ]
+
+Added the opportunity to choose how to display messages (command 'msg', errors, etc.). If you select the 'Hint', almost all messages will be displayed in a tooltip, instead of the dialog window with the OK button. If an error occurs, abort the current command instead of aborting the script, and the script continues with the next line. The third option is different from the second, only the absence of the tooltip. There is also the possibility of all the posts duplicate in the log.
+
+Corrected an infinite loop, at calculation of expressions when value of a variable was its name.
+
+Corrected an error in calculating the path to save\load scripts.
+
+Added a function calculating the day of the week 'dayofweek (Year Month Day)'.
+
+If the script is attached to the other window, then immediately (with the next line of the script) will work on the new window. Refers to the old commands such as 'if a #x #y #color'.
+
+Added some unnecessary reserved variables denoting color: 'clAqua', 'clBlack', 'clBlue', 'clDkGray', 'clFuchsia', 'clGray', 'clGreen', 'clLime', 'clLtGray', 'clMaroon', 'clNavy', 'clOlive', 'clPurple', 'clRed', 'clSilver', 'clTeal', 'clWhite', 'clYellow'.
+
+Added some reserved variables to game UO, allow you to change the appropriate settings: 'ShowNames', 'Transparency', 'PathFinding', 'CriminalActions'.
+
+Added a function 'eval (some arguments)', gathers everything in brackets in one line and runs it instead of himself.
+A similar command is now also requires parentheses.
+
+In the menu "Script" added the item "Start\Stop the current script".
+
+Slightly enlarged and highlighted button with "certain" color on the tab 'Scripts'.
+
+Added functions of decomposition of color:
+    'colorToRed   (color)' - returns value of the red channel of the specified color
+    'colorToGreen (color)' - returns value of the green channel
+    'colorToBlue  (color)' - returns value of the dark blue channel
+    'colorToRGB   (color %arr)' - lays out the color on components and puts them in the first line of the specified array
+    'colorToRGB   (color %arr[x])' - the same, but to a specific string // %arr [ 1 1 ] R, %arr [ 1 2 ] G, %arr [ 1 3 ] B
+
+Functions 'minx' and 'maxx' now can search minimum and maximum elements in the array
+    'minx (%arr [1])' -  Returns the minimum value of a particular row of the array
+    'minx (%arr)' - returns the minimum value of each column of the array in the format '1|2|3' (for the assignment of the array), ie the first line of the new array.
+     The same thing about 'maxx', only in reverse.
+
+Corrected sending Russian text by the command 'sendex'.
+
+Added new operators in the syntax highlighting
+Mouse: mousepos_x, mousepos_y, mouseposabs_x, mouseposabs_y
+Function: abs, round, floor, ceil, frac, sqrt, power, exp, ln, sin, cos, tan, arcsin, arccos, arctan, degtorad, radtodeg, trunc, pi, minx, maxx, mean, mod, point_distance, point_direction, lengthdir_x, lengthdir_y, is_real, is_string, chr, ord, string_replace, string_count, string_lower, string_upper, string_letters, string_digits, dayofweek, eval
+Other: iniwrite, iniread, regwrite, regread, write
+ColorAndCord: claqua, clblack, clblue, cldkgray, clfuchsia, clgray, clgreen, cllime, clltgray, clmaroon, clnavy, clolive, clpurple, clred, clsilver, clteal, clwhite, clyellow, colortorgb, colortored, colortogreen, colortoblue
+CharParam: shownames, transparency, pathfinding, criminalactions.
+
+Added checks for parentheses in the command 'init_arr'. The message is displayed, but the execution is not interrupted.
+
+Corrected the need for a space before the brackets at the command 'init_arr'.
+
+Added the output in brackets the values of the array element after his name, for the command 'set logging commands'.
+
+Added the output value of the variable after assignment in the command 'set', and when 'set the logging commands'. Is displayed in a separate line.
+
+Added function to trim leading and trailing spaces and control characters from a string 'ltrim (string)', 'rtrim (string)', 'trim (string)'.
+
+
+--v.2.33--
+
+Added the ability to minimize the program on startup using checkboxes in the settings or the command line switch "/m".
+
+Added a backups system. When saving scripts, previous versions are stored in the 'Backup\script_name yymmdd hhmmss.txt'.
+
+Added some reserved variables: ShowScriptProcessing, StopScrUnknownCommand, ShowTimerVar.
+    'ShowScriptProcessing' - Show progress of the script
+    'StopScrUnknownCommand' - Stop script on an unidentified command
+    'ShowTimerVar' - Displaying 'timer' variable.
+
+Now, the character parameters window can be minimized. 
+
+Added one more variant of fuzzy string comparison. Is not case sensitive. '<-' (S2 is contained in S1), '->' (S1 is contained in S2).
+
+Added the ability to assign additional hotkey to switch on/off all hotkeys.
+
+Added RegExp, rather PerlRegEx wrapper for open source PCRE library. Function 'regexp (#position $hitString $string $regexp)' returns:
+    '1' - match found
+    '0' - match not found
+    '-1' - string is set using the array, but not recognized
+    options:
+        #position - position of the first character of the matched expression. If not found, -1.
+        $hitString - matched expression. If not found, -1.
+        $string - the string which is being searched. Can be set using the elements of the array.
+        $regexp - expression. Can be specified with the elements of the array.
+
+Corrected exception when editing commands of management of the house.
+
+Corrected display the table for editing hot keys for scripts, when resizing the screen fonts.
+
+Corrected 'deviation' in 'findcolor'.
+
+Corrected the mistake of copying the text from MSWord in UOPilot.
+
+Fixed checking of the last message from the server in the command 'if lastmsg anytext', broken in the previous version.
+
+Corrected enable\disable all hotkeys, especially for scripts.
+
+When procedure output messages in the log, the line number is displayed relative to the main script, and not the procedure body.
+
+Added play sound file when hotkeys pressed. Is assigned in hotkey editor for each hotkey separately. Supported still only '*.wav'.
+
+Added a setting for toggle the command 'kleft' and other in variant of version 2.17.
+
+Corrected editing script in pause mode.
+
+Corrected display of the log when switching tabs.
+
+Corrected codepage in the log window.
+
+When you right-click on the button with the previously defined color, the color is inserted into the script in hexadecimal format. The display format of the numeric value of the color on this button depends on the setting "Display numbers in hex format".
+
+Added display of the color channels in the tooltip on the button with a "certain" color in hexadecimal format.
+
+Redid the button to select the window that is bound to the pilot, formerly known as "W". Now looks like a text input window, clicking on which opens the list of the found window (as before). The title of the selected window remains in this window. The handle of the working window of the pilot moved from the lower right corner in the upper left, next to the said window.
+
+The menu item "?\Log Window", redid in the button "log" on the "Script" tab.
+
+Added the checkbox next to the new button "log" on the "Script" tab, similar command 'set logging commands'.
+
+On the "Script" tab added a button triggering settings "Show the progress of the script" and "Display the variable timer".
+
+Fixed problem that occurs when you right-click on a multi-line elements with text on the form "About".
+
+Added electronic purses in the form "About".
+
+Corrected reference to the variables 'timer' and 'workwindow' of other scripts. 
+
+Fixed recognition of variables in long lines.
+
+Added operator 'switch'. 
+In line with the 'case' after the colon can be a command. If in the latter the 'case' not specified 'value', and among the rest did not match, then executes the last 'case' (will work as 'else'). The operator 'break' stops executing the current 'switch'.
+switch <value>
+  case <value 1>: [command]
+    [command]
+  case <value 2>:
+    [command]
+    break
+  case :
+    [command]
+end_switch
+
+Fixed transfer the variables to the routine specified after an array 'call test %a #l'
+
+Corrected save changes to a script, when you add a new script by "+" button.
+
+Combined "Help" and "History".
+
+Fixed function 'string_replace'.
+
+Function 'string_digits' instead of an empty string now returns "-1".
+
+Fixed function 'point_direction'. 
+
+Added commands 'send217_down', 'send217_up'.
+
+In the settings made the text box to specify a new name for the window, next to the check-box "Rename pilot".
+
+Fixed output found path in the command 'dir'.
+
+Redid the command 'dir' at the suggestion of the DarkMaster.
+    Returns the columns:
+    1) Complete and the correct address with "\", filename and extension.
+    2) Address. Full address collected in a row with "\".
+    3) Filename without extension.
+    4) The file extension.
+    5) Size.
+    6) Attributes.
+    7) Date.
+    8) Time.
+    9) The nesting level for paragraph 10.
+   10) Path disaggregated 1 folder 1 column.
+
+Corrected search element in the entire array by using the functions 'minx' and 'maxx'.
+
+Fixed and optimized the search parameters of the character and the last message from the server for new clients of the game UO.
+
+Added support for client 3.0.8.
+
+Fixed a bug in the commands 'send_down', 'send_up'.
+
+Fixed update handle and title of the working window when you select a window with Ctrl+A and through the drop-down list, and when you change tabs.
+
+Added a command to "exit" the Uopilot.
+
+Fixed selection and loading font in the log window when you start the Uopilot. 
+
+Fixed a bug in 'findimage', which displays the name of the array instead of the number of items found.
+
+Added error codes for command 'findimage'.
+
+Fixed load of hot keys for scripts with numbers 50+.
+
+"Scripts" folder create when you start the pilot.
+
+Fixed several bugs in the command 'load_script'.
+
+Rewrote the command 'findimage'. Fixed a memory leak.
+
+Fixed a crash when using 'findcolor'. Fixed a memory leak.
+
+Fixed command 'log open'.
+
+Added command 'log level [number]'. 
+    number = :
+        0 - completely disables the output messages to the log;
+        1 - enables the output messages to the log (default).
+
+
+--v.2.34--
+
+Was removed debugging output to the log by command "send".
+
+Returned "read-only" to  development history.
+
+Fixed command 'log open', again.
+
+Fixed the 'findimage' and 'findcolor'. Return incorrect coordinates for Y. Search is at the lower-left corner to the upper-right corner.
+
+To the command 'get clipboard <$var | %var> [string] [word]' added options for specifying how the breakdown in rows/columns when placed in an array. On default the "word".
+
+Fixed the display of messages when loading the pilot.
+
+Removed the alphanumeric keys from the menu to insert a shortcut to a script.
+
+Fixed 'getlayout'.
+
+A fixed buffer size for the pilot's communication with the plugin.
+
+
+--v.2.35--
+
+Fixed the error occurred while evaluating expressions in parallel scripts.
+
+Fixed switching tabs of running scripts, when turning off the display variable timer ("tracking" the script).
+
+Accelerated assigning values to variables on average 2 times.
+
+Added variables 'HomePath', 'ExeFileName', 'WindowHandle'.
+
+Hot key to stop all scripts "Stop all scripts" now the default is enabled.
+
+Hot key to stop all scripts "Stop all scripts" also stops clicks on the tab "General".
+
+Corrected the zooming user interface elements when changing the scale of the screen (dots per inch).
+
+When clicking on the button with working window handle, its value is inserted into the script.
+
+In the commands 'save_array' and 'load_array' added a check on employment of the file other scripts. Wait until it is released.
+
+Removed the output into a log the size of the array in the command 'load_array'.
+
+Added search toolbar in the help.
+
+In settings added the ability to disable notification of the loaded DLL.
+
+Completed the function "Save the scripts before running". Turn on the appropriate menu item. By default enabled.
+
+In the context menu of the script moved some commands in the new section "Ultima Online".
+
+Added ability to hide most of the interface elements related to "Ultima Online".
+
+Slightly corrected the insertion of commands in a script from the context menu. Remove the required and optional parameters, together with their brackets.
+
+Added the display of file names of the scripts, near numbers on tabs.
+
+Added the indicator of not saved scripts, in the form of a red dot on tabs with numbers of scripts.
+
+Added save button on the form settings.
+
+Press Esc to close the about window, a sample plug-in, help and settings.
+
+The list of the tabs with the names of the scripts did multiline.
+
+Turned 'findimage'. Now, again, looking for the top down.
+
+Corrected in the command 'findimаge' out of search range.
+
+Added in 'findimage' return end coordinates of the found images in the third and fourth element of the returned array when the search type 2.
+
+Fixed in 'findimage' return end coordinates of the found images (not returned at all).
+
+Rewrote the function 'frac()'. Now just truncates the input string by comma or point. Can be used with character strings.
+
+Fixed the 'findimage' and 'findcolor'. Return incorrect coordinates.
+
+Made by default the second type of search in the command 'findimage'.
+
+
+Error codes 'findimage':
+'-1' Error when searching, the exact cause is not known
+'-2' Could not find an opening parenthesis after the function name
+'-3' Is not found a file name in brackets
+'-4' Error file search
+'-5' Error processing the original image
+'-6' Failed to get images from the screen.
+
+Error codes 'findcolor':
+'-1' Error when searching, the exact cause is not known
+'-2' Could not find an opening parenthesis after the function name
+'-3' (Not used)
+'-4' Is incorrectly specified the type of search, or handle = 0
+'-5' (Not used)
+'-6' Failed to get images from the screen.
+
+
+--v.2.36--
+
+Fixed variables 'HomePath', 'ExeFileName', 'WindowHandle'.
+
+Form of settings closes by pressing the save button.
+
+In the 'readmem' and 'writemem' added work with 64-bit processes. New data type L:long = 8b.
+
+Fixed inadequate reaction to an empty comment after the '//'.
+
+Added return the found color in the third element of the array in the command 'findcolor'.
+
+Added an example of a C++ plug-in.
+
+Added module addressing in commands of memory operations.
+    'readmem <variable> <address> <type> <size> [modulename]'
+    'writemem <variable> <address> <type> [ModuleName] [result]'
+
+Fixed recognition of variables in the command 'printscreen'.
+
+Added a variables to specify the offset of mouse clicks and commands 'move', and variables to specify the offset returned coordinates of commands 'findimage' and 'findcolor':
+    'clickoffsetx', 'clickoffsety', 'findoffsetx',  'findoffsety'. 
+
+    // size of the image 9x9
+    set findoffsetx 5 
+    set findoffsety 5
+    set ... findimage
+    // returns the coordinates are not upper-left corner, but the image center
+
+    set clickoffsetx 5
+    set clickoffsety 5
+    left 0 0
+    // clicks into position 5, 5
+
+Added 4 independent timers: 'timer1', 'timer2', 'timer3', 'timer4'.
+
+Fixed the output value of the variable after the assignment in the command 'set', while the 'set logging commands'.
+
+Fixed script editor reaction to pressing "Tab".
+
+Fixed renaming of his window when you turn on the checkbox "Show running scripts on the taskbar."
+
+Added a few reserved variables: 'SendExDelay', 'EmptyLineDelay', 'MouseClickDelay'.
+
+Added a command to clear the log of all scripts 'set logging clear_All'.
+
+Fixed command 'exec'. Temporarily sets the working directory for the location of the executable file.
+
+Fixed infinite expectation in the command 'ExecAndWait' at unsuccessful startup.
+
+Fixed command 'ExecAndWait'. Sets the working directory for the location of the executable file.
+
+Added output of milliseconds in the log. To enable 'set logging mode fulltime'. To disable 'set logging mode shorttime'.
+
+Replaced all the "/n" with "\n", as it should have been originally.
+
+Added the ability to reload the plugin with the commands 'pluginload', 'pluginunload', 'pluginreload'.
+
+Fixed the "error on exit", after removing the scripts.
+
+Fixed crash on exit if the log window never opened.
+
+Fixed the creation of the log when calling procedures.
+
+Disabled processing "\n" in the string returned by the plugin.
+
+Added the function 'CharToHex (<variable>)'. Translate all characters in a string in hexadecimal form.
+
+Added the function 'CharToHex (<variable>)'. Translate all characters in a string in hexadecimal form, by the 8 + 8 characters per line.
+
+The size of the variable to display in the log has been increased to 16k.
+
+Added the function of determining the base address of the loaded module 'set #var ModuleAddress (<module name> [handle|PID])'.
+
+Added a function to convert the absolute address in the application, in the relative address of the loaded module
+    'set #var RelativeAddress2absolute (<module name> <address> [handle|PID])'
+    'set #var AbsoluteAddress2relative (<module name> <address> [handle|PID])'.
+
+Redid the size of the numeric variables and some functions from 4 bytes to 8.
+
+Added the button "F" that opens the test form with an image that was found by a 'findimage' and 'findcolor'.
+
+In mouse clicks added ability to set random offset of coordinates within the specified range:
+    'left <x> <y> [+x +y [-x -y]] [abs|handle] [~^rlm]'
+    'move <x> <y> [+x +y [-x -y]] [abs|handle]'
+
+Increased buffer for the return value from the plugin up to 1 MB.
+
+Added a newline of character with the code #13, when the result of the plugin is assigned to the array.
+
+Added the ability to return from the plugin string of unlimited length. A bit has changed the structure of the record. Compatible with older versions.
+  tParamStruct = packed record
+    WindowHandle : Cardinal; 
+    WindowPID    : Cardinal; 
+    ResultStruct : Cardinal; // formerly Reserved. Type does not change, so you can not rename in the plugin.
+    ParamString     : Pchar; 
+    ParamStringOrig : Pchar; 
+    Result : array [0..1048576{32767}] of char
+  end;
+
+  tResultStruct = packed record // To be completed by the plugin. Memory for a string is allocated and freed by the plugin.
+    used          : boolean;   // Do you use this structure when returning values. = false
+    RLength       : Cardinal;  // The size of data. = 0
+    RArray        : Pchar;     // A pointer to the returned string. = ''
+    Reserved1     : Cardinal;
+    Reserved2     : Cardinal;
+    Reserved3     : Int64;
+    Reserved4     : Int64;
+  end;
+
+Added a function that returns the address of the array in the memory and its dimension "set $s arrayaddress (%a) // $s = 12341578 1 1".
+   the structure of the array:
+       aDescr: shortstring;
+       aValue: array of array of string;
+
+Added command to set hot keys to start and pause the current script. The key is specified in braces. Modifiers before the brackets '~' - shift, '^' - ctrl, '@' - alt. Hotkeys are set globally, as if it was done through a standard form of editing. If such a hotkey already assigned to something, the new appointed, but will be disabled before turning off the current.
+    'set hotkeystart @{F1}'
+    'set hotkeypause {F2}'
+    Variable 'errorlevel' contains a code completion commands. If you enable the corresponding checkbox in the menu, then output to the log the description of the code:
+      1 - this hotkey is already in use;
+      2 - failed to add a hotkey;
+      3 - key is not recognized;
+      4 - no brackets, no key is specified, empty brackets.
+
+Added the function 'mod (x y)'. Returns the remainder of 'x' divided by 'y'.
+
+Added the function 'div (x y)'. Returns the integer part of 'x' divided by 'y'.
+
+Added a lot of items in the menu at RMB.
+
+Added a lot of commands in the syntax highlighting.
+
+
+--v.2.36.1--
+
+Added command for clamping keys 'sendex_down <key>', 'sendex_up <key>'.
+
+Corrected the function to format the script, added the function "remove formatting".
+
+In all the commands for moving the cursor and mouse clicks, added the ability to specify the handle of the window instead of the 'abs'. Slightly changed the syntax 'left <x> <y> [abs | handle] [~^rlm]'.
+
+
+--v.2.36.2--
+
+Fixed variable 'mouseposabs_y'.
+
+Added special character signifying the end of a line of text and the start of a new line 10.
+
+Fixed the output in the log function 'chartohexf'. Characters with codes 13 and 10 are replaced with '_'.
+
+Fixed a few reserved variables: 'SendExDelay', 'EmptyLineDelay', 'MouseClickDelay'. The values change only for the current script.
+
+Change the protocol version number of the plugin to "2.36".
+
+Moved function 'dayOfWeek' in the list of variables of time in RMB menu.
+
+Added 'switch' in script formatting.
+
+Added variables determining the position of function 'prompt': 'promptpos_x', 'promptpos_y'. The values change only for the current script.
+
+
+--v.2.37--
+
+Added a few reserved variables: (READ ONLY) 
+      'loghandle' - the handle of the log window, or '0' if it does not exist;
+      'logautoopen' - checkbox from the settings "Automatically open the log", can be '0' or '1';
+      'messagesoutputto' - where output messages:
+          2 - ToMessageBox
+          4 - ToHint
+          8 - Dev/null
+          if enabled "ToLog", then all +1.
+
+Fixed the reading 'prompt pos_x' and 'promptpos_y'. 
+
+Fixed return values from the plugin while running multiple plug-ins.
+
+Added command to output text to a file 'write (<filename> <any text>)'. The file is always appended if it already exists. Substrings '\n' and '\r' are replaced with the characters with codes 13 and 10 respectively.
+
+Added function to send messages to the application window:
+    'set $s sendmessage ([hWnd=workwindow [Msg=0 [wParam=0 [lParam=0]]]])' - waiting for message processing and returns a response;
+    'set $p postmessage ([hWnd=workwindow [Msg=0 [wParam=0 [lParam=0]]]])' - is not waiting, returns '0' if an error occurred.
+
+Fixed bug "EConvertError" at a stop of the script.
+
+Fixed a bug in 'is_real' function. Returns '1' when sending a comma ','.
+
+Changed the way to install the keyboard layout in the 'SetLayout' command.
+
+Added the ability to specify the name of the functions of the plug-ins, parameters and the way in the RMB menu in the pilot. To do this, they need to specify in the plugin, when setting the function name: "InitStruct.FunctionNames[3] := 'Function4|path\path2\name_in_UOPilot (a lot of parameters)';".
+
+Move the commands loading, reloading and unloading of plugins to the plugins menu.
+
+Fixed an exception in the command 'get clipboard'.
+
+Fixed broken wheel mouse commands. Some parameters have not been determined.
+
+Added ability to sort arrays 'sort_array %array [+col | -row] [dec]'. A positive number defines sorting by columns, negative - by rows.
+
+Added output of the required version of the protocol, in case of failure to load the plugin. To do this, the plugin must return it to the pilot during initialization.
+
+Change the protocol version number of the plugin to "2.37".
+
+
+--v.2.38--
+
+Corrected the definition of the variable name in the 'set' command.
+
+Corrected an error loading the array with empty values in the command 'load_array'.
+
+Corrected the truncation of the existing array when loading new in the command 'load_array'.
+
+Corrected the change in the register of the first element, when assigning the array in the command 'init_arr'.
+
+Fixed an error that occurs when you stop the script in the process of emulating mouse clicks.
+
+Fixed an error that occurs when outputting to a log large amounts of information.
+
+Corrected a plug-in example, added to it the second way to return values.
+
+Fixed the command 'ExecAndWait', slightly broken at 2.36.
+
+Fixed the command 'filegetattr'. Not worked before.
+
+Fixed an error that occurs when there is no space before the parenthesis after the command name.
+
+Fixed the command 'dir', at directories extension isn't processed any more.
+
+Save the location of the Help window on the screen.
+
+Added a help from Wikipedia site. He is called on "F1" on the operator in a script or at the top of the RBM menu in a script. Is displayed on the new tab on the form of help. Downloads page directly to the Wiki, stores in the folder "Help", next to the pilot. If there is no folder "Help" next to the pilot , the unpacks archive version.
+
+Made highlighting of variables arrays with the color of the respective operators.
+
+Fixed an unplanned output in the log of the out-of-date error message.
+
+Added a command to delete the array elements 'delete_array %array [+col | -row] [count=1]'.
+
+Fixed command 'findcolor'. When searching for the handle returns an incorrect coordinate "y" (start subtracted).
+
+Corrected the formatting of the script.
+
+Fixed function 'string_count', was incorrectly calculated.
+
+Fixed output of error messages in the log with this option enabled, "Output messages in the... Log".
+
+
+--v.2.39--
+
+Fixed set window size in the command 'log open' when you first open the log window.
+
+Fixed hang-up of the UOPilot when you exit the program with working scripts.
+
+Added command for the restart scripts 'restart_script [number | filename | all | allex]'. First stops all scripts that are specified, then starts all of these, and then restarts itself if necessary.
+
+Fixed command 'log close', when he opens the closed log.
+
+Fixed an error that occurs when you specify a comment in the description of the procedure. "proc test // comment".
+
+Fixed displaying Wiki-Help for composite commands. For example 'set clipboard'.
+
+When you open a Wiki page for RMB on the command in the script, sets the focus on the article itself, not on the drop-down list.
+
+Fixed copying examples from Wiki in the UOPilot.
+
+Fixed an error in the command 'set windowpos' with parameters TOP and BOTTOM.
+
+Added the ability to reload a specified plugin. 'pluginload [filename]', 'pluginreload [filename]', 'pluginunload [filename]'.
+
+Added the function of smooth cursor movement, syntax like 'move' command. 'move_smooth <х> <у> [+х +у [-х -у]] [abs|handle]'.
+
+To the formatting added formatting routines from ":marks" to "return" that are at the same nesting level.
+
+The command 'repeat'. Fixed the entrance to the loop when the specified number of iterations <= 0.
+
+Fixed the error "-4" in the command 'findimage', which occur if the coordinate and the path to the file is not separated by a space.
+
+Corrected the function read memory of the client.
+
+Disabled the display of variable values on the form parameters of the character, if you disable tracking the progress of the script execution. Thus, the speed of the active script close to the script execution rate in inactive tabs.
+
+Added command line switch that changes the working folder of the UOPilot. "UoPilot.exe /hC:\Temp\".
+
+Added the function of storing part of the screen area 'GetImage (StartX StartY EndX EndY [type|handle] [abs])'. Returns a string in the form "address in memory|Width|Height|string length in bytes/", or an error code.
+
+Added function to delete stored part of the screen area 'DeleteImage (address)'. Returns "0" or "1", or an error code.
+
+Remade 'findimage' function. As a type of search takes the address from the 'GetImage' function. Coordinates in a function 'findimage' are relative to the part of the screen, stored in a function 'GetImage', but return relatively anchored windows\screen.
+set %a GetImage  ( 100 100 1000 1000 )
+set #v %a [1 1]
+set $a findimage ( 51 51 1403 1403 (C:\test.bmp) %arr #v 80 1)
+set $b DeleteImage  ( %a [1 1] )
+
+Disabled by default "Return mouse after clicks."
+
+Removed 'findcolor' from the UOPilot thread, now it is less retarding the UOPilot.
+
+Fixed the function 'findwindow'. Nothing found when pressing the keys "Alt + Tab".
+
+Remade the command 'Exec' as 'ExecAndWait'. Now the variable 'errorlevel' contains the PID of the running process.
+
+Added the ability to set reserved variables to read from client memory. 
+The name of the variable and the chain address is defined in the configuration file, in section "[CustomVariables]" in the format "name=address,type of the read data;add value,type of the read data;".
+Example: wow=0xB4B2BC,d;0x65B8,d;0x40,f;
+Script: set wow wow + 1
+
+Added description of changes the "nightly builds" in built-in help in the UOPilot.
+
+Added the function of loading the image from file 'LoadImage (filename)'. Returns a string in the form "the memory Address|Width|Height|Length of the string in bytes/" or the error code.
+
+In the function 'findimage' added the ability to search images loaded into memory by specifying the address in memory instead of a file path.
+
+Added assigning an array string the value in the format '3|7/3|8/4|7/4|8/'.
+
+Added the function of saving the image to the file 'SaveImage (Address filename)'. Supported formats are ".bmp", ".jpg", ".png" (determined by extension).
+
+Fixed an error in parsing the color range string specified in 'findcolor', when extra spaces around the "-" led to a misunderstanding.
+
+Corrected calculations with negative numbers.
+
+Corrected the assignment of string variables in parallel scripts, when the script index is specified by a variable.
+
+Fixed the command 'sort_array', which was broken after 2.38.
+
+After executing the command 'Exec', the variable 'errorlevel' contains the PID of the running process or the error code.
+
+Added commands to lock keyboard and mouse: 'keyboard <enable | disable>', 'mouse <enable | disable>'. The emulation commands 'sendex' and 'kleft' are also blocked, 'send' and 'left' work.
+
+Added the function 'GetFocus', returns the handle of the window that has input focus.
+
+Added a hotkey to unlock the keyboard and mouse, blocked by the commands 'keyboard disable', 'mouse disable'. By default, "Alt + Home".
+
+Added support for '.lnk' in the commands 'Exec' and 'ExecAndWait'.
+
+Fixed the commands 'Exec' and 'ExecAndWait' for error 267. Actual for '.com', '.exe', '.cmd', '.bat', '.lnk' files.
+
+Fixed a bug in the command 'set %arr findwindow (caption)', which occurs when there are characters '|' and '/' in the found "caption".
+
+Fixed 'break' when using nested 'switch'.
+
+Added a simple search to the Wiki form.
+
+Corrected the error that occurs when there is no space before the bracket in the command 'prompt'.
+
+Added the ability to click on links from the Wiki help. Open in the browser.
+
+Fixed an error that occurs when there is no space before the parenthesis after the command name.
+
+Fixed the '#result' parameter in the 'get windowpos' command.
+
+Corrected the size and color of the font "by default" in the command 'hint'.
+
+If the value in the 'writemem' command is enclosed in quotation marks, the quotes are removed.
+
+Added the ability to "Save settings as ..." and "Load settings ...".
+
+Added reading of the contents of the buckpack for the UO client version 2.0.3, using the 'set% arr backpack' function. Saves the array with the columns "ID", "itemType", "count", "color", "posX", "posY".
+
+Swapped 'lengthdir_x' and 'lengthdir_y'.
+
+Fixed setting addresses for "War\Hidden", "ConsoleUnicodeText", "AlwaysRun" when selecting "Custom Client.
+
+Added "Backpack" to "Custom Client".
+
+Added the ability to run scripts "Lua". So far only versions 5.1, 5.2.
+      Признаком того, что скрипт на языке луа, является "--lua" в первой строке скрипта.
+      The script is not processed by the UOpilot, but is immediately transferred to the Lua interpreter.
+      When the execution is completed, the script does not restart at first, i.e. Is performed once.
+      For repeated execution, use loops / jump statements.
+      В Lua отсутствует нормальная возможность прервать выполнения скрипта из вне. 
+      Therefore, when the pilot stops the script, the global variable "terminate" is set to "true".
+      And it needs to be checked with the Lua script.
+      In addition, after setting "terminate" to "true", all the called functions of the UOpilot are ignored.
+      From the Lua script, some of the UOpilot variables available for modification: 'workwindow', 'delimiter', 'clickoffsetx', 'clickoffsety', 'findoffsetx', 'findoffsety', 'sendexdelay', 'mouseclickdelay', 'promptpos_x', 'promptpos_y'.
+      And several read-only ones: 'errorlevel', 'terminated', 'current_script', 'workwindowpid', 'homepath', 'exefilename'.
+      The remaining variables are called as functions, e.g. 'windowhandle()'. I.e., the presence of brackets required.
+      The parameters of all functions are enclosed in parentheses, even if the syntax of the pilot they do not have the brackets.
+      All text strings are enclosed in double quotes 'sendex ("test")'.
+      The return value of some functions slightly modified, for example, 'findwindow' always returns an array.
+      --lua
+      while terminated ~= true do 
+        as3 = findwindow ("Блокнот")
+        log (as3[1][1], as3[1][2])
+        wait (1500)
+      end
+
+Added the ability to comment out the line by clicking the LMB on its number, and uncomment it by pressing the LMB again by the number.
+
+Corrected calculations with large numbers.
+
+Added functions for working with date and time. "Date", "Date1", "Date2" can be a date and / or a time, or a time stamp. The date or time should be indicated completely. "Years", "Months", "Days", "Hours", "Minutes", "Seconds" are the usual number. All addition and subtraction functions return a time stamp.
+      AddDate(Date1 Date2)	: Adds dates;
+      AddYears(Date Years)	: Adds a few years;
+      AddMonths(Date Months)	: Adds a few months;
+      AddDays(Date Days)	: Adds a few days;
+      AddHours(Date Hours)	: Adds a few hours;
+      AddMinutes(Date Minutes)	: Adds a few minutes;
+      AddSeconds(Date Seconds)	: Adds a few seconds;
+      SubDate(Date1 Date2)	: Subtracts date;
+      SubYears(Date Years)	: Subtracts a few years;
+      SubMonths(Date Months)	: Subtracts a few months;
+      SubDays(Date Days)	: Subtracts a few of days;
+      SubHours(Date Hours)	: Subtracts a few hours;  
+      SubMinutes(Date Minutes)	: Subtracts a few minutes;  
+      SubSeconds(Date Seconds)	: Subtracts a few seconds; 
+      YearFromDate(Date)	: Returns the year;
+      MonthFromDate(Date)	: Returns the month;
+      DayFromDate(Date)		: Returns the day;
+      HourFromDate(Date)	: Returns the hour;
+      MinuteFromDate(Date)	: Returns the minutes;
+      SecondFromDate(Date)	: Returns the seconds;
+      DateNow: Returns the current date 29.11.2016;
+      TimeNow: Returns the current time 10:30:25;
+      TimeStamp (Date): Converts time stamp to normal view and back.
+
+Added 'repeat' cycle formatting in formatting function.
+
+Fixed a bug in function 'minx' and 'maxx' that occurs if the array name is capitalized, but not English letters.
+
+Fixed bug in command 'gosub' and 'goto' that occurs if in the name of the label, use uppercase, but not English letters.
+
+
+--build 1--
+
+Fixed assignment to variable 'workwindow' when running the Lua script.
+
+Fixed the error that occurs when executing the Lua script, after stopping it by the UOPilot.
+
+Added the ability to comment on a block of code by highlighting lines by dragging and clicking on the line numbers. Add or delete a comment, is determined by the first highlighted line.
+
+
+--build 2--
+
+Added the ability to comment on a block of code in Lua scripts.
+
+Fixed forced stopping of the Lua script. Now you do not need to check the 'terminate' variable.
+
+Fixed saving the image to a file in the 'SaveImage' function, indicating the wrong address. Added the error code '-7' - did not find the specified image.
+
+Fixed rounding up to 2 characters of fractional numbers returned from Lua.
+
+In the settings added the ability to enable comments in the script by clicking the mouse on the line number, and selecting several lines by their numbers. By default it is disabled.
+
+
+--build 3--
+
+Fixed the return of the array in Lua, by 'findcolor' and 'findimage' functions.
+
+
+--build 4--
+
+Fixed a return to Lua values of some functions.
+
+
+--build 5--
+
+Has corrected start of scripts at a clamping of a hot key.
+
+Added variables that return the backpack coordinates for the UO client version 2.0.3 'backpackposx' and 'backpackposy'.
+
+
+--build 6--
+
+Fixed saving scripts when commenting lines by clicking LMB on their numbers.
+
+Added the ability to specify the name of the loaded Lua library in the configuration file.
+
+The Lua virtual machine is restarted when the script is restarted.
+
+Added the command "end_script ()" to the Lua scripts.
+
+
+--build 8--
+
+When called from Lua, the 'getimage' and 'loadimage' commands return 4 parameters. 'address, width, height, length = getimage ( 500, 500, 1140, 1140)'
+
+
+--build 9--
+
+The syntax of the 'dir' command is changed when called from Lua. 'resultarray = dir ([Path [Filemask]])'
+
+The syntax of the 'regexp' command is changed when called from Lua. 'position, hitstring, errorcode = regexp (<string>, <regexp>)'
+
+Added the ability to output a directory tree without recursion, using the appropriate keyword 'dir (%dir path file [norecursion])'.
+
+Added return the number of found items in the command 'dir' when calling from Lua. 'resultarray, count = dir ([Path [Filemask]] [norecursion])'
+
+
+--build 10--
+
+Fixed a bug that occurs when breaking cycles 'for' and 'repeat' by command 'return'.
+
+
+--build 11--
+
+Added to 'findimage' the return of the percentage of the found image in the fifth element of the returned array.
+
+Fixed in 'findimage' the search for the stored image in the loaded area.
+
+Corrected the error, as a result of which, the UOPilot silently closed when any lua script was interrupted.
+
+Corrected the error "Division by 0" in the command 'move_smooth'.
+
+Fixed 'active_script'. If it was used on a line, the rest of the line was not returned.
+
+The variable 'current_script' in Lua is moved into the category of functions: 'current_script ()'.
+
+
+--build 12--
+
+Fixed 'get windowpos' in Lua. Now it works as a function 'x, y, width, height, errorcode =  windowpos (<handle>)'.
+
+Fixed updating the 'workwindow' variable when pressing Ctrl+A.
+
+Fixed 'readmem' and 'writemem' in Lua. 'readmem' returns a string.
+
+The processing of the parameters in the 'dir' command was reworked when called from Lua. Now she must understand the paths with spaces.
+
+I changed the command 'wait', 'send', the variable 'timer' and the delay in mouse clicks to a more accurate timer.
+
+Fixed in 'findimage' the return of the percentage of the match of the found picture in the fifth element of the returned array.
+
+Fixed in 'findimage' the search for the stored image in the loaded area.
+
+Reduced by 1 the final return coordinates in the 'findimage' command.
+
+
+--v.2.40--
+
+Made a window on the settings form for setting the size of the log file.
+
+Added variables that contain the path to the current script 'scriptPath' and the name of the script 'scriptName'.
+
+Added almost all variables of Ultima Online in Lua. Indicate with parentheses as a function.
+
+
+--build 1--
+
+Added "lua5.1.dll" to the pilot's resources. When the program is started, it is checked for its presence in the folder, and if it is not, then unpack it.
+
+In the mouse clicks, the parameter "nooffset" was added, which allows to ignore the offset specified in the variables "clickoffsetxy". 'kleft 100 100 nooffset'.
+
+
+--build 2--
+
+Corrected the output of the error message when the script was formatted, if the pilot was located on top of all windows.
+
+Fixed search type 2 in 'findimage', broken recently.
+
+
+--build 3--
+
+Fixed clicks with modifiers.
+
+
+--build 4--
+
+Fixed the 'set windowpos' command if the work window handle is not specified.
+
+
+--build 5--
+
+Extend to 16k a string of parameters passed to the command 'prompt'.
+
+Fixed the opening of the form of the character's parameters outside the screen, in the presence of several monitors.
+
+Made the automatic definition of the width of the 'prompt' command.
+
+Replaced "Lua 5.1" with "LuaJIT 2.0.5". Removed the third-party component to communicate with lua.
+
+Made a keystroke by its code in the commands 'send*' and 'sendex*'. Codes are specified as parameters in curly brackets. When specifying several keys, spaces between parentheses are required. "send {49} {112}".
+
+Fixed 'return' in 'for' and 'repeat' from the double 'gosub'.
+
+Added the output of the error of running the Lua script and several lines of code around the specified line.
+
+All the pilot variables that were available from Lua (17 pieces) in Lua are now functions. Those that are available for change (9 pieces), as a parameter, take a new value, return the old value (including 'workwindow ()').
+
+I fixed the checkbox "Show remaining time of waiting".
+
+When the script is paused, the current 'wait' command is aborted.
+
+During the delays in the script, the timer on the character parameters panel continues to be updated.
+
+Added some more parameters to the command 'hint (fontSize fontColor posX posY width height backColor fontStyle fontName (any text))'. Where
+    'backColor' - background color;
+    'fontStyle' - "n" - normal, or a combination of the following: "b" = bold, "i" = italic, "u" = underline, "s" = strikeout;
+    'fontName'  - the name of the font installed on the system.
+
+Added a few new commands to the RMB menu.
+
+The return value of the 'color' function has been changed to an integer value.
+
+The return value of the 'readmem' function depends on the type of read value.
+
+
+--build 6--
+
+Fixed broken mouse scrolling commands.
+
+
+--build 7--
+
+Corrected 'hint' without specifying parameters.
+
+
+--build 8--
+
+Removed the "runtime error" message caused by interrupting the Lua script.
+
+
+--build 9--
+
+Added switching of script tabs using Ctrl+Tab, Ctrl+Shift+Tab.
+
+Added the function 'mouse_pos (["abs"])' in Lua. Returns two numbers - x, y.
+
+
+--build 10--
+
+Added forced shutdown of VM Lua, when the script is stopped.
+
+Fixed the function 'findcolor', 'findimage' in Lua.
+
+Added return "nil" and "LuaTable", as it was in the previous version of Lua.
+
+
+--build 11--
+
+When inserting commands into the Lua script from the drop-down menu, parentheses are added to the function names.
+
+When displaying messages to the log, the symbol '\n' is padded to '\r\n'.
+
+Fixed 'clickoffsetx' and 'clickoffsety' in the 'move' command.
+
+In Lua, added the function 'get_script_text (script number)'. Returns the script with the specified number to the table, or the current script if the number is not specified.
+
+Removed all conversions of the string output to the log from Lua. Left only the complement '\n' to '\r\n'.
+
+Fixed a memory leak that occurred when the Lua version was changed.
+
+The Lua library is loaded and initialized only when the script is run on Lua.
+
+
+--build 12--
+
+Added function to get process priority 'GetProcessPriority ([handle|PID])'. If the handle is not specified, returns the priority of the Uopilot. Returned value:
+     '-3' - Error;
+     '-2' - Idle priority;                                              
+     '-1' - Below normal priority;
+      '0' - Normal priority;
+      '1' - Above normal priority;
+      '2' - High priority;
+      '3' - Realtime priority;
+
+Added the function of setting the priority of a process 'SetProcessPriority ([[handle|PID] priority=0])'. If successful, returns "0", otherwise an error code. If the handle is not specified, sets the Uopilot's priority. As a 'priority' uses the same values that returns 'GetProcessPriority'.
+
+In test mode, added the function to set the CPU cores mask for the specified process 'SetProcessAffinityMask ([[handle|PID] mask=0])'. If successful, returns "0", otherwise an error code. If the handle is not specified, sets the Uopilot's priority. As 'mask' the "0" is indicated - all cores, or the sum of the following values:
+        1 = CPU 0;
+        2 = CPU 1;
+        4 = CPU 2;
+        8 = CPU 3;
+        etc...
+
+
+--build 13--
+
+Fixed the error of the first message output from Lua script when the log was never opened.
+
+Added error message output when an exception occurs in Lua script.
+
+
+--build 14--
+
+Fixed the function 'random ()' in Lua, now returns a number.
+
+If no image or color is found, then 'findimage' and 'findcolor' in Lua returns nil instead of an empty table.
+
+Removed the message 'Operation completed successfully' displayed when the Lua script stopped.
+
+The arrays returned by the 'findimage' and 'findcolor' functions in Lua are now numeric.
+
+Fixed 'findwindow' when used from a Lua script. If nothing is found, then returns "nil", rather than an empty table. When called without parameters, returns the data of the active window.
+
+The handle returned by the 'findwindow' function in Lua is now a number.
+
+The size of the message that is displayed in the log is now increased to 1k.
+
+
+--build 15--
+
+The 'get clipboard' command clears the receiving array.
+
+Removed converting of variables in the resulting clipboard when using the command 'get clipboard %array'.
+
+Fixed 'clipboard' in Lua.
+        'clipboard(text)' - one parameter, setting;
+        'string = clipboard()' - without parameters, getting as one line;
+        'array  = clipboard(0,"string","word")' - more than one parameter, split into an array by words, or by lines, or by words and by lines.
+
+Corrected the transfer of large integers from Lua. Should no longer be output in exponential form. 
+
+Fixed bug in commands 'set hotkeystart' and 'set hotkeypause'.
+
+Added color search in the loaded area to the 'findcolor' function.
+
+Added a check for image capturing by handle, when pressing Ctrl+A to bind the script to the working window. It is enabled by ticking "Check image capture by handle", located next to the "F" button on the form of the script.
+If the image cannot be received, or a black square is returned, the parent handle is taken and checked again until the image is received.
+As a result of the check, the log displays a chain of checked handles and the title of the window required to correctly determine the color, or an error message.
+
+Added command to check image capture by handle. Returns the coordinate offset and the correct handle, or 0.
+      'set #newhandle checkgetcolor (#x #y #handle)' // UoPilot, in variables #x #y returns the offset.
+      'handle, offset_x, offset_y = checkgetcolor (handle)' -- lua
+
+Fixed output to the log of long messages.
+
+
+--build 16--
+
+Checkbox "Check image capture by handle" moved to the settings \ miscellaneous. Enabled by default.
+
+Added a function to search for values in memory 'findmemory (count value type %result accuracy workwindow)'.
+        Returns the number of items found, or an error code.
+        Options:
+          count - limit quantity, -1 - all;
+          value - required value. if the string is not solid, use quotation marks;
+          type - the type of the previous argument, as well as in the commands read / write to memory;
+          %result - the receiving array;
+          accuracy - accuracy of finding a sequence of values;
+          workwindow - handle of the working window;
+        In 64-bit processes, only the first 32 bits are scanned.
+
+Corrected updating the 'workwindow' variable by pressing Ctrl + A.
+
+Fixed the 'getwindow ()' function in Lua, now returns a number.
+
+The handle returned by the 'findwindow' function in Lua is now a number. (completed)
+
+Added reading\writing by handle to 'readmem' and 'writemem' commands.
+      'readmem variable adress type size [handle] [modulename]'
+      'writemem variable adress type [handle] [ModuleName] [result]'
+
+Added commands to hide the mouse cursor: 'mouse hide | show'. Takes the cursor to the upper right corner of the screen and holds it there. When closing the pilot frees the cursor.
+
+
+--build 17--
+
+Fixed return of value table in 'findimage' command in Lua, in case of missing result or search error.
+
+In the command 'findimage' added error code '-7' - there is nothing to look for, the desired image is empty.
+
+Fixed 'case:'.
+
+Added restore "current directory" when saving\loading scripts.
+
+In the 'findcolor' function fixed the color search in the loaded area.
+
+Fixed the 'Exec' and 'ExecAndWait' commands.
+
+Added a variable that returns the Uopilot version to the array 'set %ver version'.
+      %ver[1 1] - 2.40 - version number;
+      %ver[1 2] - u - version status r-release, b-beta, u-unstable;
+      %ver[1 3] - 16 - beta number;
+      %ver[1 4] - 8 - sub-beta number.
+
+Fixed "get clipboard" with "word" parameter. Previously returned an extra empty element.
+
+Fixed the function 'windowfromcursor ()' in Lua, now returns a number.
+
+Fixed 'set windowpos' in Lua. Now works as a function 'windowpos (x, y, width, height [, handle])'. Returns nothing.
+
+Removed double brackets when inserting commands into the Lua script from the drop-down menu, the cursor is set behind the brackets.
+
+Added commas in brackets, when inserting commands into the Lua script from the drop-down menu.
+
+Removed the type of variables when inserting commands into the Lua script from the drop-down menu.
+
+Slightly changed the algorithm of inserting commands into the script from the drop-down menu. Required parameters are not removed.
+
+Redid the syntax highlighting in the editor. Added the ability to change the category of existing keywords and add new ones. The list of words is specified in the section "[Highlighter]" in the configuration file of the Uopilot in the parameters ending with" List " (will appear when saving settings). 
+Example: "RW EndScript List=end_script,konec_skripta".
+
+Added a section "Lua" to the drop-down menu.
+
+Added the ability to combine the pilot script with Lua. '--lua' denotes the beginning of the Lua script, '--endlua' respectively the end.
+      log start
+      --lua
+      log ("lua")
+      --endlua
+      log finish
+      end_script
+
+Redid the algorithm for commenting lines, in connection with the previous paragraph. Theoretically should work.
+
+Corrected the return of the error code by the 'findimage' and 'findcolor' functions in Lua, if the parameters are incorrectly specified.
+
+In the 'findimage' command fixed the search of the saved image in the loaded area. Demanded the size of the area larger than it should be.
+
+Remade Lua functions 'findimage' and 'findcolor' to the new syntax, all parameters are passed one by one, separated by commas.
+The file path and color set are transferred as a string in the table (in curly brackets). Receiving array withdrawn from circulation.
+According to the Lua syntax, in the path it is necessary to double the backslash character "c:\\", or specify the path in double brackets [[c:\]].
+The functions return an array (table) of the elements found and an error code.
+ Example:--'arr, err = findimage(10, 20, 1020, 810, {"C:\\tmp\\image.bmp"}, 2)'
+        --'arr, err = findcolor(10, 20, 1040, 810, {"r(255)"}, 2, -1, "abs")'
+
+Fixed an exception that occurs when restarting Lua scripts.
+
+Added "*.lua" in the default mask, in the open\save scripts dialogs.
+
+Corrected checkbox "Add spaces", slightly altered the algorithm.
+
+Fixed 'dir' in Lua. If nothing is found, then returns "nil", rather than an empty table.
+
+added Lua commands in the Wiki help, which is called by "F1" or drop-down menu on the operator in the script. What help to show, Lua or normal, is determined by the previous comment.
+
+In "Download All from Wiki" added downloading Lua command.
+
+Fixed an exception when using 'send' without parameters.
+
+Removed the looping of a lonely Lua script without the end of the script sign "--endlua".
+
+Added editor "Syntax highlighting" in the "Settings" menu.
+
+Fixed the error "EConvertError '^xx'", where "xx" is the number of the script, sometimes arising during the execution of procedures.
+
+Fixed assignment of 'workwindow' in procedures. The assignment worked only on the calling script.
+
+Removed a piece of debug information forgotten recently in the 'findcolor'.
+
+In the script editor, disabled the hot key for deleting the current line, and for the Redo function it's changed  to Ctrl+Y.
+
+Fixed the minimum size of the captured image in the 'getimage' command when working on the handle.
+
+Fixed an exception when working on the handle in the 'getimage' command, when the initial coordinates were greater than the final ones.
+
+Removed a reminder that the working window is not specified, when starting the script on a hot key.
+
+Lua comments added to syntax highlighting "--".
+
+Added restore icons in tray when restarting the explorer.
+
+Slightly corrected the display of Lua error messages, now it reports what kind of exception it was.
+
+Turned off the generation of the exception "division by 0" and the exception "during erroneous operations" (otherwise it does not work), for compatibility with Lua.
+
+Hid the UO tab in the settings, fixed the exception associated with it.
+
+Fixed returning a table of values in the 'scripts()' command in Lua.
+
+
+--v.2.41--
+
+Added restoring cursor position in editor after stopping Lua script.
+
+Added a log window display when the Uopilot is activated.
+
+Fixed the addition of spaces in the script, when you press the Enter key.
+
+
+--build 1--
+
+Added a function to suspend/resume the specified process 'SuspendProcess (<handle|PID>)', 'ResumeProcess (<handle|PID>)'. If successful, returns "0", otherwise the error code. Normally, the number of suspensions should be equal to the number of resumes.
+
+Fixed an error with a misunderstanding of hexadecimal numbers of the form "15h".
+
+Fixed an error in the 'wait' command when specifying the time as '1h'.
+
+Fixed an error in the 'readmem' command when reading dWord, float, and real from Lua.
+
+The Wiki address has been changed.
+
+Added links to older versions on a separate page on the site.
+
+Everything is packed in archives with a password.
+
+Removed the Upx packer.
+
+
+--build 2--
+
+Fixed an error in the 'filerename' command that occurs when a new file name doesn't have a path.
+
+Added the 'timer()' function to Lua. It works the same way as the other timers.
+
+Added the 'hour()', 'min()' and 'sec()' functions to Lua.
+
+Fixed 'current_script()', 'windowhandle()', 'loghandle()', 'dayofweek()', 'year()', 'month()' and 'day()'  functions in Lua, they now return a number.
+
+
+--build 3--
+
+Fixed the "Download everything from Wiki" button, due to the address change.
+
+Fixed the output of long lines in the log, after which the pilot did not close voluntarily.
+
+Now the 'dayofweek' function understands the date in the format "29.11.2016".
+
+
+--build 4--
+
+Fixed updating the list of articles in the help when it is first opened.
+
+Added a small inconspicuous progress bar under the "Download everything from Wiki" button. The log shows the total number of articles found, and the current downloaded number.
+
+Fixed assigning parentheses to array elements in the 'init_arr' command.
+
+
+--v.2.42--
+
+On the help form, the number of rows in the drop-down list is increased to 20.
+
+Small translation adjustment.
+
+
+--------------------------------------------------

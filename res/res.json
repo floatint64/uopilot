@@ -1,0 +1,212 @@
+[
+ {
+  "type": "GROUP_ICON",
+  "name": "MAINICON",
+  "lang": 1049,
+  "file": "mainicon.ico",
+  "first_id": 1
+ },
+ {
+  "type": "GROUP_ICON",
+  "name": "MICON",
+  "lang": 1049,
+  "file": "micon.ico",
+  "first_id": 10
+ },
+ {
+  "type": "GROUP_ICON",
+  "name": "MICONRUN",
+  "lang": 1049,
+  "file": "miconrun.ico",
+  "first_id": 12
+ },
+ {
+  "type": "GROUP_ICON",
+  "name": "MICONPAUSE",
+  "lang": 1049,
+  "file": "miconpause.ico",
+  "first_id": 11
+ },
+ {
+  "type": "GROUP_CURSOR",
+  "name": "WEB_HAND",
+  "lang": 1049,
+  "file": "web_hand.cur",
+  "first_id": 1
+ },
+ {
+  "type": "BITMAP",
+  "name": "PIX",
+  "lang": 1049,
+  "file": "pix.bmp"
+ },
+ {
+  "type": "RCDATA",
+  "name": 1,
+  "lang": 1049,
+  "file": "history_ru.txt",
+  "desc": "история версий 0.96..2.42, русская"
+ },
+ {
+  "type": "RCDATA",
+  "name": 11,
+  "lang": 1049,
+  "file": "history_en.txt",
+  "desc": "история версий 0.96..2.42, английская"
+ },
+ {
+  "type": "RCDATA",
+  "name": 2,
+  "lang": 1049,
+  "file": "scriptdoc_ru.txt",
+  "desc": "справка по языку скриптов, русская"
+ },
+ {
+  "type": "RCDATA",
+  "name": 12,
+  "lang": 1049,
+  "file": "scriptdoc_en.txt",
+  "desc": "справка по языку скриптов, английская"
+ },
+ {
+  "type": "RCDATA",
+  "name": 10,
+  "lang": 1049,
+  "file": "plugin_template.pas",
+  "desc": "шаблон плагина на Delphi (library Plugin)"
+ },
+ {
+  "type": "RCDATA",
+  "name": 20,
+  "lang": 1049,
+  "file": "plugin_template.cpp",
+  "desc": "шаблон плагина на C++, автор DarkMaster"
+ },
+ {
+  "type": "RCDATA",
+  "name": 102,
+  "lang": 1049,
+  "file": "empty.txt",
+  "desc": "заглушка: два байта CRLF"
+ },
+ {
+  "type": "RCDATA",
+  "name": 51,
+  "lang": 1049,
+  "file": "lua51.dll",
+  "desc": "LuaJIT 2.0.5, 135 экспортов"
+ },
+ {
+  "type": "RCDATA",
+  "name": 151,
+  "lang": 1049,
+  "file": "libgcc_s_dw2-1.dll",
+  "desc": "рантайм MinGW, нужен lua51.dll"
+ },
+ {
+  "type": "RCDATA",
+  "name": 77,
+  "lang": 1049,
+  "file": "wiki.uop",
+  "desc": "архив 'UoP.' -- распаковывается UnpackUoPArchive ($004EF2F0)"
+ },
+ {
+  "type": "RCDATA",
+  "name": "MSGWAV",
+  "lang": 1049,
+  "file": "../Msg.wav",
+  "desc": "звук уведомления, PCM 8 бит моно 22050 Гц"
+ },
+ {
+  "type": "RCDATA",
+  "name": "TFORM2",
+  "lang": 0,
+  "file": "TForm2.dfm",
+  "desc": "форма TForm2 (двоичный DFM, класс не восстановлен)"
+ },
+ {
+  "type": "RCDATA",
+  "name": "TFORM5",
+  "lang": 0,
+  "file": "TForm5.dfm",
+  "desc": "форма TForm5 (двоичный DFM, класс не восстановлен)"
+ },
+ {
+  "type": "STRING",
+  "lang": 1049,
+  "file": "strings/lang_1000_en.txt",
+  "tables": [
+   [
+    63,
+    97
+   ]
+  ]
+ },
+ {
+  "type": "STRING",
+  "lang": 1049,
+  "file": "strings/lang_2000_ru.txt",
+  "tables": [
+   [
+    125,
+    159
+   ]
+  ]
+ },
+ {
+  "type": "STRING",
+  "lang": 1046,
+  "file": "strings/lang_3000_pt.txt",
+  "tables": [
+   [
+    188,
+    222
+   ],
+   [
+    250,
+    250
+   ]
+  ]
+ },
+ {
+  "type": "STRING",
+  "lang": 1049,
+  "file": "strings/lang_4000_be.txt",
+  "tables": [
+   [
+    251,
+    284
+   ]
+  ]
+ },
+ {
+  "type": "STRING",
+  "lang": 1049,
+  "file": "strings/lang_5000_de.txt",
+  "tables": [
+   [
+    313,
+    347
+   ],
+   [
+    375,
+    375
+   ]
+  ]
+ },
+ {
+  "type": "STRING",
+  "lang": 1049,
+  "file": "strings/lang_7000_uk.txt",
+  "tables": [
+   [
+    438,
+    472
+   ],
+   [
+    500,
+    500
+   ]
+  ]
+ }
+]

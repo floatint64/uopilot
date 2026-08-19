@@ -1,0 +1,13 @@
+# сборка
+*.dcu
+*.exe
+*.map
+*.drc
+*.dsk
+*.local
+*.identcache
+__history/
+
+# резервные копии редактора
+*.~*
+*.bak
