@@ -76,6 +76,7 @@ uses
   ExtCtrls,
   Windows,
   Messages,
+  {$IFDEF FPC}LCLType,{$ENDIF}
   {$IFDEF SYN_COMPILER_7}
   Themes,
   {$ENDIF}
@@ -647,7 +648,9 @@ type
     function NeedKey(Key: Integer; Shift: TShiftState;
       const KeyText: WideString): Boolean; override;
 {$ELSE}
+    {$IFNDEF FPC}
     procedure CreateParams(var Params: TCreateParams); override;
+    {$ENDIF}
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
     procedure InvalidateRect(const aRect: TRect; aErase: boolean); virtual;
@@ -1033,8 +1036,10 @@ type
     property ActiveLineColor;
 {$IFDEF SYN_CLX}
 {$ELSE}
+    {$IFNDEF FPC}
     property Ctl3D;
     property ParentCtl3D;
+    {$ENDIF}
 {$ENDIF}
 
 		//### Code Folding ###
@@ -1560,6 +1565,7 @@ end;
 
 {$IFDEF SYN_CLX}
 {$ELSE}
+{$IFNDEF FPC}
 procedure TCustomSynEdit.CreateParams(var Params: TCreateParams);
 const
   BorderStyles: array[TBorderStyle] of DWORD = (0, WS_BORDER);
@@ -1582,6 +1588,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 {$ENDIF}
 
 procedure TCustomSynEdit.DecPaintLock;

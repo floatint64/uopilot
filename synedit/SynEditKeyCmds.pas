@@ -49,6 +49,7 @@ uses
 {$ELSE}
   Menus,
 {$ENDIF}
+  {$IFDEF FPC}LCLProc,{$ENDIF}
   Classes,
   SysUtils;
 

@@ -61,7 +61,7 @@ uses
   QSynEditKeyConst,
 {$ELSE}
   {$IFNDEF FPC}Consts,{$ENDIF}
-  {$IFDEF FPC}LCLType,{$ENDIF}
+  {$IFDEF FPC}LCLType, LCLProc, LCLStrConsts,{$ENDIF}
   Windows,
   Messages,
   Graphics,
@@ -1314,7 +1314,7 @@ begin
   {$ENDIF}
     Result := Result + ShortCutToText(TShortCut(Key));
   if Result = '' then
-    Result := srNone;
+    Result := 'None';
 end;
 
 constructor TSynHotKey.Create(AOwner: TComponent);
@@ -1370,7 +1370,7 @@ begin
   inherited;
   if FPressedOnlyModifiers then
   begin
-    Text := srNone;
+    Text := 'None';
     Invalidate;
   end;
 end;
@@ -1462,7 +1462,7 @@ begin
   
   if FPressedOnlyModifiers then
   begin
-    Text := srNone;
+    Text := 'None';
     Invalidate;
     SetCaretPos(BorderWidth + 1 + Canvas.TextWidth(Text), BorderWidth + 1);
   end;
@@ -1502,7 +1502,7 @@ begin
     Resize;
     Invalidate;
 {$ELSE}
-    RecreateWnd;
+    {$IFDEF FPC}RecreateWnd(Self){$ELSE}RecreateWnd{$ENDIF};
 {$ENDIF}
   end;
 end;
