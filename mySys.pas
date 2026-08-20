@@ -185,60 +185,47 @@ begin
   end;
 end;
 
+{ TODO: см. BUGS.md -- в оригинале у строчной младшей цифры верхняя граница
+  'f' проверялась по старшей цифре (CMP AL, 'f' вместо CMP AH, 'f'); баг
+  сохранён как есть. }
 function HexPairToByte(W: Word): Byte;
-asm
-  { Пара hex-цифр в байт: старшая цифра приходит в AL, младшая в AH.
-    На ассемблере затем, что обе половины разбираются в одном регистре и
-    ни одной переменной не заводится -- зовётся оно на каждый символ. }
-  CMP     AH, '0'
-  JL      @@bad
-  CMP     AH, '9'
-  JG      @@h1
-  SUB     AH, '0'
-  JMP     @@lo
-@@h1:
-  CMP     AH, 'A'
-  JL      @@bad
-  CMP     AH, 'F'
-  JG      @@h2
-  SUB     AH, 'A'
-  ADD     AH, 10
-  JMP     @@lo
-@@h2:
-  CMP     AH, 'a'
-  JL      @@bad
-  CMP     AL, 'f'
-  JG      @@bad
-  SUB     AH, 'a'
-  ADD     AH, 10
-@@lo:
-  CMP     AL, '0'
-  JL      @@bad
-  CMP     AL, '9'
-  JG      @@l1
-  SUB     AL, '0'
-  JMP     @@ok
-@@l1:
-  CMP     AL, 'A'
-  JL      @@bad
-  CMP     AL, 'F'
-  JG      @@l2
-  SUB     AL, 'A'
-  ADD     AL, 10
-  JMP     @@ok
-@@l2:
-  CMP     AL, 'a'
-  JL      @@bad
-  CMP     AL, 'f'
-  JG      @@bad
-  SUB     AL, 'a'
-  ADD     AL, 10
-@@ok:
-  SHL     AL, 4
-  OR      AL, AH
-  RET
-@@bad:
-  XOR     AL, AL
+var
+  H: Byte;
+  L: Byte;
+begin
+  { Старшая цифра приходит в Lo(W), младшая в Hi(W): PWord(P)^ читает два
+    байта строки подряд, первый попадает в младший байт слова (AL), второй --
+    в старший (AH). }
+  H := Lo(W);
+  L := Hi(W);
+
+  { Ассемблер разбирал AH (младшую цифру) первым; в её строчной ветке верхняя
+    граница 'f' проверялась по AL (старшей цифре) -- баг сохранён. }
+  if (L >= Byte('0')) and (L <= Byte('9')) then
+    Dec(L, Byte('0'))
+  else if (L >= Byte('A')) and (L <= Byte('F')) then
+    Inc(L, 10 - Byte('A'))
+  else if (L >= Byte('a')) and (H <= Byte('f')) then
+    Inc(L, 10 - Byte('a'))
+  else
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+  if (H >= Byte('0')) and (H <= Byte('9')) then
+    Dec(H, Byte('0'))
+  else if (H >= Byte('A')) and (H <= Byte('F')) then
+    Inc(H, 10 - Byte('A'))
+  else if (H >= Byte('a')) and (H <= Byte('f')) then
+    Inc(H, 10 - Byte('a'))
+  else
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+  Result := (H shl 4) or L;
 end;
 
 function PeekChar(P: PChar; var C: Char): Char;
