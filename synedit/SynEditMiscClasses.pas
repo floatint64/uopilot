@@ -60,7 +60,8 @@ uses
   QSynEditTypes,
   QSynEditKeyConst,
 {$ELSE}
-  Consts,
+  {$IFNDEF FPC}Consts,{$ENDIF}
+  {$IFDEF FPC}LCLType,{$ENDIF}
   Windows,
   Messages,
   Graphics,
@@ -1351,7 +1352,11 @@ begin
     WindowClass.Style := WindowClass.Style and not ClassStylesOff;
     Style := Style or BorderStyles[fBorderStyle] or WS_CLIPCHILDREN;
 
+    {$IFDEF FPC}
+    if NewStyleControls and (fBorderStyle = bsSingle) then
+    {$ELSE}
     if NewStyleControls and Ctl3D and (fBorderStyle = bsSingle) then
+    {$ENDIF}
     begin
       Style := Style and not WS_BORDER;
       ExStyle := ExStyle or WS_EX_CLIENTEDGE;
