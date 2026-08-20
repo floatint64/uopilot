@@ -50,7 +50,7 @@ const
   TSynSpecialChars = [#$A8, #$B8, #$C0..#$FF];
   TSynValidStringChars = ['_', '0'..'9', 'A'..'Z', 'a'..'z'] + TSynSpecialChars;
   TSynWordBreakChars = ['.', ',', ';', ':', '"', '''', '!', '?', '[', ']', '(',
-                        ')', '{', '}', '^', '-', '=', '+', '-', '*', '/', '\',
+                        ')', '{', '}', '^', '-', '=', '+', '*', '/', '\',
                         '|'];
 
   TSynTabChar = #9;
