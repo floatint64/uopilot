@@ -747,7 +747,7 @@ begin
   ASSERT(SizeOf(TFontStyles) = 1);
 {$ENDIF}
 
-  idx := Byte(Value);
+  idx := PByte(@Value)^;
   ASSERT(idx <= High(TheStockFontPatterns));
 
   UseFontHandles;
