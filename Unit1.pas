@@ -11436,7 +11436,7 @@ begin
       else
         S := 'Error reading memory';
     end;
-    Clipboard.AsText := S;
+    SetClipboardText(Clipboard, S);
   end;
   FileClose(Ph); { *Преобразовано из CloseHandle* }
 end;

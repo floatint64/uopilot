@@ -1307,10 +1307,10 @@ var
 begin
   if SText <> '' then begin
     Failed := TRUE; // assume the worst.
-    // Open and Close are the only TClipboard methods we use because TClipboard
-    // is very hard (impossible) to work with if you want to put more than one
-    // format on it at a time.
-    Clipboard.Open;
+    // LCL TClipboard.Open/Close не открывают буфер ОС, поэтому работаем с
+    // сырым WinAPI напрямую, чтобы положить сразу несколько форматов.
+    if not OpenClipboard(0) then
+      raise ESynEditError.Create('Clipboard copy operation failed');
     try
       // Clear anything already on the clipboard.
       EmptyClipboard;
@@ -1364,7 +1364,7 @@ begin
         // when it is done with it.
       end;
     finally
-      Clipboard.Close;
+      CloseClipboard;
       if Failed then
         raise ESynEditError.Create('Clipboard copy operation failed');
     end;
@@ -4254,9 +4254,10 @@ begin
 {$ELSE}
     // Check for our special format first.
     if Clipboard.HasFormat(SynEditClipboardFormat) then begin
-      Clipboard.Open;
+      if not OpenClipboard(0) then
+        raise ESynEditError.Create('Clipboard paste operation failed.');
       try
-        Mem := Clipboard.GetAsHandle(SynEditClipboardFormat);
+        Mem := GetClipboardData(SynEditClipboardFormat);
         P := GlobalLock(Mem);
         if P <> nil then
         try
@@ -4305,7 +4306,7 @@ begin
         else
           raise ESynEditError.Create('Clipboard paste operation failed.');
       finally
-        Clipboard.Close;
+        CloseClipboard;
       end;
     // If our special format isn't there, check for regular text format.
     end else if Clipboard.HasFormat(CF_TEXT) then begin
