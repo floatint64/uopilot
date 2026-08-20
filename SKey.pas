@@ -1,8 +1,12 @@
 unit SKey;
 
-{ Служба-драйвер для посылки клавиш. Сам драйвер лежит в plugins\ и
-  ставится как служба ядра; дальше коды клавиш уходят ему через
-  DeviceIoControl, минуя очередь сообщений. }
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
+{ РЎР»СѓР¶Р±Р°-РґСЂР°Р№РІРµСЂ РґР»СЏ РїРѕСЃС‹Р»РєРё РєР»Р°РІРёС€. РЎР°Рј РґСЂР°Р№РІРµСЂ Р»РµР¶РёС‚ РІ plugins\ Рё
+  СЃС‚Р°РІРёС‚СЃСЏ РєР°Рє СЃР»СѓР¶Р±Р° СЏРґСЂР°; РґР°Р»СЊС€Рµ РєРѕРґС‹ РєР»Р°РІРёС€ СѓС…РѕРґСЏС‚ РµРјСѓ С‡РµСЂРµР·
+  DeviceIoControl, РјРёРЅСѓСЏ РѕС‡РµСЂРµРґСЊ СЃРѕРѕР±С‰РµРЅРёР№. }
 
 interface
 
@@ -15,17 +19,22 @@ function SvcSendKeys(S: string): Boolean;
 
 implementation
 
-uses SysUtils, MathEx, Unit1, CRCunit, uCircleForm, sendR, WinSvc, HotKeyMgr, Keydefs, uScanThread;
+uses
+{$IFnDEF FPC}
+  WinSvc,
+{$ELSE}
+{$ENDIF}
+  SysUtils, MathEx, Unit1, CRCunit, uCircleForm, sendR, HotKeyMgr, Keydefs, uScanThread;
 
 var
-  gSvcMgr: THandle;                  { менеджер служб }
-  gSvcHandle: THandle;               { сама служба }
+  gSvcMgr: THandle;                  { РјРµРЅРµРґР¶РµСЂ СЃР»СѓР¶Р± }
+  gSvcHandle: THandle;               { СЃР°РјР° СЃР»СѓР¶Р±Р° }
   gSvcStatus: TServiceStatus;
-  gSvcDev: THandle;                  { ручка драйвера }
+  gSvcDev: THandle;                  { СЂСѓС‡РєР° РґСЂР°Р№РІРµСЂР° }
 
-{ Ставим драйвер службой и открываем его. Старую службу с тем же именем
-  сначала сносим -- иначе останется висеть прежний файл.
-  Итог: состояние службы, либо отрицательный код, на чём споткнулись. }
+{ РЎС‚Р°РІРёРј РґСЂР°Р№РІРµСЂ СЃР»СѓР¶Р±РѕР№ Рё РѕС‚РєСЂС‹РІР°РµРј РµРіРѕ. РЎС‚Р°СЂСѓСЋ СЃР»СѓР¶Р±Сѓ СЃ С‚РµРј Р¶Рµ РёРјРµРЅРµРј
+  СЃРЅР°С‡Р°Р»Р° СЃРЅРѕСЃРёРј -- РёРЅР°С‡Рµ РѕСЃС‚Р°РЅРµС‚СЃСЏ РІРёСЃРµС‚СЊ РїСЂРµР¶РЅРёР№ С„Р°Р№Р».
+  РС‚РѕРі: СЃРѕСЃС‚РѕСЏРЅРёРµ СЃР»СѓР¶Р±С‹, Р»РёР±Рѕ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Р№ РєРѕРґ, РЅР° С‡С‘Рј СЃРїРѕС‚РєРЅСѓР»РёСЃСЊ. }
 function SvcInstall(Name, Plugin: string): Integer;
 var
   n: PChar;
@@ -38,7 +47,7 @@ begin
     begin
       if gSvcDev > 0 then
       begin
-        CloseHandle(gSvcDev);
+        FileClose(gSvcDev); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
         gSvcDev := 0;
       end;
       ControlService(gSvcHandle, 1, gSvcStatus);
@@ -68,7 +77,7 @@ begin
             3, 0, 0);
           if gSvcDev = INVALID_HANDLE_VALUE then
           begin
-            CloseHandle(gSvcDev);
+            FileClose(gSvcDev); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
             gSvcDev := 0;
             Result := -5;
           end;
@@ -92,14 +101,14 @@ begin
   gSvcMgr := 0;
 end;
 
-{ Снос службы. Если ручка ещё жива -- сносим по ней, иначе открываем
-  службу по имени. }
+{ РЎРЅРѕСЃ СЃР»СѓР¶Р±С‹. Р•СЃР»Рё СЂСѓС‡РєР° РµС‰С‘ Р¶РёРІР° -- СЃРЅРѕСЃРёРј РїРѕ РЅРµР№, РёРЅР°С‡Рµ РѕС‚РєСЂС‹РІР°РµРј
+  СЃР»СѓР¶Р±Сѓ РїРѕ РёРјРµРЅРё. }
 function SvcRemove(Name: string): Boolean;
 begin
   Result := False;
   if gSvcDev > 0 then
   begin
-    CloseHandle(gSvcDev);
+    FileClose(gSvcDev); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
     gSvcDev := 0;
   end;
   if gSvcHandle > 0 then
@@ -126,7 +135,7 @@ begin
   end;
 end;
 
-{ Состояние службы прямо из SERVICE_STATUS; 1 -- остановлена или её нет. }
+{ РЎРѕСЃС‚РѕСЏРЅРёРµ СЃР»СѓР¶Р±С‹ РїСЂСЏРјРѕ РёР· SERVICE_STATUS; 1 -- РѕСЃС‚Р°РЅРѕРІР»РµРЅР° РёР»Рё РµС‘ РЅРµС‚. }
 function SvcQueryState(Name: string): Cardinal;
 begin
   Result := 1;
@@ -146,9 +155,9 @@ begin
   end;
 end;
 
-{ Разбор имени клавиши и отправка её драйверу. Сперва ищем имя целиком
-  ('F5', 'Enter'); не нашлось -- значит пришёл обычный текст, и разбираем
-  его побуквенно тем же обходом. Драйверу уходит скан-код. }
+{ Р Р°Р·Р±РѕСЂ РёРјРµРЅРё РєР»Р°РІРёС€Рё Рё РѕС‚РїСЂР°РІРєР° РµС‘ РґСЂР°Р№РІРµСЂСѓ. РЎРїРµСЂРІР° РёС‰РµРј РёРјСЏ С†РµР»РёРєРѕРј
+  ('F5', 'Enter'); РЅРµ РЅР°С€Р»РѕСЃСЊ -- Р·РЅР°С‡РёС‚ РїСЂРёС€С‘Р» РѕР±С‹С‡РЅС‹Р№ С‚РµРєСЃС‚, Рё СЂР°Р·Р±РёСЂР°РµРј
+  РµРіРѕ РїРѕР±СѓРєРІРµРЅРЅРѕ С‚РµРј Р¶Рµ РѕР±С…РѕРґРѕРј. Р”СЂР°Р№РІРµСЂСѓ СѓС…РѕРґРёС‚ СЃРєР°РЅ-РєРѕРґ. }
 function SvcSendKeys(S: string): Boolean;
 var
   sc, ob: Byte;

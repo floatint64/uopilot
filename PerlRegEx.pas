@@ -24,6 +24,10 @@
 
 unit PerlRegEx;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 uses

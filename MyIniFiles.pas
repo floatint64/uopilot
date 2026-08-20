@@ -1,8 +1,12 @@
 unit MyIniFiles;
 
-{ Свой TMemIniFile: числа читаются через StrToInt64, булево -- первым
-  символом строки, и файл сам сохраняется при разрушении, если в него
-  писали. }
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
+{ РЎРІРѕР№ TMemIniFile: С‡РёСЃР»Р° С‡РёС‚Р°СЋС‚СЃСЏ С‡РµСЂРµР· StrToInt64, Р±СѓР»РµРІРѕ -- РїРµСЂРІС‹Рј
+  СЃРёРјРІРѕР»РѕРј СЃС‚СЂРѕРєРё, Рё С„Р°Р№Р» СЃР°Рј СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РїСЂРё СЂР°Р·СЂСѓС€РµРЅРёРё, РµСЃР»Рё РІ РЅРµРіРѕ
+  РїРёСЃР°Р»Рё. }
 
 interface
 
@@ -11,7 +15,7 @@ uses IniFiles;
 type
   TMyMemIniFile = class(TMemIniFile)
   private
-    { «в файл что-то писали»: конструктор гасит, WriteString взводит }
+    { В«РІ С„Р°Р№Р» С‡С‚Рѕ-С‚Рѕ РїРёСЃР°Р»РёВ»: РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РіР°СЃРёС‚, WriteString РІР·РІРѕРґРёС‚ }
     fld_0C: Boolean;
   public
     constructor Create(const FileName: string);
@@ -31,8 +35,8 @@ implementation
 
 uses SysUtils;
 
-{ Своё чтение числа: без StrToIntDef и разбора '$', зато через StrToInt64 --
-  из ini спокойно приходят значения шире Integer. }
+{ РЎРІРѕС‘ С‡С‚РµРЅРёРµ С‡РёСЃР»Р°: Р±РµР· StrToIntDef Рё СЂР°Р·Р±РѕСЂР° '$', Р·Р°С‚Рѕ С‡РµСЂРµР· StrToInt64 --
+  РёР· ini СЃРїРѕРєРѕР№РЅРѕ РїСЂРёС…РѕРґСЏС‚ Р·РЅР°С‡РµРЅРёСЏ С€РёСЂРµ Integer. }
 function TMyMemIniFile.ReadInteger(const Section, Ident: string;
   Default: Longint): Longint;
 begin
@@ -45,8 +49,8 @@ begin
   WriteString(Section, Ident, IntToStr(Value));
 end;
 
-{ Булево читаем ПЕРВЫМ символом строки -- так переживаются и 'true',
-  и '1 ', и мусор в хвосте. }
+{ Р‘СѓР»РµРІРѕ С‡РёС‚Р°РµРј РџР•Р Р’Р«Рњ СЃРёРјРІРѕР»РѕРј СЃС‚СЂРѕРєРё -- С‚Р°Рє РїРµСЂРµР¶РёРІР°СЋС‚СЃСЏ Рё 'true',
+  Рё '1 ', Рё РјСѓСЃРѕСЂ РІ С…РІРѕСЃС‚Рµ. }
 function TMyMemIniFile.ReadBool(const Section, Ident: string;
   Default: Boolean): Boolean;
 begin
@@ -68,8 +72,8 @@ begin
   fld_0C := False;
 end;
 
-{ Сохраняемся сами: настройки пишутся врассыпную по всей программе,
-  и звать UpdateFile из каждого места неудобно. }
+{ РЎРѕС…СЂР°РЅСЏРµРјСЃСЏ СЃР°РјРё: РЅР°СЃС‚СЂРѕР№РєРё РїРёС€СѓС‚СЃСЏ РІСЂР°СЃСЃС‹РїРЅСѓСЋ РїРѕ РІСЃРµР№ РїСЂРѕРіСЂР°РјРјРµ,
+  Рё Р·РІР°С‚СЊ UpdateFile РёР· РєР°Р¶РґРѕРіРѕ РјРµСЃС‚Р° РЅРµСѓРґРѕР±РЅРѕ. }
 destructor TMyMemIniFile.Destroy;
 begin
   if fld_0C then
@@ -77,7 +81,7 @@ begin
   inherited Destroy;
 end;
 
-{ Вся правка предка -- отметить, что в файл писали. }
+{ Р’СЃСЏ РїСЂР°РІРєР° РїСЂРµРґРєР° -- РѕС‚РјРµС‚РёС‚СЊ, С‡С‚Рѕ РІ С„Р°Р№Р» РїРёСЃР°Р»Рё. }
 procedure TMyMemIniFile.WriteString(const Section, Ident, Value: string);
 begin
   fld_0C := True;

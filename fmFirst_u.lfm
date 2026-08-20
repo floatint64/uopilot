@@ -1,0 +1,18 @@
+object fmFirst: TfmFirst
+  Left = 485
+  Height = 183
+  Top = 384
+  Width = 249
+  BorderIcons = []
+  BorderStyle = bsNone
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  Position = poDefault
+  LCLVersion = '2.0.12.0'
+  Scaled = False
+  Visible = True
+end

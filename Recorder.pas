@@ -1,7 +1,7 @@
 // TRecorder
 //
 // cyamon software
-// place de l'Hфtel-de-Ville 8
+// place de l'HС„tel-de-Ville 8
 // 1040 Echallens
 // Switzerland
 // www.cyamon.com
@@ -39,6 +39,10 @@
 
 unit Recorder;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
   uses
     Classes, Windows;
@@ -49,7 +53,7 @@ interface
 
     TRecorder = class(TObject)
     public
-      { Поля открыты нарочно: Unit1 читает EventMsg и FStream напрямую. }
+      { РџРѕР»СЏ РѕС‚РєСЂС‹С‚С‹ РЅР°СЂРѕС‡РЅРѕ: Unit1 С‡РёС‚Р°РµС‚ EventMsg Рё FStream РЅР°РїСЂСЏРјСѓСЋ. }
       FState : TRecorderState;
       HookHandle : THandle;
       BaseTime : integer;
@@ -57,7 +61,7 @@ interface
       Tag : integer;
       FOnStateChange : TStateChangeEvent;
       EventMsg : TEVENTMSG;
-      { 777 -- играть без конца, иначе это счётчик повторов. }
+      { 777 -- РёРіСЂР°С‚СЊ Р±РµР· РєРѕРЅС†Р°, РёРЅР°С‡Рµ СЌС‚Рѕ СЃС‡С‘С‚С‡РёРє РїРѕРІС‚РѕСЂРѕРІ. }
       FRepeatCount : Integer;
       FStream : TStream;
       procedure SetSpeedFactor(const Value: integer);
@@ -76,12 +80,12 @@ interface
   var
     TheRecorder : TRecorder;
 
-    { Залипшие модификаторы макроса: их взводят @ ^ ~ в строке. }
+    { Р—Р°Р»РёРїС€РёРµ РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ РјР°РєСЂРѕСЃР°: РёС… РІР·РІРѕРґСЏС‚ @ ^ ~ РІ СЃС‚СЂРѕРєРµ. }
     gMacAlt: Boolean;
     gMacCtrl: Boolean;
     gMacShift: Boolean;
 
-  { Набрать макрос из строки прямо в поток записи. }
+  { РќР°Р±СЂР°С‚СЊ РјР°РєСЂРѕСЃ РёР· СЃС‚СЂРѕРєРё РїСЂСЏРјРѕ РІ РїРѕС‚РѕРє Р·Р°РїРёСЃРё. }
   function MacroFileLoad(S: string): Integer;
 
 implementation
@@ -235,7 +239,7 @@ begin
       BaseTime := GetTickCount() - EventMsg.Time;
     end {if};
     HookHandle := SetWindowsHookEx(WH_JOURNALRECORD, @RecordProc, hInstance, 0);
-    { Ошибку снимаем сразу: до сообщения её успеет затереть что угодно. }
+    { РћС€РёР±РєСѓ СЃРЅРёРјР°РµРј СЃСЂР°Р·Сѓ: РґРѕ СЃРѕРѕР±С‰РµРЅРёСЏ РµС‘ СѓСЃРїРµРµС‚ Р·Р°С‚РµСЂРµС‚СЊ С‡С‚Рѕ СѓРіРѕРґРЅРѕ. }
     Err := GetLastError;
     if HookHandle = 0 then
       raise Exception.Create('JournalHook cannot be created: ' + SysErrorMessage(Err))
@@ -262,7 +266,7 @@ end {TRecorder.DoStop};
 
 procedure TRecorder.SetSpeedFactor(const Value: integer);
 begin
-  { Ноль и отрицательное отбрасываем одним сравнением. }
+  { РќРѕР»СЊ Рё РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ РѕС‚Р±СЂР°СЃС‹РІР°РµРј РѕРґРЅРёРј СЃСЂР°РІРЅРµРЅРёРµРј. }
   if Cardinal(Value) > 0 then
     FSpeedFactor := Value;
 end {TRecorder.SetSpeedFactor};
@@ -286,7 +290,7 @@ begin
 end {TRecorder.SetState};
 
 
-{ Код клавиши и скан-код в одно слово: младший байт -- сам код. }
+{ РљРѕРґ РєР»Р°РІРёС€Рё Рё СЃРєР°РЅ-РєРѕРґ РІ РѕРґРЅРѕ СЃР»РѕРІРѕ: РјР»Р°РґС€РёР№ Р±Р°Р№С‚ -- СЃР°Рј РєРѕРґ. }
 function MakeKeyCode(A, B: Byte): Word;
 var
   W: Word;
@@ -296,8 +300,8 @@ begin
   Result := W;
 end;
 
-{ Дописать одно событие клавиатуры в поток записи. Время считаем от
-  длины потока: шаг 50 мс на событие, чтобы проигрывалось ровно. }
+{ Р”РѕРїРёСЃР°С‚СЊ РѕРґРЅРѕ СЃРѕР±С‹С‚РёРµ РєР»Р°РІРёР°С‚СѓСЂС‹ РІ РїРѕС‚РѕРє Р·Р°РїРёСЃРё. Р’СЂРµРјСЏ СЃС‡РёС‚Р°РµРј РѕС‚
+  РґР»РёРЅС‹ РїРѕС‚РѕРєР°: С€Р°Рі 50 РјСЃ РЅР° СЃРѕР±С‹С‚РёРµ, С‡С‚РѕР±С‹ РїСЂРѕРёРіСЂС‹РІР°Р»РѕСЃСЊ СЂРѕРІРЅРѕ. }
 procedure RecKey(V: Byte; Msg: Word);
 begin
   TheRecorder.EventMsg.message := Msg;
@@ -309,9 +313,9 @@ begin
   TheRecorder.FStream.Write(TheRecorder.EventMsg, SizeOf(TEVENTMSG));
 end;
 
-{ Нажатие. При зажатом Alt (и не Ctrl) буквы и F1..F12 обязаны идти
-  СИСТЕМНЫМ сообщением, иначе окно их не примет; сам Alt -- всегда
-  системным. }
+{ РќР°Р¶Р°С‚РёРµ. РџСЂРё Р·Р°Р¶Р°С‚РѕРј Alt (Рё РЅРµ Ctrl) Р±СѓРєРІС‹ Рё F1..F12 РѕР±СЏР·Р°РЅС‹ РёРґС‚Рё
+  РЎРРЎРўР•РњРќР«Рњ СЃРѕРѕР±С‰РµРЅРёРµРј, РёРЅР°С‡Рµ РѕРєРЅРѕ РёС… РЅРµ РїСЂРёРјРµС‚; СЃР°Рј Alt -- РІСЃРµРіРґР°
+  СЃРёСЃС‚РµРјРЅС‹Рј. }
 procedure KeyDown(V: Byte);
 begin
   if gMacAlt and not gMacCtrl and (V in [$41..$5A, $70..$7B])
@@ -321,8 +325,8 @@ begin
     RecKey(V, WM_KEYDOWN);
 end;
 
-{ Отпускание. От нажатия отличается тем, что сам Alt отпускается
-  обычным сообщением. }
+{ РћС‚РїСѓСЃРєР°РЅРёРµ. РћС‚ РЅР°Р¶Р°С‚РёСЏ РѕС‚Р»РёС‡Р°РµС‚СЃСЏ С‚РµРј, С‡С‚Рѕ СЃР°Рј Alt РѕС‚РїСѓСЃРєР°РµС‚СЃСЏ
+  РѕР±С‹С‡РЅС‹Рј СЃРѕРѕР±С‰РµРЅРёРµРј. }
 procedure KeyUp(V: Byte);
 begin
   if gMacAlt and not gMacCtrl and (V in [$41..$5A, $70..$7B]) then
@@ -331,10 +335,10 @@ begin
     RecKey(V, WM_KEYUP);
 end;
 
-{ Проиграть код клавиши со всеми модификаторами. Старший байт слова --
-  то, что вернул VkKeyScan: бит 1 в нём означает, что символ набирается
-  с Shift. Shift давим по нему (и только если не зажат Ctrl) либо по
-  флагу '~'. }
+{ РџСЂРѕРёРіСЂР°С‚СЊ РєРѕРґ РєР»Р°РІРёС€Рё СЃРѕ РІСЃРµРјРё РјРѕРґРёС„РёРєР°С‚РѕСЂР°РјРё. РЎС‚Р°СЂС€РёР№ Р±Р°Р№С‚ СЃР»РѕРІР° --
+  С‚Рѕ, С‡С‚Рѕ РІРµСЂРЅСѓР» VkKeyScan: Р±РёС‚ 1 РІ РЅС‘Рј РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ СЃРёРјРІРѕР» РЅР°Р±РёСЂР°РµС‚СЃСЏ
+  СЃ Shift. Shift РґР°РІРёРј РїРѕ РЅРµРјСѓ (Рё С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅРµ Р·Р°Р¶Р°С‚ Ctrl) Р»РёР±Рѕ РїРѕ
+  С„Р»Р°РіСѓ '~'. }
 procedure PlayKeyCode(W: Word);
 var
   bVK: Byte;
@@ -364,8 +368,8 @@ begin
   end;
 end;
 
-{ Имя клавиши в фигурных скобках, @ ^ ~ -- Alt/Ctrl/Shift, всё прочее --
-  символ через VkKeyScan. Итог: 0 -- разобрано, 2 -- негодная скобка. }
+{ РРјСЏ РєР»Р°РІРёС€Рё РІ С„РёРіСѓСЂРЅС‹С… СЃРєРѕР±РєР°С…, @ ^ ~ -- Alt/Ctrl/Shift, РІСЃС‘ РїСЂРѕС‡РµРµ --
+  СЃРёРјРІРѕР» С‡РµСЂРµР· VkKeyScan. РС‚РѕРі: 0 -- СЂР°Р·РѕР±СЂР°РЅРѕ, 2 -- РЅРµРіРѕРґРЅР°СЏ СЃРєРѕР±РєР°. }
 function MacroFileLoad(S: string): Integer;
 var
   bVK: Byte;

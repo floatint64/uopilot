@@ -1,0 +1,1304 @@
+uopilot.dpr Note: Кодировка изменена с cp1251 на UTF-8
+uopilot.lpi Note: К параметрам пользователя добавлены определения -dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL
+ Progress: Найдены все файлы модулей
+uopilot.lpi Note: Модуль FastMM4 не включён в проект
+uopilot.dpr Note: Модуль "FastMM4" удалён из выражения Uses.
+uopilot.dpr(1,17) Note: После имени модуля добавлена директива MODE Delphi.
+ : 
+ : *** Преобразование файлов модулей, принадлежащих проекту/пакету ***
+VCLFixes.pas(1,15) Note: После имени модуля добавлена директива MODE Delphi.
+Unit1.pas Note: Кодировка изменена с cp1251 на UTF-8
+Unit1.pas Note: Кодировка изменена с cp1251 на UTF-8
+Unit1.pas Note: Модуль "jpeg" удалён из выражения Uses.
+Unit1.pas(1,12) Note: После имени модуля добавлена директива MODE Delphi.
+Unit1.pas(12116,21) Note: Вызов CloseHandle(gScriptso3[I].ProcessHandle); заменён на FileClose(gScriptso3[I].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(12005,7) Note: Вызов CloseHandle(gScriptso3[I].ProcessHandle); заменён на FileClose(gScriptso3[I].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(11761,3) Note: Вызов CloseHandle(H); заменён на FileClose(H); { *Преобразовано из CloseHandle* }
+Unit1.pas(11237,3) Note: Вызов CloseHandle(Ph); заменён на FileClose(Ph); { *Преобразовано из CloseHandle* }
+Unit1.pas(11197,9) Note: Вызов CloseHandle(gScriptso3[N].ProcessHandle); заменён на FileClose(gScriptso3[N].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(11189,7) Note: Вызов CloseHandle(FClientProcess); заменён на FileClose(FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(11011,15) Note: Вызов CloseHandle(gScriptso3[I].ProcessHandle); заменён на FileClose(gScriptso3[I].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(9794,3) Note: Вызов CloseHandle(Ph); заменён на FileClose(Ph); { *Преобразовано из CloseHandle* }
+Unit1.pas(9145,7) Note: Вызов CloseHandle(Ph); заменён на FileClose(Ph); { *Преобразовано из CloseHandle* }
+Unit1.pas(7553,5) Note: Вызов CloseHandle(H); заменён на FileClose(H); { *Преобразовано из CloseHandle* }
+Unit1.pas(7540,7) Note: Вызов CloseHandle(H); заменён на FileClose(H); { *Преобразовано из CloseHandle* }
+Unit1.pas(7532,7) Note: Вызов CloseHandle(H); заменён на FileClose(H); { *Преобразовано из CloseHandle* }
+Unit1.pas(7418,7) Note: Вызов CloseHandle(fmSecondfj.FClientProcess); заменён на FileClose(fmSecondfj.FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(7372,7) Note: Вызов CloseHandle(PI.hProcess); заменён на FileClose(PI.hProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(7367,7) Note: Вызов CloseHandle(PI.hProcess); заменён на FileClose(PI.hProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(7289,9) Note: Вызов CloseHandle(N); заменён на FileClose(N); { *Преобразовано из CloseHandle* }
+Unit1.pas(7254,3) Note: Вызов CloseHandle(gLoginProcess); заменён на FileClose(gLoginProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(7186,5) Note: Вызов CloseHandle(Ph); заменён на FileClose(Ph); { *Преобразовано из CloseHandle* }
+Unit1.pas(6541,7) Note: Вызов CloseHandle(gClientThread); заменён на FileClose(gClientThread); { *Преобразовано из CloseHandle* }
+Unit1.pas(6539,7) Note: Вызов CloseHandle(FClientProcess); заменён на FileClose(FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(4793,9) Note: Вызов CloseHandle(FClientProcess); заменён на FileClose(FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(4614,9) Note: Вызов CloseHandle(gScriptso3[I].ProcessHandle); заменён на FileClose(gScriptso3[I].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(4536,9) Note: Вызов CloseHandle(FClientProcess); заменён на FileClose(FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(4414,11) Note: Вызов CloseHandle(gScriptso3[N].ProcessHandle); заменён на FileClose(gScriptso3[N].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(4391,9) Note: Вызов CloseHandle(FClientProcess); заменён на FileClose(FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(4383,11) Note: Вызов CloseHandle(gScriptso3[N].ProcessHandle); заменён на FileClose(gScriptso3[N].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(4350,5) Note: Вызов CloseHandle(gLoginProcess); заменён на FileClose(gLoginProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(4333,5) Note: Вызов CloseHandle(gClientThread); заменён на FileClose(gClientThread); { *Преобразовано из CloseHandle* }
+Unit1.pas(4047,5) Note: Вызов CloseHandle(FClientProcess); заменён на FileClose(FClientProcess); { *Преобразовано из CloseHandle* }
+Unit1.pas(3698,15) Note: Вызов CloseHandle(gScriptso3[I].ProcessHandle); заменён на FileClose(gScriptso3[I].ProcessHandle); { *Преобразовано из CloseHandle* }
+Unit1.pas(3374,7) Note: Вызов CloseHandle(gScriptso3[K].ProcessHandle); заменён на FileClose(gScriptso3[K].ProcessHandle); { *Преобразовано из CloseHandle* }
+fmFirst_u.pas Note: Кодировка изменена с cp1251 на UTF-8
+fmFirst_u.pas(1,16) Note: После имени модуля добавлена директива MODE Delphi.
+Unit2.pas Note: Кодировка изменена с cp1251 на UTF-8
+Unit2.pas(1,12) Note: После имени модуля добавлена директива MODE Delphi.
+ : 
+ : *** Преобразование вновь обнаруженных файлов модулей ***
+AttriFont.pas Note: Кодировка изменена с cp1251 на UTF-8
+AttriFont.pas(1,16) Note: После имени модуля добавлена директива MODE Delphi.
+awMachMask.pas Note: Кодировка изменена с cp1251 на UTF-8
+awMachMask.pas(1,17) Note: После имени модуля добавлена директива MODE Delphi.
+GDIPAPI.pas Note: Кодировка изменена с cp1251 на UTF-8
+GDIPAPI.pas(1,14) Note: После имени модуля добавлена директива MODE Delphi.
+GDIPOBJ.pas Note: Кодировка изменена с cp1251 на UTF-8
+GDIPOBJ.pas(1,14) Note: После имени модуля добавлена директива MODE Delphi.
+geScale.pas Note: Кодировка изменена с cp1251 на UTF-8
+geScale.pas(1,14) Note: После имени модуля добавлена директива MODE Delphi.
+HotKeyMgr.pas Note: Кодировка изменена с cp1251 на UTF-8
+HotKeyMgr.pas(1,16) Note: После имени модуля добавлена директива MODE Delphi.
+Keydefs.pas Note: Кодировка изменена с cp1251 на UTF-8
+Keydefs.pas(1,14) Note: После имени модуля добавлена директива MODE Delphi.
+LangClipboard.pas Note: Кодировка изменена с cp1251 на UTF-8
+LangClipboard.pas(1,20) Note: После имени модуля добавлена директива MODE Delphi.
+lualib.pas Note: Кодировка изменена с cp1251 на UTF-8
+lualib.pas(1,13) Note: После имени модуля добавлена директива MODE Delphi.
+LZW_FolderActions.pas Note: Кодировка изменена с cp1251 на UTF-8
+LZW_FolderActions.pas(1,24) Note: После имени модуля добавлена директива MODE Delphi.
+MathEx.pas Note: Кодировка изменена с cp1251 на UTF-8
+MathEx.pas(1,13) Note: После имени модуля добавлена директива MODE Delphi.
+MyIniFiles.pas Note: Кодировка изменена с cp1251 на UTF-8
+MyIniFiles.pas(1,17) Note: После имени модуля добавлена директива MODE Delphi.
+mySys.pas Note: Кодировка изменена с cp1251 на UTF-8
+mySys.pas(1,12) Note: После имени модуля добавлена директива MODE Delphi.
+PerlRegEx.pas(25,16) Note: После имени модуля добавлена директива MODE Delphi.
+PngGDIP.pas Note: Кодировка изменена с cp1251 на UTF-8
+PngGDIP.pas(1,14) Note: После имени модуля добавлена директива MODE Delphi.
+ProcessAPI.pas Note: Кодировка изменена с cp1251 на UTF-8
+ProcessAPI.pas(1,17) Note: После имени модуля добавлена директива MODE Delphi.
+ProcessAPI.pas(730,5) Note: Вызов CloseHandle(hTok); заменён на FileClose(hTok); { *Преобразовано из CloseHandle* }
+ProcessAPI.pas Note: Модуль "SysUtils" добавлен в выражение Uses.
+ProcessAPI.pas(707,3) Note: Вызов CloseHandle(h); заменён на FileClose(h); { *Преобразовано из CloseHandle* }
+ProcessAPI.pas(671,5) Note: Вызов CloseHandle(h); заменён на FileClose(h); { *Преобразовано из CloseHandle* }
+ProcessAPI.pas(652,3) Note: Вызов CloseHandle(h); заменён на FileClose(h); { *Преобразовано из CloseHandle* }
+ProcessAPI.pas(527,3) Note: Вызов CloseHandle(h); заменён на FileClose(h); { *Преобразовано из CloseHandle* }
+ProcessAPI.pas(364,5) Note: Вызов CloseHandle(hTok); заменён на FileClose(hTok); { *Преобразовано из CloseHandle* }
+Recorder.pas Note: Кодировка изменена с cp1251 на UTF-8
+Recorder.pas(40,15) Note: После имени модуля добавлена директива MODE Delphi.
+sendR.pas Note: Кодировка изменена с cp1251 на UTF-8
+sendR.pas(1,12) Note: После имени модуля добавлена директива MODE Delphi.
+SKey.pas Note: Кодировка изменена с cp1251 на UTF-8
+SKey.pas(1,11) Note: После имени модуля добавлена директива MODE Delphi.
+SKey.pas(102,5) Note: Вызов CloseHandle(gSvcDev); заменён на FileClose(gSvcDev); { *Преобразовано из CloseHandle* }
+SKey.pas(71,13) Note: Вызов CloseHandle(gSvcDev); заменён на FileClose(gSvcDev); { *Преобразовано из CloseHandle* }
+SKey.pas(41,9) Note: Вызов CloseHandle(gSvcDev); заменён на FileClose(gSvcDev); { *Преобразовано из CloseHandle* }
+uCircleForm.pas Note: Кодировка изменена с cp1251 на UTF-8
+uCircleForm.pas(1,18) Note: После имени модуля добавлена директива MODE Delphi.
+ : 
+ : *** Исправление списков используемых модулей и файлов форм ***
+Unit1.pas Note: Удалено свойство "AutoHotkeys".
+Unit1.pas Note: Удалено свойство "OnApply".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPi:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLengthdiry:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLengthdirx:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPointdirection:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPointdistance:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMean:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMaxx:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMinx:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTrunc:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miRadtodeg:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDegtorad:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miArctan:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miArccos:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miArcsin:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTan:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCos:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miSin:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLog:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLn:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miExp:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPower:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miSqrt:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFrac:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCeil:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFloor:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miRound:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miAbs:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringdigits:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringletters:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringupper:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringlower:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringcount:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringreplace:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOrd:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miChr:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIsstring:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIsreal:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposabs_y:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposabsx:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposy:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposx:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugTraceback:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugSetupvalue:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugSetmetatable:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugSetlocal:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugSethook:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugSetfenv:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGetupvalue:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGetregistry:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGetmetatable:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGetlocal:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGetinfo:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGethook:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugGetfenv:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDebugDebug:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTheDebugLibrary:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsTmpname:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsTime:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsSetlocale:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsRename:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsRemove:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsGetenv:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsExit:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsExecute:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsDifftime:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsDate:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOsClock:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miOperatingSystem:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileWrite:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileSetvbuf:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileSeek:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileRead:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileLines:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileFlush:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miFileClose:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoWrite:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoType:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoTmpfile:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoRead:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoPopen:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoOutput:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoOpen:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoLines:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoInput:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoFlush:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIoClose:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miInputandOutput:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathTanh:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathTan:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathSqrt:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathSinh:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathSin:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathRandomseed:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathRandom:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathRad:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathPow:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathPi:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathModf:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathMin:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathMax:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathLog10:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathLog:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathLdexp:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathHuge:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathFrexp:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathFmod:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathFloor:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathExp:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathDeg:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathCosh:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathCos:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathCeil:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathAtan2:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathAtan:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathAsin:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathAcos:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathAbs:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMathematicalFunctions:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTableSort:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTableRemove:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTableMaxn:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTableInsert:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTableConcat:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTableManipulation:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringUpperLua:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringSub:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringReverse:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringRep:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringMatch:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringLowerLua:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringLen:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringGsub:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringGmatch:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringFormat:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringFind:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringDump:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringChar:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringByte:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miStringManipulation:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackageSeeall:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackagePreload:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackagePath:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackageLoadlib:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackageLoaders:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackageLoaded:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPackageCpath:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miRequire:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miModule:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miModules:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutineYield:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutineWrap:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutineStatus:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutineRunning:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutineResume:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutineCreate:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCoroutine:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miXpcall:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miUnpack:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miType:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTostring:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miTonumber:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miSetmetatable:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miSetfenv:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miSelect:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miRawset:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miRawget:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miRawequal:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPrint:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPcall:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miPairs:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miNext:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLoadstring:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLoadfile:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miLoad:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miIpairs:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miGetfenv:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miError:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miDofile:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miCollectgarbage:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miAssert:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miBasic:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposabs_y1:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposabsx1:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposy1:TMenuItem".
+Unit1.pas Note: В исходный код на Паскале добавлен отсутствующий объект "miMouseposx1:TMenuItem".
+Unit1.pas Note: Удалено свойство "AutoHotkeys".
+Unit1.pas Note: Удалено свойство "AutoHotkeys".
+Unit1.pas Note: Удалено свойство "ThumbLength".
+Unit1.pas Note: Удалено свойство "WordWrap".
+Unit1.pas Note: Удалено свойство "ParentCtl3D".
+Unit1.pas Note: Удалено свойство "Ctl3D".
+Unit1.pas Note: Удалено свойство "OnRowMoved".
+Unit1.pas Note: Удалено свойство "ThumbLength".
+Unit1.pas Note: Удалено свойство "MaxLength".
+Unit1.pas Note: Удалено свойство "ParentCtl3D".
+Unit1.pas Note: Удалено свойство "Ctl3D".
+Unit1.pas Note: Удалено свойство "ThumbLength".
+Unit1.pas Note: Удалено свойство "ParentCtl3D".
+Unit1.pas Note: Удалено свойство "Ctl3D".
+Unit1.pas Note: Удалено свойство "ParentCtl3D".
+Unit1.pas Note: Удалено свойство "Ctl3D".
+Unit1.pas Note: Удалено свойство "EditorEnabled".
+Unit1.pas Note: Удалено свойство "EditorEnabled".
+Unit1.pas Note: Удалено свойство "BevelInner".
+Unit1.pas Note: Удалено свойство "BevelEdges".
+Unit1.pas Note: Удалено свойство "OnDrawTab".
+Unit1.pas Note: Удалено свойство "OnDrawTab".
+Unit1.pas Note: Удалено свойство "MaxLength".
+Unit1.pas Note: Удалено свойство "Customizable".
+Unit1.pas Note: Удалено свойство "TextHeight".
+Unit1.pas Note: Удалено свойство "OldCreateOrder".
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "62" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "72" на "70" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "46" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "72" на "70" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "64" на "62" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "48" на "46" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "32" на "30" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "16" на "14" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "20" на "18" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "160" на "158" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "20" на "18" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "96" на "94" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "60" на "58" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "180" на "178" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TButton с "352" на "350" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TButton с "296" на "294" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "176" на "162" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "280" на "266" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "200" на "186" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "144" на "130" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "232" на "218" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "216" на "202" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "88" на "74" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "72" на "58" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "256" на "242" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "160" на "146" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "128" на "114" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "104" на "90" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "104" на "90" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "138" на "136" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "104" на "90" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "26" на "24" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TTrackBar с "33" на "19" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TTrackBar с "20" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "24" на "22" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "168" на "166" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "49" на "35" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "10" на "8" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "104" на "90" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "85" на "83" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "88" на "74" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "152" на "138" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "124" на "110" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "72" на "70" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "16" на "14" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "68" на "54" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "16" на "14" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "16" на "14" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "16" на "14" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TGroupBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TGroupBox с "208" на "206" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "208" на "206" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TGroupBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TGroupBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "128" на "114" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "80" на "66" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "80" на "66" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "112" на "98" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "80" на "66" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "224" на "210" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "240" на "226" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "232" на "230" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "240" на "226" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "104" на "102" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "112" на "98" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "160" на "146" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "80" на "66" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "128" на "114" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "144" на "130" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "208" на "194" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "192" на "178" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "176" на "162" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "240" на "226" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TGroupBox с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TGroupBox с "136" на "134" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TGroupBox с "120" на "106" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TGroupBox с "136" на "134" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "80" на "66" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "64" на "50" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TGroupBox с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TGroupBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "168" на "154" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TPageControl с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPageControl с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TButton с "352" на "350" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TButton с "184" на "182" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TButton с "152" на "138" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "104" на "102" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "305" на "291" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "293" на "291" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "89" на "87" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "55" на "53" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "276" на "274" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "72" на "70" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "225" на "223" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "208" на "206" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "191" на "189" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "174" на "172" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "259" на "257" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "242" на "240" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "157" на "155" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "140" на "138" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "123" на "121" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "106" на "104" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "38" на "36" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "21" на "19" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "13" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "138" на "136" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "101" на "87" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "296" на "282" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "490" на "488" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "296" на "282" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "424" на "422" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "12" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "28" на "26" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "100" на "98" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "12" на "10" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "227" на "225" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "12" на "10" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "185" на "183" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "12" на "10" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "133" на "131" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "10" на "8" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "128" на "126" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TBevel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TBevel с "267" на "265" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TBevel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TBevel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "38" на "36" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "38" на "36" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "218" на "216" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "333" на "319" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "2" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "271" на "257" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "67" на "53" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "84" на "70" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "288" на "274" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "85" на "83" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "129" на "127" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "68" на "66" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "129" на "127" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "51" на "49" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "129" на "127" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "34" на "32" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "129" на "127" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "17" на "15" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "129" на "127" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "128" на "126" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "85" на "83" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "245" на "243" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "68" на "66" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "245" на "243" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "51" на "49" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "245" на "243" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "34" на "32" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "245" на "243" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "17" на "15" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "245" на "243" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "244" на "242" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "258" на "256" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "142" на "140" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "310" на "296" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "237" на "223" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "220" на "206" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "203" на "189" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "186" на "172" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "237" на "223" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "220" на "206" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "271" на "257" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "169" на "155" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "186" на "172" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "203" на "189" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "50" на "36" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "152" на "138" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "135" на "121" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "254" на "240" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "254" на "240" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "101" на "87" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "84" на "70" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "67" на "53" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "50" на "36" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "33" на "19" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "118" на "104" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "296" на "294" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "169" на "155" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "152" на "138" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "135" на "121" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "118" на "104" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "33" на "19" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "13" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "272" на "258" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "238" на "224" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "221" на "207" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "204" на "190" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "187" на "173" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "170" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "119" на "105" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "102" на "88" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "85" на "71" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "34" на "20" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "51" на "37" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "68" на "54" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "136" на "122" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "153" на "139" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "255" на "241" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "430" на "428" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TBevel с "30" на "16" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TBevel с "426" на "424" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "343" на "341" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "72" на "70" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "72" на "70" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "319" на "317" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "103" на "101" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "263" на "261" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "239" на "237" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "295" на "293" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "295" на "293" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "103" на "101" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "215" на "213" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "319" на "317" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "27" на "25" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "272" на "270" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "272" на "270" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "120" на "118" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "48" на "46" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "32" на "30" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "120" на "118" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "32" на "30" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "48" на "46" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "272" на "270" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "248" на "246" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "224" на "222" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "200" на "198" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "176" на "174" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "152" на "150" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "128" на "126" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "104" на "102" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "80" на "78" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "56" на "54" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "32" на "30" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "310" на "308" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "32" на "30" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "120" на "118" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "120" на "118" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "191" на "189" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "167" на "165" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "143" на "141" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "119" на "117" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "347" на "345" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "56" на "54" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "80" на "78" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "16" на "14" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "219" на "217" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "323" на "321" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "7" на "5" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "267" на "265" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "243" на "241" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "299" на "297" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "299" на "297" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "7" на "5" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "323" на "321" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "32" на "30" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "276" на "274" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "252" на "250" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "228" на "226" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "204" на "202" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "180" на "178" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "156" на "154" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "132" на "130" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "108" на "106" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "84" на "82" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "60" на "58" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "36" на "34" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "12" на "10" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "230" на "228" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "36" на "34" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "12" на "10" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "195" на "193" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "171" на "169" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "147" на "145" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "123" на "121" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "12" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "168" на "166" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "60" на "46" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "168" на "166" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "44" на "30" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "168" на "166" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "28" на "14" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "168" на "166" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "76" на "62" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "125" на "123" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "74" на "60" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "65" на "63" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "65" на "63" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "74" на "60" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "7" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "7" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "94" на "92" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "55" на "41" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "94" на "92" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "37" на "23" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "94" на "92" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "45" на "31" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "65" на "63" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "45" на "31" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "7" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "76" на "62" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "153" на "151" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "76" на "62" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "97" на "95" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "45" на "31" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "36" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "74" на "60" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "36" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "36" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "80" на "66" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "185" на "183" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "208" на "206" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TButton с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TButton с "280" на "278" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TMemo с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TMemo с "78" на "76" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "107" на "105" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "82" на "80" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "95" на "93" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "52" на "50" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "39" на "37" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "103" на "101" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "65" на "63" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "52" на "50" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "26" на "24" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "13" на "11" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "66" на "64" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TMemo с "107" на "105" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TMemo с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TMemo с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TMemo с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "15" на "13" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TMemo с "325" на "323" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TMemo с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "128" на "126" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "10" на "8" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "208" на "206" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "136" на "134" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "68" на "66" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "158" на "156" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "71" на "69" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "208" на "206" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "68" на "66" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "79" на "77" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TMemo с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TMemo с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "71" на "69" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "64" на "62" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "368" на "366" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "64" на "62" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "304" на "302" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "68" на "66" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "56" на "54" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "304" на "302" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "160" на "158" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "12" на "10" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TMemo с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TMemo с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TTabControl с "29" на "27" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TTabControl с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "77" на "75" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "123" на "121" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "118" на "116" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "76" на "74" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "102" на "100" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "5" на "3" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "98" на "96" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "65" на "63" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "98" на "96" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "115" на "113" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "76" на "74" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "98" на "96" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "76" на "74" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "53" на "51" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TStringGrid с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TStringGrid с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "94" на "92" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "46" на "44" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "181" на "179" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "24" на "22" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "104" на "102" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "41" на "27" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "104" на "102" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "41" на "27" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "24" на "22" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "29" на "15" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "70" на "68" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TTrackBar с "42" на "28" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TTrackBar с "67" на "65" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "13" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "70" на "68" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "60" на "46" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "39" на "25" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "6" на "4" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "18" на "4" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "6" на "4" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "31" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "24" на "22" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "14" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TBevel с "27" на "13" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TBevel с "14" на "12" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "32" на "18" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "120" на "118" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "9" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "199" на "197" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "82" на "80" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "50" на "48" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "18" на "16" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "53" на "39" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "155" на "153" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "53" на "39" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "87" на "85" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "53" на "39" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "19" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "79" на "65" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "18" на "16" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "9" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "175" на "173" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "31" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "155" на "153" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "31" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "87" на "85" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "13" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "89" на "87" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "14" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "19" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "31" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "19" на "17" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "63" на "61" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "66" на "52" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "3" на "1" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "9" на "7" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "61" на "59" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "44" на "30" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "15" на "1" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "49" на "47" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "34" на "32" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TButton с "24" на "22" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TButton с "24" на "22" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "5" на "3" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TImage с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TImage с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "207" на "205" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "6" на "4" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "24" на "22" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "41" на "39" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "20" на "18" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "42" на "40" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "141" на "139" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "21" на "19" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "125" на "123" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "21" на "19" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "-2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "-2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "59" на "57" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "224" на "222" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "58" на "56" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "21" на "19" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "177" на "175" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "42" на "40" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "210" на "208" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "41" на "39" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "72" на "70" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "20" на "18" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "73" на "71" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "20" на "18" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "19" на "17" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "92" на "90" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TBevel с "1" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TBevel с "57" на "55" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TPanel с "16" на "14" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TPanel с "88" на "86" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TTabControl с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TTabControl с "104" на "102" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "48" на "46" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "5" на "3" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "118" на "116" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "4" на "2" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "54" на "52" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "27" на "25" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "3" на "1" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "175" на "173" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "2" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "135" на "133" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TLabel с "9" на "7" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TLabel с "98" на "96" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TTabControl с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TTabControl с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpinEdit с "12" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpinEdit с "126" на "124" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "12" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "164" на "162" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "19" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "90" на "88" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TRadioButton с "19" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TRadioButton с "51" на "49" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "19" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "7" на "5" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "130" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "130" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "44" на "30" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "158" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "20" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "158" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "88" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "88" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "40" на "26" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "176" на "174" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "176" на "174" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "130" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "72" на "58" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "130" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "130" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "18" на "4" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "130" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "100" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "158" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "76" на "62" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "158" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "52" на "38" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "158" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "18" на "4" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "72" на "58" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "88" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "72" на "58" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "88" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "88" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "18" на "4" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "88" на "86" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "16" на "2" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "158" на "156" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "96" на "82" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "176" на "174" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "72" на "58" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "176" на "174" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "48" на "34" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "176" на "174" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TToolBar с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TToolBar с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TComboBox с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TComboBox с "80" на "78" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TProgressBar с "18" на "16" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TProgressBar с "232" на "230" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "232" на "230" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "40" на "38" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "0" на "0" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "8" на "6" внутри TPanel.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "200" на "198" внутри TPanel.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "166" на "152" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "96" на "94" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TEdit с "166" на "152" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TEdit с "24" на "22" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "168" на "154" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TCheckBox с "168" на "154" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TCheckBox с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "118" на "104" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "142" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TBevel с "112" на "98" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TBevel с "0" на "0" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "89" на "75" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "89" на "75" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "166" на "152" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "142" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "118" на "104" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "142" на "128" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "118" на "104" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "89" на "75" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "65" на "51" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "41" на "27" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "152" на "150" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "41" на "27" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "41" на "27" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "80" на "78" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Top компонента TSpeedButton с "17" на "3" внутри TGroupBox.
+Unit1.pas Note: Изменена координата Left компонента TSpeedButton с "8" на "6" внутри TGroupBox.
+fmFirst_u.pas Note: Удалено свойство "TextHeight".
+fmFirst_u.pas Note: Удалено свойство "OldCreateOrder".
+ Progress: Преобразование заняло: 00:03:44
+ : Преобразование завершено.

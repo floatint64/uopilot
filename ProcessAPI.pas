@@ -1,36 +1,40 @@
 unit ProcessAPI;
 
-{ Всё, что мы знаем о чужом процессе: сведения из PEB, список загруженных
-  модулей, счётчики памяти и дескрипторов, командная строка.
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
-  Разбор идёт ДВУМЯ ветвями. Под 32-разрядной Windows и для процессов под
-  WOW64 хватает обычных NtQueryInformationProcess/NtReadVirtualMemory:
-  всё, что нам надо, лежит в первых четырёх гигабайтах. Для настоящего
-  64-разрядного процесса из-под нашего 32-разрядного те же данные
-  приходится доставать через NtWow64*64 -- иначе адреса не влезают. Обе
-  ветви заполняют одну и ту же PROCESS_INFO. }
+{ Р’СЃС‘, С‡С‚Рѕ РјС‹ Р·РЅР°РµРј Рѕ С‡СѓР¶РѕРј РїСЂРѕС†РµСЃСЃРµ: СЃРІРµРґРµРЅРёСЏ РёР· PEB, СЃРїРёСЃРѕРє Р·Р°РіСЂСѓР¶РµРЅРЅС‹С…
+  РјРѕРґСѓР»РµР№, СЃС‡С‘С‚С‡РёРєРё РїР°РјСЏС‚Рё Рё РґРµСЃРєСЂРёРїС‚РѕСЂРѕРІ, РєРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР°.
+
+  Р Р°Р·Р±РѕСЂ РёРґС‘С‚ Р”Р’РЈРњРЇ РІРµС‚РІСЏРјРё. РџРѕРґ 32-СЂР°Р·СЂСЏРґРЅРѕР№ Windows Рё РґР»СЏ РїСЂРѕС†РµСЃСЃРѕРІ РїРѕРґ
+  WOW64 С…РІР°С‚Р°РµС‚ РѕР±С‹С‡РЅС‹С… NtQueryInformationProcess/NtReadVirtualMemory:
+  РІСЃС‘, С‡С‚Рѕ РЅР°Рј РЅР°РґРѕ, Р»РµР¶РёС‚ РІ РїРµСЂРІС‹С… С‡РµС‚С‹СЂС‘С… РіРёРіР°Р±Р°Р№С‚Р°С…. Р”Р»СЏ РЅР°СЃС‚РѕСЏС‰РµРіРѕ
+  64-СЂР°Р·СЂСЏРґРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° РёР·-РїРѕРґ РЅР°С€РµРіРѕ 32-СЂР°Р·СЂСЏРґРЅРѕРіРѕ С‚Рµ Р¶Рµ РґР°РЅРЅС‹Рµ
+  РїСЂРёС…РѕРґРёС‚СЃСЏ РґРѕСЃС‚Р°РІР°С‚СЊ С‡РµСЂРµР· NtWow64*64 -- РёРЅР°С‡Рµ Р°РґСЂРµСЃР° РЅРµ РІР»РµР·Р°СЋС‚. РћР±Рµ
+  РІРµС‚РІРё Р·Р°РїРѕР»РЅСЏСЋС‚ РѕРґРЅСѓ Рё С‚Сѓ Р¶Рµ PROCESS_INFO. }
 
 interface
 
-uses Windows;
+uses Windows, SysUtils;
 
 type
-  { Снимаем через GetProcAddress, а не импортом: в Windows 2000 этой
-    функции нет, и со статическим импортом программа там не запустилась
-    бы вовсе. }
+  { РЎРЅРёРјР°РµРј С‡РµСЂРµР· GetProcAddress, Р° РЅРµ РёРјРїРѕСЂС‚РѕРј: РІ Windows 2000 СЌС‚РѕР№
+    С„СѓРЅРєС†РёРё РЅРµС‚, Рё СЃРѕ СЃС‚Р°С‚РёС‡РµСЃРєРёРј РёРјРїРѕСЂС‚РѕРј РїСЂРѕРіСЂР°РјРјР° С‚Р°Рј РЅРµ Р·Р°РїСѓСЃС‚РёР»Р°СЃСЊ
+    Р±С‹ РІРѕРІСЃРµ. }
   TIsWow64Process = function(hProcess: THandle;
     var Wow64Process: BOOL): BOOL; stdcall;
 
-  { Осторожно с шириной доводов: у чтения адрес и размер восьмибайтовые,
-    а у запроса длина буфера обычная, четырёхбайтовая. }
+  { РћСЃС‚РѕСЂРѕР¶РЅРѕ СЃ С€РёСЂРёРЅРѕР№ РґРѕРІРѕРґРѕРІ: Сѓ С‡С‚РµРЅРёСЏ Р°РґСЂРµСЃ Рё СЂР°Р·РјРµСЂ РІРѕСЃСЊРјРёР±Р°Р№С‚РѕРІС‹Рµ,
+    Р° Сѓ Р·Р°РїСЂРѕСЃР° РґР»РёРЅР° Р±СѓС„РµСЂР° РѕР±С‹С‡РЅР°СЏ, С‡РµС‚С‹СЂС‘С…Р±Р°Р№С‚РѕРІР°СЏ. }
   TNtWow64Read = function(hProcess: THandle; BaseAddress: Int64;
     Buffer: Pointer; Size: Int64; Read: Pointer): Integer; stdcall;
 
   TNtWow64Query = function(hProcess: THandle; InfoClass: Integer;
     Info: Pointer; InfoLen: Cardinal; RetLen: Pointer): Integer; stdcall;
 
-  { Один модуль чужого процесса. Всё восьмибайтовое нарочно: та же запись
-    заполняется и из 64-разрядного списка. }
+  { РћРґРёРЅ РјРѕРґСѓР»СЊ С‡СѓР¶РѕРіРѕ РїСЂРѕС†РµСЃСЃР°. Р’СЃС‘ РІРѕСЃСЊРјРёР±Р°Р№С‚РѕРІРѕРµ РЅР°СЂРѕС‡РЅРѕ: С‚Р° Р¶Рµ Р·Р°РїРёСЃСЊ
+    Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ Рё РёР· 64-СЂР°Р·СЂСЏРґРЅРѕРіРѕ СЃРїРёСЃРєР°. }
   TModuleInfo = record
     Path   : string;
     Name   : string;
@@ -45,55 +49,55 @@ type
     Items  : array of TModuleInfo;
   end;
 
-  { Всё, что мы собрали о процессе. Заполняется целиком любой из двух
-    ветвей разбора, поэтому поля адресов и здесь восьмибайтовые. }
+  { Р’СЃС‘, С‡С‚Рѕ РјС‹ СЃРѕР±СЂР°Р»Рё Рѕ РїСЂРѕС†РµСЃСЃРµ. Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ С†РµР»РёРєРѕРј Р»СЋР±РѕР№ РёР· РґРІСѓС…
+    РІРµС‚РІРµР№ СЂР°Р·Р±РѕСЂР°, РїРѕСЌС‚РѕРјСѓ РїРѕР»СЏ Р°РґСЂРµСЃРѕРІ Рё Р·РґРµСЃСЊ РІРѕСЃСЊРјРёР±Р°Р№С‚РѕРІС‹Рµ. }
   PROCESS_INFO = record
-    hProc     : Cardinal;              { дескриптор процесса; закрывается
-                                         тут же, в конце разбора }
+    hProc     : Cardinal;              { РґРµСЃРєСЂРёРїС‚РѕСЂ РїСЂРѕС†РµСЃСЃР°; Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ
+                                         С‚СѓС‚ Р¶Рµ, РІ РєРѕРЅС†Рµ СЂР°Р·Р±РѕСЂР° }
     Res04     : Cardinal;
     Pid       : Int64;
     ParentPid : Int64;
     SessionId : Cardinal;
     Res1C     : Cardinal;
-    Priority  : Int64;                 { базовый приоритет -- он знаковый }
+    Priority  : Int64;                 { Р±Р°Р·РѕРІС‹Р№ РїСЂРёРѕСЂРёС‚РµС‚ -- РѕРЅ Р·РЅР°РєРѕРІС‹Р№ }
     Affinity  : Int64;
-    Debugged  : Byte;                  { BeingDebugged из PEB }
+    Debugged  : Byte;                  { BeingDebugged РёР· PEB }
     Res31     : array[0..2] of Byte;
     ExitCode  : Cardinal;
-    Threads   : Cardinal;              { из PROCESSENTRY32 }
+    Threads   : Cardinal;              { РёР· PROCESSENTRY32 }
     Handles   : Cardinal;
-    PrivMem   : Cardinal;              { PrivateUsage; ради него и берётся
-                                         расширенная запись счётчиков }
+    PrivMem   : Cardinal;              { PrivateUsage; СЂР°РґРё РЅРµРіРѕ Рё Р±РµСЂС‘С‚СЃСЏ
+                                         СЂР°СЃС€РёСЂРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ СЃС‡С‘С‚С‡РёРєРѕРІ }
     Res44     : Cardinal;
     ImageBase : Int64;
     LdrAddr   : Int64;
     PebAddr   : Int64;
-    ConHandle : Int64;                 { дальше -- из параметров процесса }
+    ConHandle : Int64;                 { РґР°Р»СЊС€Рµ -- РёР· РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕС†РµСЃСЃР° }
     StdIn     : Int64;
     StdOut    : Int64;
     StdErr    : Int64;
-    ExeFile   : string;                { szExeFile из TlHelp32 }
+    ExeFile   : string;                { szExeFile РёР· TlHelp32 }
     CurDir    : string;
     ImagePath : string;
     CmdLine   : string;
     Modules   : TModulesList;
-    IsWow     : Integer;               { процесс НЕ под WOW64, то есть
-                                         настоящий 64-разрядный }
+    IsWow     : Integer;               { РїСЂРѕС†РµСЃСЃ РќР• РїРѕРґ WOW64, С‚Рѕ РµСЃС‚СЊ
+                                         РЅР°СЃС‚РѕСЏС‰РёР№ 64-СЂР°Р·СЂСЏРґРЅС‹Р№ }
     Res9C     : Cardinal;
   end;
 
-  { Имя, под которым запись знает ReadMem. }
+  { РРјСЏ, РїРѕРґ РєРѕС‚РѕСЂС‹Рј Р·Р°РїРёСЃСЊ Р·РЅР°РµС‚ ReadMem. }
   TProcModules = PROCESS_INFO;
 
 var
-  { Обе ntdll'ные функции снимает InitProcApi. }
+  { РћР±Рµ ntdll'РЅС‹Рµ С„СѓРЅРєС†РёРё СЃРЅРёРјР°РµС‚ InitProcApi. }
   pNtWow64Query: TNtWow64Query;        { NtWow64QueryInformationProcess64 }
   pNtWow64Read: TNtWow64Read;          { NtWow64ReadVirtualMemory64 }
   pIsWow64Process: TIsWow64Process;
-  gOS64: Integer = 0;                  { система 64-разрядная. При нуле
-                                         список модулей читается
-                                         32-разрядной ветвью, каким бы ни
-                                         был сам процесс }
+  gOS64: Integer = 0;                  { СЃРёСЃС‚РµРјР° 64-СЂР°Р·СЂСЏРґРЅР°СЏ. РџСЂРё РЅСѓР»Рµ
+                                         СЃРїРёСЃРѕРє РјРѕРґСѓР»РµР№ С‡РёС‚Р°РµС‚СЃСЏ
+                                         32-СЂР°Р·СЂСЏРґРЅРѕР№ РІРµС‚РІСЊСЋ, РєР°РєРёРј Р±С‹ РЅРё
+                                         Р±С‹Р» СЃР°Рј РїСЂРѕС†РµСЃСЃ }
 
 procedure GetProcModules(APid: Cardinal; out AList: PROCESS_INFO;
   AFlag: Boolean);
@@ -102,26 +106,31 @@ function SetDebugPrivilege(Enable: Boolean): Boolean;
 
 implementation
 
-{ Из TlHelp32 берём снимок процессов и тип TProcessEntry32; сами
-  Process32First/Next объявлены ниже заново -- в юните они обёрнуты
-  ленивой загрузкой, а нам она тут не нужна. }
-uses TlHelp32, ScktComp, SHDocVw, Masks, BrkrConst, WebConst, HTTPApp;
+{ РР· TlHelp32 Р±РµСЂС‘Рј СЃРЅРёРјРѕРє РїСЂРѕС†РµСЃСЃРѕРІ Рё С‚РёРї TProcessEntry32; СЃР°РјРё
+  Process32First/Next РѕР±СЉСЏРІР»РµРЅС‹ РЅРёР¶Рµ Р·Р°РЅРѕРІРѕ -- РІ СЋРЅРёС‚Рµ РѕРЅРё РѕР±С‘СЂРЅСѓС‚С‹
+  Р»РµРЅРёРІРѕР№ Р·Р°РіСЂСѓР·РєРѕР№, Р° РЅР°Рј РѕРЅР° С‚СѓС‚ РЅРµ РЅСѓР¶РЅР°. }
+uses
+{$IFnDEF FPC}
+  HTTPApp, BrkrConst, SHDocVw, ScktComp, TlHelp32, WebConst,
+{$ELSE}
+{$ENDIF}
+  Masks;
 
 type
-  { Дальше идут внутренние структуры Windows -- в Windows.pas их нет, и
-    описывать приходится руками. Смещения проставлены нарочно: на них и
-    держится вся эта работа. }
-  TNtUniStr = record                   { UNICODE_STRING, 8 байт }
+  { Р”Р°Р»СЊС€Рµ РёРґСѓС‚ РІРЅСѓС‚СЂРµРЅРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ Windows -- РІ Windows.pas РёС… РЅРµС‚, Рё
+    РѕРїРёСЃС‹РІР°С‚СЊ РїСЂРёС…РѕРґРёС‚СЃСЏ СЂСѓРєР°РјРё. РЎРјРµС‰РµРЅРёСЏ РїСЂРѕСЃС‚Р°РІР»РµРЅС‹ РЅР°СЂРѕС‡РЅРѕ: РЅР° РЅРёС… Рё
+    РґРµСЂР¶РёС‚СЃСЏ РІСЃСЏ СЌС‚Р° СЂР°Р±РѕС‚Р°. }
+  TNtUniStr = record                   { UNICODE_STRING, 8 Р±Р°Р№С‚ }
     Len     : Word;
     MaxLen  : Word;
     Buffer  : PWideChar;
   end;
 
-  TPebLdrData = record                 { читается ровно $24 байта }
+  TPebLdrData = record                 { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $24 Р±Р°Р№С‚Р° }
     Size              : Cardinal;      { +$00 }
     Initialized       : Cardinal;      { +$04 }
     SsHandle          : Cardinal;      { +$08 }
-    InLoadOrderFlink  : Cardinal;      { +$0C -- с него начинается обход }
+    InLoadOrderFlink  : Cardinal;      { +$0C -- СЃ РЅРµРіРѕ РЅР°С‡РёРЅР°РµС‚СЃСЏ РѕР±С…РѕРґ }
     InLoadOrderBlink  : Cardinal;      { +$10 }
     InMemOrderFlink   : Cardinal;      { +$14 }
     InMemOrderBlink   : Cardinal;      { +$18 }
@@ -129,7 +138,7 @@ type
     InInitOrderBlink  : Cardinal;      { +$20 }
   end;
 
-  TLdrModule = record                  { читается ровно $40 байт }
+  TLdrModule = record                  { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $40 Р±Р°Р№С‚ }
     InLoadOrderFlink  : Cardinal;      { +$00 }
     InLoadOrderBlink  : Cardinal;      { +$04 }
     InMemOrderFlink   : Cardinal;      { +$08 }
@@ -147,33 +156,33 @@ type
     HashNext          : Cardinal;      { +$3C }
   end;
 
-  TProcessBasicInfo = record            { читается ровно $18 байт }
+  TProcessBasicInfo = record            { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $18 Р±Р°Р№С‚ }
     ExitStatus     : Cardinal;         { +$00 }
     PebBaseAddress : Cardinal;         { +$04 }
     AffinityMask   : Cardinal;         { +$08 }
-    BasePriority   : Integer;          { +$0C -- именно знаковый }
+    BasePriority   : Integer;          { +$0C -- РёРјРµРЅРЅРѕ Р·РЅР°РєРѕРІС‹Р№ }
     UniqueProcessId: Cardinal;         { +$10 }
     ParentProcessId: Cardinal;         { +$14 }
   end;
 
-  TPebRec = record                     { читается ровно $1D8 байт }
+  TPebRec = record                     { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $1D8 Р±Р°Р№С‚ }
     Res00             : Byte;          { +$00 }
     Res01             : Byte;          { +$01 }
-    BeingDebugged     : Byte;          { +$02 -- уходит в PROCESS_INFO+$30 }
+    BeingDebugged     : Byte;          { +$02 -- СѓС…РѕРґРёС‚ РІ PROCESS_INFO+$30 }
     Res03             : Byte;          { +$03 }
     Mutant            : Cardinal;      { +$04 }
     ImageBase         : Cardinal;      { +$08 }
     Ldr               : Cardinal;      { +$0C }
     ProcessParams     : Cardinal;      { +$10 }
     Tail              : array[0..$1BF] of Byte;  { +$14 }
-    SessionId         : Cardinal;      { +$1D4 -- последнее нужное поле,
-                                         под него и подобран размер
-                                         чтения }
+    SessionId         : Cardinal;      { +$1D4 -- РїРѕСЃР»РµРґРЅРµРµ РЅСѓР¶РЅРѕРµ РїРѕР»Рµ,
+                                         РїРѕРґ РЅРµРіРѕ Рё РїРѕРґРѕР±СЂР°РЅ СЂР°Р·РјРµСЂ
+                                         С‡С‚РµРЅРёСЏ }
   end;
 
-  { Раскладка RTL_USER_PROCESS_PARAMETERS. Читается $48 байт, то есть ровно
-    до конца CommandLine включительно -- дальше нам ничего не нужно. }
-  TProcParamsRec = record              { читается ровно $48 байт }
+  { Р Р°СЃРєР»Р°РґРєР° RTL_USER_PROCESS_PARAMETERS. Р§РёС‚Р°РµС‚СЃСЏ $48 Р±Р°Р№С‚, С‚Рѕ РµСЃС‚СЊ СЂРѕРІРЅРѕ
+    РґРѕ РєРѕРЅС†Р° CommandLine РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ -- РґР°Р»СЊС€Рµ РЅР°Рј РЅРёС‡РµРіРѕ РЅРµ РЅСѓР¶РЅРѕ. }
+  TProcParamsRec = record              { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $48 Р±Р°Р№С‚ }
     Head          : array[0..$0F] of Byte;  { +$00 }
     ConsoleHandle : Cardinal;          { +$10 }
     ConsoleFlags  : Cardinal;          { +$14 }
@@ -187,20 +196,20 @@ type
     CommandLine   : TNtUniStr;         { +$40 }
   end;
 
-  { --- 64-разрядные близнецы. Всё то же самое, только указатели по
-    восемь байт, а UNICODE_STRING растянут до $10 из-за выравнивания. --- }
-  TNtUniStr64 = record                 { $10 байт }
+  { --- 64-СЂР°Р·СЂСЏРґРЅС‹Рµ Р±Р»РёР·РЅРµС†С‹. Р’СЃС‘ С‚Рѕ Р¶Рµ СЃР°РјРѕРµ, С‚РѕР»СЊРєРѕ СѓРєР°Р·Р°С‚РµР»Рё РїРѕ
+    РІРѕСЃРµРјСЊ Р±Р°Р№С‚, Р° UNICODE_STRING СЂР°СЃС‚СЏРЅСѓС‚ РґРѕ $10 РёР·-Р·Р° РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ. --- }
+  TNtUniStr64 = record                 { $10 Р±Р°Р№С‚ }
     Len     : Word;                    { +$00 }
     MaxLen  : Word;                    { +$02 }
-    Res     : Cardinal;                { +$04 -- набивка }
+    Res     : Cardinal;                { +$04 -- РЅР°Р±РёРІРєР° }
     Buffer  : Int64;                   { +$08 }
   end;
 
-  TPebLdrData64 = record               { читается ровно $40 байт }
+  TPebLdrData64 = record               { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $40 Р±Р°Р№С‚ }
     Size              : Cardinal;      { +$00 }
     Initialized       : Cardinal;      { +$04 }
     SsHandle          : Int64;         { +$08 }
-    InLoadOrderFlink  : Int64;         { +$10 -- с него начинается обход }
+    InLoadOrderFlink  : Int64;         { +$10 -- СЃ РЅРµРіРѕ РЅР°С‡РёРЅР°РµС‚СЃСЏ РѕР±С…РѕРґ }
     InLoadOrderBlink  : Int64;         { +$18 }
     InMemOrderFlink   : Int64;         { +$20 }
     InMemOrderBlink   : Int64;         { +$28 }
@@ -208,7 +217,7 @@ type
     InInitOrderBlink  : Int64;         { +$38 }
   end;
 
-  TLdrModule64 = record                { читается ровно $78 байт }
+  TLdrModule64 = record                { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $78 Р±Р°Р№С‚ }
     InLoadOrderFlink  : Int64;         { +$00 }
     InLoadOrderBlink  : Int64;         { +$08 }
     InMemOrderFlink   : Int64;         { +$10 }
@@ -224,20 +233,20 @@ type
     Tail              : array[0..$0F] of Byte;   { +$68 }
   end;
 
-  TProcessBasicInfo64 = record         { читается ровно $30 байт }
+  TProcessBasicInfo64 = record         { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $30 Р±Р°Р№С‚ }
     ExitStatus     : Cardinal;         { +$00 }
     Res04          : Cardinal;         { +$04 }
     PebBaseAddress : Int64;            { +$08 }
     AffinityMask   : Int64;            { +$10 }
-    BasePriority   : Cardinal;         { +$18 -- а здесь беззнаковый,
-                                         в отличие от 32-разрядной
-                                         записи }
+    BasePriority   : Cardinal;         { +$18 -- Р° Р·РґРµСЃСЊ Р±РµР·Р·РЅР°РєРѕРІС‹Р№,
+                                         РІ РѕС‚Р»РёС‡РёРµ РѕС‚ 32-СЂР°Р·СЂСЏРґРЅРѕР№
+                                         Р·Р°РїРёСЃРё }
     Res1C          : Cardinal;         { +$1C }
     UniqueProcessId: Int64;            { +$20 }
     ParentProcessId: Int64;            { +$28 }
   end;
 
-  TPebRec64 = record                   { читается ровно $2C8 байт }
+  TPebRec64 = record                   { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $2C8 Р±Р°Р№С‚ }
     Res00         : Byte;              { +$00 }
     Res01         : Byte;              { +$01 }
     BeingDebugged : Byte;              { +$02 }
@@ -248,12 +257,12 @@ type
     Ldr           : Int64;             { +$18 }
     ProcessParams : Int64;             { +$20 }
     Tail          : array[0..$297] of Byte;   { +$28 }
-    SessionId     : Cardinal;          { +$2C0 -- и опять последнее нужное
-                                         поле задаёт размер чтения }
+    SessionId     : Cardinal;          { +$2C0 -- Рё РѕРїСЏС‚СЊ РїРѕСЃР»РµРґРЅРµРµ РЅСѓР¶РЅРѕРµ
+                                         РїРѕР»Рµ Р·Р°РґР°С‘С‚ СЂР°Р·РјРµСЂ С‡С‚РµРЅРёСЏ }
     Tail2         : array[0..3] of Byte;      { +$2C4 }
   end;
 
-  TProcParams64 = record               { читается ровно $80 байт }
+  TProcParams64 = record               { С‡РёС‚Р°РµС‚СЃСЏ СЂРѕРІРЅРѕ $80 Р±Р°Р№С‚ }
     Head          : array[0..$0F] of Byte;  { +$00 }
     ConsoleHandle : Int64;             { +$10 }
     ConsoleFlags  : Cardinal;          { +$18 }
@@ -268,9 +277,9 @@ type
     CommandLine   : TNtUniStr64;       { +$70 }
   end;
 
-  { Это PROCESS_MEMORY_COUNTERS_EX, а не обычная запись из PsAPI: нужен
-    PrivateUsage, а он лежит в хвосте расширенной. }
-  TProcMemCounters = record            { $2C байт }
+  { Р­С‚Рѕ PROCESS_MEMORY_COUNTERS_EX, Р° РЅРµ РѕР±С‹С‡РЅР°СЏ Р·Р°РїРёСЃСЊ РёР· PsAPI: РЅСѓР¶РµРЅ
+    PrivateUsage, Р° РѕРЅ Р»РµР¶РёС‚ РІ С…РІРѕСЃС‚Рµ СЂР°СЃС€РёСЂРµРЅРЅРѕР№. }
+  TProcMemCounters = record            { $2C Р±Р°Р№С‚ }
     cb                         : Cardinal;   { +$00 }
     PageFaultCount             : Cardinal;   { +$04 }
     PeakWorkingSetSize         : Cardinal;   { +$08 }
@@ -289,7 +298,7 @@ function NtQueryInformationProcess(ProcessHandle: THandle;
   RetLen: PCardinal): Integer; stdcall;
   external 'ntdll.dll' name 'NtQueryInformationProcess';
 
-{ Объявляем сами: ntdll в Windows.pas нет вовсе. }
+{ РћР±СЉСЏРІР»СЏРµРј СЃР°РјРё: ntdll РІ Windows.pas РЅРµС‚ РІРѕРІСЃРµ. }
 function NtReadVirtualMemory(ProcessHandle: THandle; BaseAddress: Pointer;
   Buffer: Pointer; NumberOfBytesToRead: Cardinal;
   NumberOfBytesRead: PCardinal): Integer; stdcall;
@@ -318,8 +327,8 @@ begin
   Result := OpenProcess($1F0FFF, False, APid);
 end;
 
-{ WideString -> string с ЯВНОЙ кодовой страницей: обычное приведение
-  берёт текущую системную, а нам иногда нужна другая. }
+{ WideString -> string СЃ РЇР’РќРћР™ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†РµР№: РѕР±С‹С‡РЅРѕРµ РїСЂРёРІРµРґРµРЅРёРµ
+  Р±РµСЂС‘С‚ С‚РµРєСѓС‰СѓСЋ СЃРёСЃС‚РµРјРЅСѓСЋ, Р° РЅР°Рј РёРЅРѕРіРґР° РЅСѓР¶РЅР° РґСЂСѓРіР°СЏ. }
 function WideToStr(const S: WideString; CP: Word): string;
 var
   n: Integer;
@@ -338,8 +347,8 @@ begin
   end;
 end;
 
-{ Включить привилегию по имени. Отсюда её просят обе ветви разбора --
-  без SeDebugPrivilege чужой PEB не прочитать. }
+{ Р’РєР»СЋС‡РёС‚СЊ РїСЂРёРІРёР»РµРіРёСЋ РїРѕ РёРјРµРЅРё. РћС‚СЃСЋРґР° РµС‘ РїСЂРѕСЃСЏС‚ РѕР±Рµ РІРµС‚РІРё СЂР°Р·Р±РѕСЂР° --
+  Р±РµР· SeDebugPrivilege С‡СѓР¶РѕР№ PEB РЅРµ РїСЂРѕС‡РёС‚Р°С‚СЊ. }
 function SetPrivilege(AName: string; AEnable: Boolean): Boolean;
 var
   hTok: THandle;
@@ -361,14 +370,14 @@ begin
       TPPrev := TP;
       AdjustTokenPrivileges(hTok, False, TP, SizeOf(TP), TPPrev, RetLen);
     end;
-    CloseHandle(hTok);
+    FileClose(hTok); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
   end;
   Result := GetLastError = ERROR_SUCCESS;
 end;
 
-{ «Система 64-разрядная?» Мы сами 32-разрядные, значит под 64-разрядной
-  Windows идём через WOW64 -- и IsWow64Process на СВОЁМ процессе как раз
-  и отвечает на этот вопрос. }
+{ В«РЎРёСЃС‚РµРјР° 64-СЂР°Р·СЂСЏРґРЅР°СЏ?В» РњС‹ СЃР°РјРё 32-СЂР°Р·СЂСЏРґРЅС‹Рµ, Р·РЅР°С‡РёС‚ РїРѕРґ 64-СЂР°Р·СЂСЏРґРЅРѕР№
+  Windows РёРґС‘Рј С‡РµСЂРµР· WOW64 -- Рё IsWow64Process РЅР° РЎР’РћРЃРњ РїСЂРѕС†РµСЃСЃРµ РєР°Рє СЂР°Р·
+  Рё РѕС‚РІРµС‡Р°РµС‚ РЅР° СЌС‚РѕС‚ РІРѕРїСЂРѕСЃ. }
 function IsOS64: BOOL;
 begin
   pIsWow64Process := GetProcAddress(GetModuleHandle('kernel32.dll'),
@@ -378,8 +387,8 @@ begin
     Result := pIsWow64Process(GetCurrentProcess, Result) and Result;
 end;
 
-{ Один раз при запуске: узнать разрядность системы и, если она
-  64-разрядная, снять две функции WOW64 из ntdll. }
+{ РћРґРёРЅ СЂР°Р· РїСЂРё Р·Р°РїСѓСЃРєРµ: СѓР·РЅР°С‚СЊ СЂР°Р·СЂСЏРґРЅРѕСЃС‚СЊ СЃРёСЃС‚РµРјС‹ Рё, РµСЃР»Рё РѕРЅР°
+  64-СЂР°Р·СЂСЏРґРЅР°СЏ, СЃРЅСЏС‚СЊ РґРІРµ С„СѓРЅРєС†РёРё WOW64 РёР· ntdll. }
 procedure InitProcApi;
 var
   h: HMODULE;
@@ -395,9 +404,9 @@ begin
     gOS64 := 0;
 end;
 
-{ Обход списка модулей 32-разрядного процесса: по PEB.Ldr идём цепочкой
-  InLoadOrder и каждый узел читаем из чужой памяти целиком. Имена лежат
-  там же, отдельными кусками, -- под каждое берём временный буфер. }
+{ РћР±С…РѕРґ СЃРїРёСЃРєР° РјРѕРґСѓР»РµР№ 32-СЂР°Р·СЂСЏРґРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР°: РїРѕ PEB.Ldr РёРґС‘Рј С†РµРїРѕС‡РєРѕР№
+  InLoadOrder Рё РєР°Р¶РґС‹Р№ СѓР·РµР» С‡РёС‚Р°РµРј РёР· С‡СѓР¶РѕР№ РїР°РјСЏС‚Рё С†РµР»РёРєРѕРј. РРјРµРЅР° Р»РµР¶Р°С‚
+  С‚Р°Рј Р¶Рµ, РѕС‚РґРµР»СЊРЅС‹РјРё РєСѓСЃРєР°РјРё, -- РїРѕРґ РєР°Р¶РґРѕРµ Р±РµСЂС‘Рј РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ. }
 procedure ReadPebModules32(AProcess: THandle; ALdr: Cardinal;
   out AList: TModulesList);
 var
@@ -438,14 +447,14 @@ begin
   end;
 end;
 
-{ Обе ветви разбора устроены одинаково: чистим буферы, берём привилегию
-  отладки, открываем процесс, читаем PBI -> PEB -> параметры процесса,
-  обходим список модулей, вытаскиваем три строки из чужой памяти,
-  добираем счётчики и раскладываем всё по полям.
+{ РћР±Рµ РІРµС‚РІРё СЂР°Р·Р±РѕСЂР° СѓСЃС‚СЂРѕРµРЅС‹ РѕРґРёРЅР°РєРѕРІРѕ: С‡РёСЃС‚РёРј Р±СѓС„РµСЂС‹, Р±РµСЂС‘Рј РїСЂРёРІРёР»РµРіРёСЋ
+  РѕС‚Р»Р°РґРєРё, РѕС‚РєСЂС‹РІР°РµРј РїСЂРѕС†РµСЃСЃ, С‡РёС‚Р°РµРј PBI -> PEB -> РїР°СЂР°РјРµС‚СЂС‹ РїСЂРѕС†РµСЃСЃР°,
+  РѕР±С…РѕРґРёРј СЃРїРёСЃРѕРє РјРѕРґСѓР»РµР№, РІС‹С‚Р°СЃРєРёРІР°РµРј С‚СЂРё СЃС‚СЂРѕРєРё РёР· С‡СѓР¶РѕР№ РїР°РјСЏС‚Рё,
+  РґРѕР±РёСЂР°РµРј СЃС‡С‘С‚С‡РёРєРё Рё СЂР°СЃРєР»Р°РґС‹РІР°РµРј РІСЃС‘ РїРѕ РїРѕР»СЏРј.
 
-  Размеры чтений PEB и параметров подобраны ПОД ПОСЛЕДНЕЕ НУЖНОЕ ПОЛЕ --
-  SessionId и CommandLine: читать структуру целиком незачем, да и хвост
-  её от версии к версии разный. }
+  Р Р°Р·РјРµСЂС‹ С‡С‚РµРЅРёР№ PEB Рё РїР°СЂР°РјРµС‚СЂРѕРІ РїРѕРґРѕР±СЂР°РЅС‹ РџРћР” РџРћРЎР›Р•Р”РќР•Р• РќРЈР–РќРћР• РџРћР›Р• --
+  SessionId Рё CommandLine: С‡РёС‚Р°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ С†РµР»РёРєРѕРј РЅРµР·Р°С‡РµРј, РґР° Рё С…РІРѕСЃС‚
+  РµС‘ РѕС‚ РІРµСЂСЃРёРё Рє РІРµСЂСЃРёРё СЂР°Р·РЅС‹Р№. }
 procedure ReadModules32(APid: Cardinal; out AList: PROCESS_INFO);
 var
   Ret: Cardinal;
@@ -524,10 +533,10 @@ begin
   AList.ImagePath := S2;
   AList.CmdLine := S1;
   AList.IsWow := Integer(W);
-  CloseHandle(h);
+  FileClose(h); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
 end;
 
-{ Тот же обход списка модулей, только у 64-разрядного процесса и через
+{ РўРѕС‚ Р¶Рµ РѕР±С…РѕРґ СЃРїРёСЃРєР° РјРѕРґСѓР»РµР№, С‚РѕР»СЊРєРѕ Сѓ 64-СЂР°Р·СЂСЏРґРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° Рё С‡РµСЂРµР·
   NtWow64ReadVirtualMemory64. }
 procedure ReadPebModules64(AProcess: THandle; ALdr: Int64;
   out AList: TModulesList);
@@ -567,9 +576,9 @@ begin
   end;
 end;
 
-{ 64-разрядная ветвь. Отличий от 32-разрядной два: разрядность процесса
-  тут выясняется, а не берётся нулём, и BasePriority в 64-разрядной
-  PROCESS_BASIC_INFORMATION беззнаковый. }
+{ 64-СЂР°Р·СЂСЏРґРЅР°СЏ РІРµС‚РІСЊ. РћС‚Р»РёС‡РёР№ РѕС‚ 32-СЂР°Р·СЂСЏРґРЅРѕР№ РґРІР°: СЂР°Р·СЂСЏРґРЅРѕСЃС‚СЊ РїСЂРѕС†РµСЃСЃР°
+  С‚СѓС‚ РІС‹СЏСЃРЅСЏРµС‚СЃСЏ, Р° РЅРµ Р±РµСЂС‘С‚СЃСЏ РЅСѓР»С‘Рј, Рё BasePriority РІ 64-СЂР°Р·СЂСЏРґРЅРѕР№
+  PROCESS_BASIC_INFORMATION Р±РµР·Р·РЅР°РєРѕРІС‹Р№. }
 procedure ReadModules64(APid: Cardinal; out AList: PROCESS_INFO);
 var
   Ret: Int64;
@@ -649,13 +658,13 @@ begin
   AList.ImagePath := S2;
   AList.CmdLine := S1;
   AList.IsWow := Integer(W);
-  CloseHandle(h);
+  FileClose(h); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
 end;
 
-{ Выбор ветви. IsWow64Process отвечает «процесс под WOW64», то есть
-  32-разрядный, а нам удобнее обратное -- отсюда `not`. AFlag заставляет
-  читать 64-разрядный список даже у процесса под WOW64: иногда нужны
-  именно настоящие адреса. }
+{ Р’С‹Р±РѕСЂ РІРµС‚РІРё. IsWow64Process РѕС‚РІРµС‡Р°РµС‚ В«РїСЂРѕС†РµСЃСЃ РїРѕРґ WOW64В», С‚Рѕ РµСЃС‚СЊ
+  32-СЂР°Р·СЂСЏРґРЅС‹Р№, Р° РЅР°Рј СѓРґРѕР±РЅРµРµ РѕР±СЂР°С‚РЅРѕРµ -- РѕС‚СЃСЋРґР° `not`. AFlag Р·Р°СЃС‚Р°РІР»СЏРµС‚
+  С‡РёС‚Р°С‚СЊ 64-СЂР°Р·СЂСЏРґРЅС‹Р№ СЃРїРёСЃРѕРє РґР°Р¶Рµ Сѓ РїСЂРѕС†РµСЃСЃР° РїРѕРґ WOW64: РёРЅРѕРіРґР° РЅСѓР¶РЅС‹
+  РёРјРµРЅРЅРѕ РЅР°СЃС‚РѕСЏС‰РёРµ Р°РґСЂРµСЃР°. }
 procedure GetProcModules(APid: Cardinal; out AList: PROCESS_INFO;
   AFlag: Boolean);
 var
@@ -668,7 +677,7 @@ begin
   begin
     pIsWow64Process(h, W);
     W := not W;
-    CloseHandle(h);
+    FileClose(h); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
     if gOS64 <> 0 then
     begin
       if W then
@@ -683,7 +692,7 @@ begin
   end;
 end;
 
-{ Поиск записи процесса по идентификатору через снимок TlHelp32. }
+{ РџРѕРёСЃРє Р·Р°РїРёСЃРё РїСЂРѕС†РµСЃСЃР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ С‡РµСЂРµР· СЃРЅРёРјРѕРє TlHelp32. }
 procedure FindProcEntry(APid: Cardinal; var APe: TProcessEntry32);
 var
   h: THandle;
@@ -704,7 +713,7 @@ begin
           Break;
         end;
   end;
-  CloseHandle(h);
+  FileClose(h); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
 end;
 
 function SetDebugPrivilege(Enable: Boolean): Boolean;
@@ -722,12 +731,12 @@ begin
       TP.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED
     else
       TP.Privileges[0].Attributes := $80000000;
-    { Прежнее состояние не спрашиваем -- возвращать привилегию назад
-      всё равно не собираемся. }
+    { РџСЂРµР¶РЅРµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РЅРµ СЃРїСЂР°С€РёРІР°РµРј -- РІРѕР·РІСЂР°С‰Р°С‚СЊ РїСЂРёРІРёР»РµРіРёСЋ РЅР°Р·Р°Рґ
+      РІСЃС‘ СЂР°РІРЅРѕ РЅРµ СЃРѕР±РёСЂР°РµРјСЃСЏ. }
     AdjustTokenPrivileges(hTok, False, TP, SizeOf(TP), nil, Ret);
     if GetLastError = ERROR_SUCCESS then
       Result := True;
-    CloseHandle(hTok);
+    FileClose(hTok); { *РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРѕ РёР· CloseHandle* }
   end;
 end;
 

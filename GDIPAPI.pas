@@ -1,8 +1,12 @@
 unit GDIPAPI;
 
-{ Плоский GDI+ ровно в том объёме, который нужен: заголовков GDI+ в
-  поставке Delphi 7 нет, а тащить сюда полный GDIPAPI на триста килобайт
-  ради двенадцати имён незачем. }
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
+{ РџР»РѕСЃРєРёР№ GDI+ СЂРѕРІРЅРѕ РІ С‚РѕРј РѕР±СЉС‘РјРµ, РєРѕС‚РѕСЂС‹Р№ РЅСѓР¶РµРЅ: Р·Р°РіРѕР»РѕРІРєРѕРІ GDI+ РІ
+  РїРѕСЃС‚Р°РІРєРµ Delphi 7 РЅРµС‚, Р° С‚Р°С‰РёС‚СЊ СЃСЋРґР° РїРѕР»РЅС‹Р№ GDIPAPI РЅР° С‚СЂРёСЃС‚Р° РєРёР»РѕР±Р°Р№С‚
+  СЂР°РґРё РґРІРµРЅР°РґС†Р°С‚Рё РёРјС‘РЅ РЅРµР·Р°С‡РµРј. }
 
 interface
 
@@ -14,8 +18,8 @@ type
     X, Y, Width, Height: Integer;
   end;
 
-  { Stride знаковый нарочно: у растра, идущего снизу вверх, он
-    отрицательный. }
+  { Stride Р·РЅР°РєРѕРІС‹Р№ РЅР°СЂРѕС‡РЅРѕ: Сѓ СЂР°СЃС‚СЂР°, РёРґСѓС‰РµРіРѕ СЃРЅРёР·Сѓ РІРІРµСЂС…, РѕРЅ
+    РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Р№. }
   PGpBitmapData = ^TGpBitmapData;
   TGpBitmapData = packed record
     Width: UINT;
@@ -49,7 +53,7 @@ function GdipSaveImageToFile(image: Pointer; filename: PWideChar;
 function GdipSaveImageToStream(image: Pointer; const stream: IStream;
   clsidEncoder: PGUID; encoderParams: Pointer): Integer;
   stdcall; external 'gdiplus.dll';
-{ Размеры берём знаковыми: они сразу идут в счёт по массиву точек. }
+{ Р Р°Р·РјРµСЂС‹ Р±РµСЂС‘Рј Р·РЅР°РєРѕРІС‹РјРё: РѕРЅРё СЃСЂР°Р·Сѓ РёРґСѓС‚ РІ СЃС‡С‘С‚ РїРѕ РјР°СЃСЃРёРІСѓ С‚РѕС‡РµРє. }
 function GdipGetImageWidth(image: Pointer; out width: Integer): Integer;
   stdcall; external 'gdiplus.dll';
 function GdipGetImageHeight(image: Pointer; out height: Integer): Integer;

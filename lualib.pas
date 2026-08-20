@@ -1,18 +1,22 @@
 unit lualib;
 
-{ Привязка Lua: адреса функций lua51.dll и то, что ими пользуется.
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
-  Библиотека грузится на ходу, по имени файла из настроек: без Lua
-  программа должна просто работать без скриптов, а не отказываться
-  запускаться. Поэтому никакого статического импорта -- только
-  LoadLibrary и разбор по ячейкам. }
+{ РџСЂРёРІСЏР·РєР° Lua: Р°РґСЂРµСЃР° С„СѓРЅРєС†РёР№ lua51.dll Рё С‚Рѕ, С‡С‚Рѕ РёРјРё РїРѕР»СЊР·СѓРµС‚СЃСЏ.
+
+  Р‘РёР±Р»РёРѕС‚РµРєР° РіСЂСѓР·РёС‚СЃСЏ РЅР° С…РѕРґСѓ, РїРѕ РёРјРµРЅРё С„Р°Р№Р»Р° РёР· РЅР°СЃС‚СЂРѕРµРє: Р±РµР· Lua
+  РїСЂРѕРіСЂР°РјРјР° РґРѕР»Р¶РЅР° РїСЂРѕСЃС‚Рѕ СЂР°Р±РѕС‚Р°С‚СЊ Р±РµР· СЃРєСЂРёРїС‚РѕРІ, Р° РЅРµ РѕС‚РєР°Р·С‹РІР°С‚СЊСЃСЏ
+  Р·Р°РїСѓСЃРєР°С‚СЊСЃСЏ. РџРѕСЌС‚РѕРјСѓ РЅРёРєР°РєРѕРіРѕ СЃС‚Р°С‚РёС‡РµСЃРєРѕРіРѕ РёРјРїРѕСЂС‚Р° -- С‚РѕР»СЊРєРѕ
+  LoadLibrary Рё СЂР°Р·Р±РѕСЂ РїРѕ СЏС‡РµР№РєР°Рј. }
 
 interface
 
 uses Windows;
 
 type
-  { Тексты кодов возврата Lua -- по ним печатается ошибка скрипта. }
+  { РўРµРєСЃС‚С‹ РєРѕРґРѕРІ РІРѕР·РІСЂР°С‚Р° Lua -- РїРѕ РЅРёРј РїРµС‡Р°С‚Р°РµС‚СЃСЏ РѕС€РёР±РєР° СЃРєСЂРёРїС‚Р°. }
   TLuaStatusText = array[0..6] of string;
   TLuaCFunc = function(L: Integer): Integer; cdecl;
   TLuaIsString = function(L, Idx: Integer): Integer; cdecl;
@@ -27,15 +31,15 @@ type
   TLuaPushLString = procedure(L: Integer; S: PChar; Len: Integer); cdecl;
   TLuaPushCClosure = procedure(L: Integer; F: TLuaCFunc; N: Integer); cdecl;
   TLuaSetTable = procedure(L, Idx: Integer); cdecl;
-  { lua_settop, через неё работает LuaPop }
+  { lua_settop, С‡РµСЂРµР· РЅРµС‘ СЂР°Р±РѕС‚Р°РµС‚ LuaPop }
   TLuaSetTop = procedure(L, Idx: Integer); cdecl;
-  { обход таблицы Lua ключ за ключом }
+  { РѕР±С…РѕРґ С‚Р°Р±Р»РёС†С‹ Lua РєР»СЋС‡ Р·Р° РєР»СЋС‡РѕРј }
   TLuaNext = function(L, Idx: Integer): Integer; cdecl;
   TLuaInsert = procedure(L, Idx: Integer); cdecl;
   TLuaPushNil = procedure(L: Integer); cdecl;
   TLuaPushInteger = procedure(L, N: Integer); cdecl;
-  { Признак именно LongBool: на стороне Lua это int, и байтом его не
-    передать. }
+  { РџСЂРёР·РЅР°Рє РёРјРµРЅРЅРѕ LongBool: РЅР° СЃС‚РѕСЂРѕРЅРµ Lua СЌС‚Рѕ int, Рё Р±Р°Р№С‚РѕРј РµРіРѕ РЅРµ
+    РїРµСЂРµРґР°С‚СЊ. }
   TLuaPushBoolean = procedure(L: Integer; B: LongBool); cdecl;
   TLuaLoadString = function(L: Integer; S: PChar): Integer; cdecl;
   TLuaPCall = function(L, NArgs, NRes, ErrFunc: Integer): Integer; cdecl;
@@ -43,10 +47,10 @@ type
   TLuaOpenLibs = procedure(L: Integer); cdecl;
 
 const
-  { псевдоиндекс таблицы глобальных в Lua 5.1 }
+  { РїСЃРµРІРґРѕРёРЅРґРµРєСЃ С‚Р°Р±Р»РёС†С‹ РіР»РѕР±Р°Р»СЊРЅС‹С… РІ Lua 5.1 }
   LUA_GLOBALSINDEX = -10002;
 
-  { Тексты кодов возврата lua_pcall: индекс -- сам код. }
+  { РўРµРєСЃС‚С‹ РєРѕРґРѕРІ РІРѕР·РІСЂР°С‚Р° lua_pcall: РёРЅРґРµРєСЃ -- СЃР°Рј РєРѕРґ. }
   gLuaStatusTextjm: TLuaStatusText = (
     'success.',
     'success.',
@@ -57,12 +61,12 @@ const
     'error while running the message handler.');
 
 type
-  { Обёртка над lua_State: заводит состояние на свой скрипт и закрывает
-    его. Живёт по одной на вкладку. }
+  { РћР±С‘СЂС‚РєР° РЅР°Рґ lua_State: Р·Р°РІРѕРґРёС‚ СЃРѕСЃС‚РѕСЏРЅРёРµ РЅР° СЃРІРѕР№ СЃРєСЂРёРїС‚ Рё Р·Р°РєСЂС‹РІР°РµС‚
+    РµРіРѕ. Р–РёРІС‘С‚ РїРѕ РѕРґРЅРѕР№ РЅР° РІРєР»Р°РґРєСѓ. }
   TLua = class
   public
     Handle: Integer;                   { lua_State* }
-    ScriptNo: Integer;                 { номер скрипта }
+    ScriptNo: Integer;                 { РЅРѕРјРµСЂ СЃРєСЂРёРїС‚Р° }
     constructor Create;
     destructor Destroy; override;
     procedure Reg(const Name: string; Func: Pointer; N: Integer);
@@ -70,15 +74,15 @@ type
   end;
 
 var
-  { Ручка lua51.dll и адреса всех её функций, какие нам нужны. Часть
-    ячеек так и осталась Pointer -- их только загружаем, зовёт их
-    никто. }
+  { Р СѓС‡РєР° lua51.dll Рё Р°РґСЂРµСЃР° РІСЃРµС… РµС‘ С„СѓРЅРєС†РёР№, РєР°РєРёРµ РЅР°Рј РЅСѓР¶РЅС‹. Р§Р°СЃС‚СЊ
+    СЏС‡РµРµРє С‚Р°Рє Рё РѕСЃС‚Р°Р»Р°СЃСЊ Pointer -- РёС… С‚РѕР»СЊРєРѕ Р·Р°РіСЂСѓР¶Р°РµРј, Р·РѕРІС‘С‚ РёС…
+    РЅРёРєС‚Рѕ. }
   gLuaAvail7: Boolean;
   gLuaHandle: HMODULE;
   gLuaLoaded: Boolean;
-  { Имя файла библиотеки -- задаётся настройкой. }
+  { РРјСЏ С„Р°Р№Р»Р° Р±РёР±Р»РёРѕС‚РµРєРё -- Р·Р°РґР°С‘С‚СЃСЏ РЅР°СЃС‚СЂРѕР№РєРѕР№. }
   gLuaLibNameCow: string;
-  { Текст последней ошибки загрузки. }
+  { РўРµРєСЃС‚ РїРѕСЃР»РµРґРЅРµР№ РѕС€РёР±РєРё Р·Р°РіСЂСѓР·РєРё. }
   gLuaErrorCcl: string;
   gLuaProc00: Pointer;                  // luaL_newstate
   gLuaProc01: Pointer;                  // luaL_openlibs
@@ -91,8 +95,8 @@ var
   gLuaInsert: TLuaInsert;
   gLuaSetTableej: TLuaSetTable;
   gLuaPushCClosure: TLuaPushCClosure;
-  { Зовётся одним доводом, когда у вкладки взведён StopRequested, и итог
-    не берётся: она не возвращается. }
+  { Р—РѕРІС‘С‚СЃСЏ РѕРґРЅРёРј РґРѕРІРѕРґРѕРј, РєРѕРіРґР° Сѓ РІРєР»Р°РґРєРё РІР·РІРµРґС‘РЅ StopRequested, Рё РёС‚РѕРі
+    РЅРµ Р±РµСЂС‘С‚СЃСЏ: РѕРЅР° РЅРµ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ. }
   gLuaRaiseby: TLuaRaise;               // lua_error
   gLuaLoadString: TLuaLoadString;
   gLuaProc13: Pointer;                  // luaL_loadfile
@@ -115,29 +119,29 @@ function UnLoadLuaLib: Boolean;
 procedure LuaClose(T: TObject; X: Integer);
 function LuaNewState: Integer;
 
-{ Имя команды в стек, следом замыкание, и пара уходит в таблицу
-  глобальных. }
+{ РРјСЏ РєРѕРјР°РЅРґС‹ РІ СЃС‚РµРє, СЃР»РµРґРѕРј Р·Р°РјС‹РєР°РЅРёРµ, Рё РїР°СЂР° СѓС…РѕРґРёС‚ РІ С‚Р°Р±Р»РёС†Сѓ
+  РіР»РѕР±Р°Р»СЊРЅС‹С…. }
 procedure LuaBindGlobal(L: Integer; Name: PChar; Func: TLuaCFunc);
-{ Замыкание команды: имя уходит в upvalue, обработчик один на все }
+{ Р—Р°РјС‹РєР°РЅРёРµ РєРѕРјР°РЅРґС‹: РёРјСЏ СѓС…РѕРґРёС‚ РІ upvalue, РѕР±СЂР°Р±РѕС‚С‡РёРє РѕРґРёРЅ РЅР° РІСЃРµ }
 procedure LuaPushClosure(L: Integer; Name: PChar; Func: TLuaCFunc);
 { luaL_loadstring + lua_pcall }
 function LuaDoString(L: Integer; S: PChar): Integer;
-{ Положить значение со стека Lua в глобальную переменную под именем Name:
-  имя в стек, поменять его местами со значением и в таблицу глобальных. }
+{ РџРѕР»РѕР¶РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ СЃРѕ СЃС‚РµРєР° Lua РІ РіР»РѕР±Р°Р»СЊРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ РїРѕРґ РёРјРµРЅРµРј Name:
+  РёРјСЏ РІ СЃС‚РµРє, РїРѕРјРµРЅСЏС‚СЊ РµРіРѕ РјРµСЃС‚Р°РјРё СЃРѕ Р·РЅР°С‡РµРЅРёРµРј Рё РІ С‚Р°Р±Р»РёС†Сѓ РіР»РѕР±Р°Р»СЊРЅС‹С…. }
 procedure LuaSetGlobal(L: Integer; Name: PChar);
-{ Индекс upvalue замыкания: обработчик команд узнаёт по нему своё имя. }
+{ РРЅРґРµРєСЃ upvalue Р·Р°РјС‹РєР°РЅРёСЏ: РѕР±СЂР°Р±РѕС‚С‡РёРє РєРѕРјР°РЅРґ СѓР·РЅР°С‘С‚ РїРѕ РЅРµРјСѓ СЃРІРѕС‘ РёРјСЏ. }
 function LuaUpvalueIndex(N: Integer): Integer;
-{ Снять N значений со стека Lua. }
+{ РЎРЅСЏС‚СЊ N Р·РЅР°С‡РµРЅРёР№ СЃРѕ СЃС‚РµРєР° Lua. }
 procedure LuaPop(L, N: Integer);
-{ Вид значения на стеке Lua. }
+{ Р’РёРґ Р·РЅР°С‡РµРЅРёСЏ РЅР° СЃС‚РµРєРµ Lua. }
 function LuaIsTable(L, Idx: Integer): Boolean;
 function LuaIsNil(L, Idx: Integer): Boolean;
 
 implementation
 
 type
-  { Двойник TLua ради одного поля: настоящий класс объявлен в Unit2, а
-    оттуда сюда не дотянуться -- Unit2 подключает нас, а не наоборот. }
+  { Р”РІРѕР№РЅРёРє TLua СЂР°РґРё РѕРґРЅРѕРіРѕ РїРѕР»СЏ: РЅР°СЃС‚РѕСЏС‰РёР№ РєР»Р°СЃСЃ РѕР±СЉСЏРІР»РµРЅ РІ Unit2, Р°
+    РѕС‚С‚СѓРґР° СЃСЋРґР° РЅРµ РґРѕС‚СЏРЅСѓС‚СЊСЃСЏ -- Unit2 РїРѕРґРєР»СЋС‡Р°РµС‚ РЅР°СЃ, Р° РЅРµ РЅР°РѕР±РѕСЂРѕС‚. }
   TLuaRef = class(TObject)
   public
     Handle: Integer;                   { lua_State* }
@@ -145,9 +149,9 @@ type
 
 function LoadLuaProcs(const Name: string): Boolean;
 begin
-  { Загрузить lua5.1.dll и разобрать её по ячейкам. Ни одна из них не
-    проверяется на nil: если библиотека не та, скрипт всё равно не
-    поедет, а разбираться удобнее по тексту ошибки. }
+  { Р—Р°РіСЂСѓР·РёС‚СЊ lua5.1.dll Рё СЂР°Р·РѕР±СЂР°С‚СЊ РµС‘ РїРѕ СЏС‡РµР№РєР°Рј. РќРё РѕРґРЅР° РёР· РЅРёС… РЅРµ
+    РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ РЅР° nil: РµСЃР»Рё Р±РёР±Р»РёРѕС‚РµРєР° РЅРµ С‚Р°, СЃРєСЂРёРїС‚ РІСЃС‘ СЂР°РІРЅРѕ РЅРµ
+    РїРѕРµРґРµС‚, Р° СЂР°Р·Р±РёСЂР°С‚СЊСЃСЏ СѓРґРѕР±РЅРµРµ РїРѕ С‚РµРєСЃС‚Сѓ РѕС€РёР±РєРё. }
   string(gLuaErrorCcl) := '';
   gLuaLoaded := False;
   if Name <> '' then
@@ -193,9 +197,9 @@ end;
 
 function UnLoadLuaLib: Boolean;
 begin
-  { Выгрузка lua5.1.dll: гасим все указатели, потом признак загрузки и
-    саму библиотеку. Гасить обязательно -- иначе после повторной загрузки
-    в ячейке остался бы адрес из прежнего образа. }
+  { Р’С‹РіСЂСѓР·РєР° lua5.1.dll: РіР°СЃРёРј РІСЃРµ СѓРєР°Р·Р°С‚РµР»Рё, РїРѕС‚РѕРј РїСЂРёР·РЅР°Рє Р·Р°РіСЂСѓР·РєРё Рё
+    СЃР°РјСѓ Р±РёР±Р»РёРѕС‚РµРєСѓ. Р“Р°СЃРёС‚СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ -- РёРЅР°С‡Рµ РїРѕСЃР»Рµ РїРѕРІС‚РѕСЂРЅРѕР№ Р·Р°РіСЂСѓР·РєРё
+    РІ СЏС‡РµР№РєРµ РѕСЃС‚Р°Р»СЃСЏ Р±С‹ Р°РґСЂРµСЃ РёР· РїСЂРµР¶РЅРµРіРѕ РѕР±СЂР°Р·Р°. }
   gLuaProc01 := nil;
   gLuaProc00 := nil;
   gLuaProc02 := nil;
@@ -233,9 +237,9 @@ end;
 
 procedure LuaClose(T: TObject; X: Integer);
 begin
-  { Закрыть lua_State у объекта-обёртки. Под try..except нарочно: lua_close
-    на испорченном состоянии валится внутри библиотеки, а нам после этого
-    ещё жить. Ручку гасим в любом случае -- второй раз закрывать нечего. }
+  { Р—Р°РєСЂС‹С‚СЊ lua_State Сѓ РѕР±СЉРµРєС‚Р°-РѕР±С‘СЂС‚РєРё. РџРѕРґ try..except РЅР°СЂРѕС‡РЅРѕ: lua_close
+    РЅР° РёСЃРїРѕСЂС‡РµРЅРЅРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё РІР°Р»РёС‚СЃСЏ РІРЅСѓС‚СЂРё Р±РёР±Р»РёРѕС‚РµРєРё, Р° РЅР°Рј РїРѕСЃР»Рµ СЌС‚РѕРіРѕ
+    РµС‰С‘ Р¶РёС‚СЊ. Р СѓС‡РєСѓ РіР°СЃРёРј РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ -- РІС‚РѕСЂРѕР№ СЂР°Р· Р·Р°РєСЂС‹РІР°С‚СЊ РЅРµС‡РµРіРѕ. }
   if gLuaLoaded then
   begin
     try
@@ -246,9 +250,9 @@ begin
   end;
 end;
 
-{ Если библиотека ещё не загружена -- грузим прямо здесь, и только при
-  удаче открываем состояние. Handle остаётся нулевым, если Lua нет:
-  дальше по нулю всё и проверяется. }
+{ Р•СЃР»Рё Р±РёР±Р»РёРѕС‚РµРєР° РµС‰С‘ РЅРµ Р·Р°РіСЂСѓР¶РµРЅР° -- РіСЂСѓР·РёРј РїСЂСЏРјРѕ Р·РґРµСЃСЊ, Рё С‚РѕР»СЊРєРѕ РїСЂРё
+  СѓРґР°С‡Рµ РѕС‚РєСЂС‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ. Handle РѕСЃС‚Р°С‘С‚СЃСЏ РЅСѓР»РµРІС‹Рј, РµСЃР»Рё Lua РЅРµС‚:
+  РґР°Р»СЊС€Рµ РїРѕ РЅСѓР»СЋ РІСЃС‘ Рё РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ. }
 constructor TLua.Create;
 begin
   inherited Create;
@@ -271,10 +275,10 @@ begin
   LuaBindGlobal(Handle, PChar(Name), Func);
 end;
 
-{ Не дописано: то же, что RegP, но с сырым указателем. }
+{ РќРµ РґРѕРїРёСЃР°РЅРѕ: С‚Рѕ Р¶Рµ, С‡С‚Рѕ RegP, РЅРѕ СЃ СЃС‹СЂС‹Рј СѓРєР°Р·Р°С‚РµР»РµРј. }
 procedure TLua.Reg(const Name: string; Func: Pointer; N: Integer);
 begin
-  { lua_pushstring(имя) / lua_pushcclosure(Func, 1) /
+  { lua_pushstring(РёРјСЏ) / lua_pushcclosure(Func, 1) /
     lua_settable(L, LUA_GLOBALSINDEX) }
 end;
 
@@ -283,8 +287,8 @@ begin
   Result := TLuaNewState(gLuaProc00);
 end;
 
-{ Загрузка кода и запуск. Ошибка загрузки возвращается как есть, pcall
-  зовётся только при нулевом коде. }
+{ Р—Р°РіСЂСѓР·РєР° РєРѕРґР° Рё Р·Р°РїСѓСЃРє. РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РєР°Рє РµСЃС‚СЊ, pcall
+  Р·РѕРІС‘С‚СЃСЏ С‚РѕР»СЊРєРѕ РїСЂРё РЅСѓР»РµРІРѕРј РєРѕРґРµ. }
 function LuaDoString(L: Integer; S: PChar): Integer;
 var
   R: Integer;
@@ -298,8 +302,8 @@ begin
   end;
 end;
 
-{ Значение уже лежит на вершине стека Lua; имя кладём сверху,
-  lua_insert(L, -2) меняет их местами, и пара уходит в таблицу глобальных. }
+{ Р—РЅР°С‡РµРЅРёРµ СѓР¶Рµ Р»РµР¶РёС‚ РЅР° РІРµСЂС€РёРЅРµ СЃС‚РµРєР° Lua; РёРјСЏ РєР»Р°РґС‘Рј СЃРІРµСЂС…Сѓ,
+  lua_insert(L, -2) РјРµРЅСЏРµС‚ РёС… РјРµСЃС‚Р°РјРё, Рё РїР°СЂР° СѓС…РѕРґРёС‚ РІ С‚Р°Р±Р»РёС†Сѓ РіР»РѕР±Р°Р»СЊРЅС‹С…. }
 procedure LuaSetGlobal(L: Integer; Name: PChar);
 begin
   gLuaPushString(L, Name);
@@ -307,7 +311,7 @@ begin
   gLuaSetTableej(L, LUA_GLOBALSINDEX);
 end;
 
-{ Пара «имя -> замыкание» кладётся в таблицу глобальных. }
+{ РџР°СЂР° В«РёРјСЏ -> Р·Р°РјС‹РєР°РЅРёРµВ» РєР»Р°РґС‘С‚СЃСЏ РІ С‚Р°Р±Р»РёС†Сѓ РіР»РѕР±Р°Р»СЊРЅС‹С…. }
 procedure LuaBindGlobal(L: Integer; Name: PChar; Func: TLuaCFunc);
 begin
   gLuaPushString(L, Name);
@@ -315,9 +319,9 @@ begin
   gLuaSetTableej(L, LUA_GLOBALSINDEX);
 end;
 
-{ Имя команды попадает в стек Lua ДВАЖДЫ: ключом таблицы (это делает
-  LuaBindGlobal) и здесь -- значением upvalue, по которому единственный
-  обработчик узнаёт, какую команду у него просят. }
+{ РРјСЏ РєРѕРјР°РЅРґС‹ РїРѕРїР°РґР°РµС‚ РІ СЃС‚РµРє Lua Р”Р’РђР–Р”Р«: РєР»СЋС‡РѕРј С‚Р°Р±Р»РёС†С‹ (СЌС‚Рѕ РґРµР»Р°РµС‚
+  LuaBindGlobal) Рё Р·РґРµСЃСЊ -- Р·РЅР°С‡РµРЅРёРµРј upvalue, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№
+  РѕР±СЂР°Р±РѕС‚С‡РёРє СѓР·РЅР°С‘С‚, РєР°РєСѓСЋ РєРѕРјР°РЅРґСѓ Сѓ РЅРµРіРѕ РїСЂРѕСЃСЏС‚. }
 procedure LuaPushClosure(L: Integer; Name: PChar; Func: TLuaCFunc);
 var
   S: string;
@@ -332,7 +336,7 @@ begin
   Result := LUA_GLOBALSINDEX - N;
 end;
 
-{ Обычный lua_pop: settop на -N-1. }
+{ РћР±С‹С‡РЅС‹Р№ lua_pop: settop РЅР° -N-1. }
 procedure LuaPop(L, N: Integer);
 begin
   gLuaSetTop(L, -N - 1);

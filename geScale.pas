@@ -1,6 +1,10 @@
 unit geScale;
 
-{ Приведение шрифта дочерних элементов формы к одному размеру. }
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
+{ РџСЂРёРІРµРґРµРЅРёРµ С€СЂРёС„С‚Р° РґРѕС‡РµСЂРЅРёС… СЌР»РµРјРµРЅС‚РѕРІ С„РѕСЂРјС‹ Рє РѕРґРЅРѕРјСѓ СЂР°Р·РјРµСЂСѓ. }
 
 interface
 
@@ -12,8 +16,8 @@ implementation
 
 uses StdCtrls;
 
-{ Font у TControl protected, поэтому идём через приведение к наследнику,
-  у которого он published. }
+{ Font Сѓ TControl protected, РїРѕСЌС‚РѕРјСѓ РёРґС‘Рј С‡РµСЂРµР· РїСЂРёРІРµРґРµРЅРёРµ Рє РЅР°СЃР»РµРґРЅРёРєСѓ,
+  Сѓ РєРѕС‚РѕСЂРѕРіРѕ РѕРЅ published. }
 procedure SetChildFontHeight(C: TWinControl);
 var
   I: Integer;

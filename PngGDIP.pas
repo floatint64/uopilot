@@ -1,15 +1,19 @@
 unit PngGDIP;
 
-{ Поиск CLSID кодировщика GDI+ по MIME-типу -- то есть выбор формата,
-  в котором снимок окна уходит в поток. }
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
+{ РџРѕРёСЃРє CLSID РєРѕРґРёСЂРѕРІС‰РёРєР° GDI+ РїРѕ MIME-С‚РёРїСѓ -- С‚Рѕ РµСЃС‚СЊ РІС‹Р±РѕСЂ С„РѕСЂРјР°С‚Р°,
+  РІ РєРѕС‚РѕСЂРѕРј СЃРЅРёРјРѕРє РѕРєРЅР° СѓС…РѕРґРёС‚ РІ РїРѕС‚РѕРє. }
 
 interface
 
 uses Windows;
 
 type
-  { Раскладка ImageCodecInfo из GDI+. Запись packed: размер элемента должен
-    совпасть с тем, из чего GdipGetImageEncodersSize считает свой Size. }
+  { Р Р°СЃРєР»Р°РґРєР° ImageCodecInfo РёР· GDI+. Р—Р°РїРёСЃСЊ packed: СЂР°Р·РјРµСЂ СЌР»РµРјРµРЅС‚Р° РґРѕР»Р¶РµРЅ
+    СЃРѕРІРїР°СЃС‚СЊ СЃ С‚РµРј, РёР· С‡РµРіРѕ GdipGetImageEncodersSize СЃС‡РёС‚Р°РµС‚ СЃРІРѕР№ Size. }
   PImageCodecInfo = ^TImageCodecInfo;
   TImageCodecInfo = packed record
     Clsid: TGUID;
@@ -36,7 +40,7 @@ function GetEncoderClsid(MimeType: string; out Clsid: TGUID): Integer;
 
 implementation
 
-{ Сам импорт stdcall, наружу отдаём register-обёртки -- звать удобнее. }
+{ РЎР°Рј РёРјРїРѕСЂС‚ stdcall, РЅР°СЂСѓР¶Сѓ РѕС‚РґР°С‘Рј register-РѕР±С‘СЂС‚РєРё -- Р·РІР°С‚СЊ СѓРґРѕР±РЅРµРµ. }
 function GdipGetImageEncodersSizeStd(out numEncoders, size: UINT): Integer;
   stdcall; external 'gdiplus.dll' name 'GdipGetImageEncodersSize';
 function GdipGetImageEncodersStd(numEncoders, size: UINT;
@@ -61,9 +65,9 @@ var
   Info: PImageCodecInfo;
   J: Cardinal;
 begin
-  { Спрашиваем размер таблицы кодировщиков, забираем её целиком и ищем
-    нужный по MIME-типу. Выход из цикла по находке не делаю: если кодек
-    в системе двоится, пусть останется последний. }
+  { РЎРїСЂР°С€РёРІР°РµРј СЂР°Р·РјРµСЂ С‚Р°Р±Р»РёС†С‹ РєРѕРґРёСЂРѕРІС‰РёРєРѕРІ, Р·Р°Р±РёСЂР°РµРј РµС‘ С†РµР»РёРєРѕРј Рё РёС‰РµРј
+    РЅСѓР¶РЅС‹Р№ РїРѕ MIME-С‚РёРїСѓ. Р’С‹С…РѕРґ РёР· С†РёРєР»Р° РїРѕ РЅР°С…РѕРґРєРµ РЅРµ РґРµР»Р°СЋ: РµСЃР»Рё РєРѕРґРµРє
+    РІ СЃРёСЃС‚РµРјРµ РґРІРѕРёС‚СЃСЏ, РїСѓСЃС‚СЊ РѕСЃС‚Р°РЅРµС‚СЃСЏ РїРѕСЃР»РµРґРЅРёР№. }
   Num := 0;
   Size := 0;
   Result := -1;
