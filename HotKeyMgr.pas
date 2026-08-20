@@ -112,6 +112,7 @@ type
   THotKeyManager = class(TComponent)
   private
     FHotKeys: THotKeyCollection;
+    FWnd: HWND;
     // Признак "горячие клавиши работают и в прозрачном режиме":
     // пишется прямо из меню, поэтому публичное, без свойства.
   public
@@ -119,7 +120,7 @@ type
   private
     procedure SetHotKeys(HotKeys: THotKeyCollection);
     {}
-    function WMHotKey(var Msg: TMessage): Boolean;
+    procedure WndMethod(var Msg: TMessage);
   protected
     procedure Loaded; override;
   public
@@ -129,6 +130,8 @@ type
     function HotKeyByName(const Name: string): THotKeyItem;
     { Тот же поиск по имени, но возвращает НОМЕР элемента; -1 -- нет такой. }
     function HotKeyIndexByName(const Name: string): Integer;
+    {}
+    property Wnd: HWND read FWnd;
   published
     property HotKeys: THotKeyCollection read FHotKeys write SetHotKeys;
   end;
@@ -136,7 +139,7 @@ type
 
 implementation
 
-uses SysUtils, TypInfo, MMSystem;
+uses SysUtils, TypInfo, MMSystem, LCLIntf;
 
 const
   { Клавиши, которые можно назначить: код и подпись идут парой,
@@ -162,7 +165,7 @@ const
       'num_4', 'num_5', 'num_6', 'num_7', 'num_8', 'num_9', 'num_Decimal', 
       'NumLock', '`', '-', '=', '\', ',', '.', '/', ';', '''', '[', ']', '');
 
-function THotKeyManager.WMHotKey(var Msg: TMessage): Boolean;
+procedure THotKeyManager.WndMethod(var Msg: TMessage);
 var i: Integer;
     V: Integer;
     Scan: Integer;
@@ -174,7 +177,7 @@ begin
       begin
         if FFlag34 then
         begin
-          Windows.UnRegisterHotKey(Application.Handle, HotKeys[i].HotKeyId);
+          Windows.UnRegisterHotKey(FWnd, HotKeys[i].HotKeyId);
           V:= HiWord(Msg.lParam);
           Scan:= Byte(MapVirtualKey(V, 0));
           keybd_event(V, Scan, 0, 0);
@@ -189,14 +192,11 @@ begin
           HotKeys[i].OnHotKeyActivation(HotKeys[i]);
         end;
         if FFlag34 then
-          Result:= Windows.RegisterHotKey(Application.Handle,
-            HotKeys[i].HotKeyId, HotKeys[i].FShift, HotKeys[i].FKey)
-        else
-          Result:= True;
+          Windows.RegisterHotKey(FWnd,
+            HotKeys[i].HotKeyId, HotKeys[i].FShift, HotKeys[i].FKey);
         Exit;
       end;
   end;
-  Result:= False;
 end;
 
 constructor THotKeyManager.Create(AOwner: TComponent);
@@ -204,15 +204,18 @@ begin
   FHotKeys:= THotKeyCollection.Create(Self);
   inherited Create(AOwner);
   if not (csDesigning in ComponentState) then
-    Application.HookMainWindow(WMHotKey);
+    FWnd:= AllocateHWnd(WndMethod);
   FFlag34:= False;
 end;
 
 destructor THotKeyManager.Destroy;
 var i: Integer;
 begin
-  if not (csDesigning in ComponentState) then
-    Application.UnHookMainWindow(WMHotKey);
+  if FWnd <> 0 then
+  begin
+    DeallocateHWnd(FWnd);
+    FWnd:= 0;
+  end;
   for i:= 0 to HotKeys.Count - 1 do
     HotKeys[i].UnRegisterHotKey;
   FHotKeys.Free; FHotKeys:= nil;
@@ -300,7 +303,7 @@ begin
       FShift:= FShift + MOD_SHIFT;
     FKey:= KeyCodes[FHotKey];
     FHotKeyId:= $A000 + ID;
-    Result:= Windows.RegisterHotKey(Application.Handle, FHotKeyId, FShift, FKey);
+    Result:= Windows.RegisterHotKey(Manager.Wnd, FHotKeyId, FShift, FKey);
   end;
 end;
 
@@ -308,7 +311,7 @@ procedure THotKeyItem.UnRegisterHotKey;
 begin
   if FHotKeyId <> 0 then
   begin
-    Windows.UnRegisterHotKey(Application.Handle, FHotKeyId);
+    Windows.UnRegisterHotKey(Manager.Wnd, FHotKeyId);
     FHotKeyId:= 0;
   end;
 end;
