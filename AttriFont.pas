@@ -67,12 +67,24 @@ begin
   with TColorDialog.Create(fmSecondfj) do
   begin
     Name := 'cdColorFront';
+    { В Delphi свойство Options с флагом cdFullOpen раскрывает полный
+      диалог с дополнительными цветами. В LCL до версии 4.0 (в т.ч. в
+      Lazarus 2.0.12) у TColorDialog нет ни Options, ни cdFullOpen --
+      полный диалог открывается всегда. Оставляем строку только для Delphi. }
+    {$IFNDEF FPC}
     Options := [cdFullOpen];
+    {$ENDIF}
   end;
   with TColorDialog.Create(fmSecondfj) do
   begin
     Name := 'cdColorBack';
+    { В Delphi свойство Options с флагом cdFullOpen раскрывает полный
+      диалог с дополнительными цветами. В LCL до версии 4.0 (в т.ч. в
+      Lazarus 2.0.12) у TColorDialog нет ни Options, ни cdFullOpen --
+      полный диалог открывается всегда. Оставляем строку только для Delphi. }
+    {$IFNDEF FPC}
     Options := [cdFullOpen];
+    {$ENDIF}
   end;
   with TComboBox.Create(fmSecondfj) do
   begin
