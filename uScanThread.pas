@@ -19,7 +19,7 @@ unit uScanThread;
 
 interface
 
-uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
+uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows{$IFDEF FPC}, LCLType{$ENDIF};
 type
   { Пользовательская переменная: одна строка. Создаётся в
     Unit1.AfterOptionsLoaded по секции CustomVariables. }
