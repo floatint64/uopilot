@@ -573,7 +573,7 @@ var
 
 implementation
 
-uses Math, ShlObj, SKey, MathEx, Unit1, HotKeyMgr, CRCunit, uCircleForm, Keydefs, sendR, ComObj, DateUtils, Grids, ScktComp, SHDocVw, Masks, WebConst, HTTPApp, ProcessAPI, ReadMem, WinSvc;
+uses Math, ShlObj, SKey, MathEx, Unit1, HotKeyMgr, CRCunit, uCircleForm, Keydefs, sendR, ComObj, DateUtils, Grids, ScktComp,{$IFnDEF FPC} SHDocVw,{$ENDIF} Masks, WebConst, HTTPApp, ProcessAPI, ReadMem, WinSvc;
 
 
 

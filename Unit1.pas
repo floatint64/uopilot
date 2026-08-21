@@ -13,6 +13,7 @@ uses
 {$IFnDEF FPC}
   jpeg, TlHelp32, SHDocVw,
 {$ELSE}
+  MyWebBrowser,
 {$ENDIF}
   Gauges,
   Types, HotKeyMgr, Keydefs, Recorder, Spin, Grids, mySys,
@@ -15076,8 +15077,12 @@ begin
   if Assigned(Doc) then
   begin
     R := ClientRect;
+{$IFDEF FPC}
+    W.OleObject.DoVerb(-4, nil, W, 0, W.Handle, R);
+{$ELSE}
     (W.Application as IOleObject).DoVerb(-4, nil, wbWiki, 0,
       W.Handle, R);
+{$ENDIF}
   end;
 end;
 
