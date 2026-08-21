@@ -46,3 +46,24 @@
 `CustomColors`, поэтому строки `Options := [cdFullOpen];` в `AttriFont.pas`
 обёрнуты в `{$IFNDEF FPC}` — полный диалог с дополнительными цветами в LCL
 открывается всегда, отдельная опция не требуется.
+
+
+## Цветные вкладки скриптов (TTabControl) не работают в LCL
+
+В Delphi вкладки `tScript`/`tScriptDesc` рисуются вручную: `OwnerDraw := True`,
+событие `OnDrawTab` и `Control.Canvas`. В LCL этот механизм отсутствует:
+
+- у `TCustomTabControl` нет свойства `Canvas`;
+- события `OnDrawTab` нет (в `comctrls.pp` оно закомментировано и исключено
+  из стриминга через `RegisterPropertyToSkip`);
+- `OwnerDraw` ничего не делает (стиль `TCS_OWNERDRAWFIXED` LCL не выставляет);
+- `TTabControl.TabRect` возвращает нулевой прямоугольник;
+- вкладки рисует дочерний нативный `SysTabControl32` (внутренний `NoteBook`),
+  поэтому рисовать на `GetDC(tScript.Handle)` бессмысленно — вкладки окажутся
+  под дочерним окном.
+
+Поэтому процедура `TfmSecond.tScriptDrawTab` под `{$IFDEF FPC}` выключена
+(no-op), и вкладки под Lazarus отображаются стандартно, без индикации
+состояния скрипта (цвет, «не сохранено», кнопки пуск/стоп). Для восстановления
+фичи нужен кастомный таб-контрол (ATTabs или собственный `TCustomControl`),
+рисующий вкладки на своём `Canvas`.

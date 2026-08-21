@@ -8007,7 +8007,9 @@ begin
       gDlg596718.ClientHeight := $16;
       gDlg596718.ClientWidth := $2E1;
       gDlg596718.FormStyle := fsStayOnTop;
+      {$IFnDEF FPC}
       gDlg596718.OldCreateOrder := True;
+      {$ENDIF}
       gDlg596718.Scaled := False;
       pMakrosPanel.Parent := gDlg596718;
       pMakrosPanel.Visible := True;
@@ -8221,7 +8223,11 @@ begin
           end;
           for J := I to sghkScriptHKList.RowCount - 1 do
           begin
+            {$IFDEF FPC}
+            TGridCracker(sghkScriptHKList).MoveColRow(False, J + 1, J);
+            {$ELSE}
             TGridCracker(sghkScriptHKList).MoveRow(J + 1, J);
+            {$ENDIF}
             sghkScriptHKList.Rows[J + 1].Clear;
           end;
           sghkScriptHKList.RowCount := sghkScriptHKList.RowCount - 1;
@@ -10072,7 +10078,7 @@ procedure TfmSecond.ApplyLogFont;
 var
   DC: HDC;
   Old: HGDIOBJ;
-  TM: TTextMetric;
+  TM: Windows.TTextMetric;
   H: Integer;
 begin
   H := 0;
@@ -10798,6 +10804,7 @@ var
   C: Integer;
   Lx: Integer;
 begin
+  {$IFnDEF FPC}
   { Отрисовка вкладки скрипта: цвет надписи показывает состояние потока
     (красный -- пауза, зелёный -- работает), справа рисуется красный квадрат
     для несохранённых, слева-снизу -- полоски кнопок «пуск» и «стоп». }
@@ -10897,6 +10904,7 @@ begin
     Control.Canvas.FillRect(R2);
   end;
   Control.Canvas.Brush.Color := OldColor;
+  {$ENDIF}
 end;
 
 procedure TfmSecond.miShowRuningScriptOnTaskbarClick(Sender: TObject);
@@ -15503,7 +15511,9 @@ begin
       gDlg596720.ClientHeight := $16;
       gDlg596720.ClientWidth := $2E1;
       gDlg596720.FormStyle := fsStayOnTop;
+      {$IFnDEF FPC}
       gDlg596720.OldCreateOrder := True;
+      {$ENDIF}
       gDlg596720.Scaled := False;
       B := TSpeedButton.Create(gDlg596720);
       B.Left := 0;
@@ -15601,7 +15611,11 @@ begin
       { строки списка горячих клавиш сдвигаются вверх на место удалённой }
       for J := I to sghkScriptHKList.RowCount - 1 do
       begin
+        {$IFDEF FPC}
+        TGridCracker(sghkScriptHKList).MoveColRow(False, J + 1, J);
+        {$ELSE}
         TGridCracker(sghkScriptHKList).MoveRow(J + 1, J);
+        {$ENDIF}
         sghkScriptHKList.Rows[J + 1].Clear;
       end;
       sghkScriptHKList.RowCount := sghkScriptHKList.RowCount - 1;
