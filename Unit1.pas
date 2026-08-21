@@ -21,7 +21,7 @@ uses
   LangClipboard, ActiveX, Buttons, Classes, Clipbrd, ComCtrls,
   Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, Menus, Messages,
   Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet,
-  Windows;
+  Windows{$IFDEF FPC}, LCLType{$ENDIF};
 
 type
 
