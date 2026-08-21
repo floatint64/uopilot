@@ -526,7 +526,7 @@ type
     	LineCount: Integer);
 		procedure UpdateFoldRangeParents;
     procedure CheckIfAtMatchingKeywords;
-    function IsKeywordAtCursorPos(OpenKeyWord: PBoolean = nil): Boolean;
+    function IsKeywordAtCursorPos(OpenKeyWord: System.PBoolean = nil): Boolean;
     function GetAutoSizeDigitCount: Integer;
     function CanExecuteInLine(aLine: Integer; aKey: Word = 0): Boolean;
     function GetCollapseMarkRect(FoldRange: TSynEditFoldRange;
@@ -7261,7 +7261,7 @@ begin
     Resize;
     Invalidate;
 {$ELSE}
-    RecreateWnd;
+    {$IFDEF FPC}RecreateWnd(Self){$ELSE}RecreateWnd{$ENDIF};
 {$ENDIF}
   end;
 end;
@@ -12517,8 +12517,8 @@ begin
   end;
 end;
 
-function TCustomSynEdit.IsKeywordAtCursorPos(OpenKeyWord: PBoolean): Boolean;
-  function IsKeywordAtCursorPosForFoldRegions(OpenKeyWord: PBoolean;
+function TCustomSynEdit.IsKeywordAtCursorPos(OpenKeyWord: System.PBoolean): Boolean;
+  function IsKeywordAtCursorPosForFoldRegions(OpenKeyWord: System.PBoolean;
   	FoldRegions: TFoldRegions): Boolean;
   var
 		P, i: Integer;

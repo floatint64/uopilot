@@ -143,6 +143,12 @@ function StrScanForMultiByteChar(const Line: string; Start: Integer): Integer;
 function StrRScanForMultiByteChar(const Line: string; Start: Integer): Integer;
 // convert a type returned from GetStringTypeEx() to something friendlier 
 function IsStringType(Value: Word): TStringType;
+// convert a char index to a byte index
+function CharToByteIndex(const S: string; CharIndex: Integer): Integer;
+// convert a byte index to a char index
+function ByteToCharIndex(const S: string; ByteIndex: Integer): Integer;
+// convert a byte length to a char length
+function ByteToCharLen(const S: string; ByteLen: Integer): Integer;
 {$ENDIF}
 
 function GetEOL(Line: PChar): PChar;
@@ -910,6 +916,63 @@ begin
       Result := stHiragana { Japanese-HIRAGANA }
     else if ((Value and C3_IDEOGRAPH) <> 0) then
       Result := stIdeograph; { Ideograph }
+  end;
+end;
+
+function CharToByteIndex(const S: string; CharIndex: Integer): Integer;
+var
+  I, Chars: Integer;
+begin
+  if (not SysLocale.FarEast) or (CharIndex <= 1) then
+    Result := CharIndex
+  else begin
+    I := 1;
+    Chars := 1;
+    while (Chars < CharIndex) and (I <= Length(S)) do begin
+      if S[I] in LeadBytes then
+        Inc(I);
+      Inc(I);
+      Inc(Chars);
+    end;
+    Result := I;
+  end;
+end;
+
+function ByteToCharIndex(const S: string; ByteIndex: Integer): Integer;
+var
+  I, Chars: Integer;
+begin
+  if (not SysLocale.FarEast) or (ByteIndex <= 1) then
+    Result := ByteIndex
+  else begin
+    I := 1;
+    Chars := 1;
+    while I < ByteIndex do begin
+      if S[I] in LeadBytes then
+        Inc(I);
+      Inc(I);
+      Inc(Chars);
+    end;
+    Result := Chars;
+  end;
+end;
+
+function ByteToCharLen(const S: string; ByteLen: Integer): Integer;
+var
+  I, Chars: Integer;
+begin
+  if not SysLocale.FarEast then
+    Result := ByteLen
+  else begin
+    I := 1;
+    Chars := 0;
+    while I <= ByteLen do begin
+      if S[I] in LeadBytes then
+        Inc(I);
+      Inc(I);
+      Inc(Chars);
+    end;
+    Result := Chars;
   end;
 end;
 {$ENDIF}
