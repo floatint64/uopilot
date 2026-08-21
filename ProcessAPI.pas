@@ -755,7 +755,7 @@ begin
       TP.Privileges[0].Attributes := $80000000;
     { Прежнее состояние не спрашиваем -- возвращать привилегию назад
       всё равно не собираемся. }
-    AdjustTokenPrivileges(hTok, False, TP, SizeOf(TP), nil, Ret);
+    AdjustTokenPrivileges(hTok, False, TP, SizeOf(TP), PTokenPrivileges(nil)^, Ret);
     if GetLastError = ERROR_SUCCESS then
       Result := True;
     FileClose(hTok); { *Преобразовано из CloseHandle* }
