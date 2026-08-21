@@ -2242,8 +2242,8 @@ var
   gWinHandles: array of Cardinal;         // окна из cbWinList
   gPanelPads: array[0..7] of Integer;
   gObjA34: TObject;
-  gObjA38: TCriticalSection;
-  gObjA3C: TCriticalSection;
+  gObjA38: SyncObjs.TCriticalSection;
+  gObjA3C: SyncObjs.TCriticalSection;
   gFlag596A40: Boolean;             // проглотить следующий Backspace
   gOldLogProc: TWndMethod;
   gOldHelpProc2: TWndMethod;
@@ -3991,9 +3991,9 @@ begin
   FFlag1438 := True;
   sghkScriptHKList.Tag := $23;
   gFlag596A40 := False;
-  gObjA34 := TCriticalSection.Create;
-  gObjA38 := TCriticalSection.Create;
-  gObjA3C := TCriticalSection.Create;
+  gObjA34 := SyncObjs.TCriticalSection.Create;
+  gObjA38 := SyncObjs.TCriticalSection.Create;
+  gObjA3C := SyncObjs.TCriticalSection.Create;
   gPanelPads[0] := pCPVar.Height;
   { снять ограничения, выставить размер по невидимым панелям-линейкам и
     заново зафиксировать его как минимум и максимум }
@@ -4111,7 +4111,7 @@ begin
     try
       if S[1] = '/' then
       begin
-        case LowerCase(S[2])[1] of
+        case LowerCase(S)[2] of
           'c':
             begin
               Delete(S, 1, 2);
