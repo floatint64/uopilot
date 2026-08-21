@@ -19,7 +19,7 @@ unit uScanThread;
 
 interface
 
-uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, TlHelp32, PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
+uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
 type
   { Пользовательская переменная: одна строка. Создаётся в
     Unit1.AfterOptionsLoaded по секции CustomVariables. }
@@ -1027,6 +1027,36 @@ type
     tpDeltaPri: Longint;
     dwFlags: DWORD;
   end;
+
+{$IFDEF FPC}
+type
+  TProcessEntry32 = record
+    dwSize: DWORD;
+    cntUsage: DWORD;
+    th32ProcessID: DWORD;
+    th32DefaultHeapID: DWORD;
+    th32ModuleID: DWORD;
+    cntThreads: DWORD;
+    th32ParentProcessID: DWORD;
+    pcPriClassBase: Longint;
+    dwFlags: DWORD;
+    szExeFile: array[0..MAX_PATH - 1] of Char;
+  end;
+
+const
+  TH32CS_SNAPPROCESS = $00000002;
+
+function CreateToolhelp32Snapshot(dwFlags, th32ProcessID: DWORD): THandle; stdcall;
+  external 'kernel32.dll' name 'CreateToolhelp32Snapshot';
+function Process32First(hSnapshot: THandle; var lppe: TProcessEntry32): BOOL; stdcall;
+  external 'kernel32.dll' name 'Process32First';
+function Process32Next(hSnapshot: THandle; var lppe: TProcessEntry32): BOOL; stdcall;
+  external 'kernel32.dll' name 'Process32Next';
+function Thread32First(hSnapshot: THandle; var lpte: TThreadEntry32): BOOL; stdcall;
+  external 'kernel32.dll' name 'Thread32First';
+function Thread32Next(hSnapshot: THandle; var lpte: TThreadEntry32): BOOL; stdcall;
+  external 'kernel32.dll' name 'Thread32Next';
+{$ENDIF}
 
 { Размер массива скрипта -- прочитать или задать. Последний флаг: True --
   задать, False -- только прочитать (ветка `size`).
@@ -6698,7 +6728,7 @@ var
   sFind: string[255];
   sFind99C: array[0..255] of Char;   { буфер windowpos }
   ebW         : TEbW;   { семь слов под дату и время }
-  te_1A04     : TlHelp32.TThreadEntry32;   { хвост области B }
+  te_1A04     : {$IFDEF FPC}TThreadEntry32{$ELSE}TlHelp32.TThreadEntry32{$ENDIF};   { хвост области B }
 
   { Массив скриптов лежит в чужом юните; типизированная константа даёт одно
     обращение вместо двух через слот импорта -- так же сделано в
