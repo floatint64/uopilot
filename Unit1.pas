@@ -3643,7 +3643,9 @@ begin
       MI := mnHotKey.Items[0].Items[3];
       NewMI := TMenuItem.Create(MI);
       NewMI.Caption := Ln;
+      {$IFNDEF FPC}
       NewMI.AutoHotkeys := maManual;
+      {$ENDIF}
       NewMI.OnClick := LastScriptItemClick;
       MI.Insert(MI.Count, NewMI);
     end;
@@ -8468,7 +8470,9 @@ begin
       Root.Delete(I - 1);
     Item := TMenuItem.Create(Root);
     Item.Caption := FileName;
+    {$IFNDEF FPC}
     Item.AutoHotkeys := maManual;
+    {$ENDIF}
     Item.OnClick := LastScriptItemClick;
     Root.Insert(0, Item);
     while Root.Count > 10 do
@@ -12950,7 +12954,9 @@ var
               begin
                 NewMi := TMenuItem.Create(Mi);
                 NewMi.Caption := Name;
+                {$IFNDEF FPC}
                 NewMi.AutoHotkeys := maManual;
+                {$ENDIF}
                 Mi.Insert(0, NewMi);
                 Mi := NewMi;
               end;
@@ -12977,7 +12983,9 @@ var
                   begin
                     NewMi := TMenuItem.Create(Mi);
                     NewMi.Caption := Part;
+                    {$IFNDEF FPC}
                     NewMi.AutoHotkeys := maManual;
+                    {$ENDIF}
                     Mi.Insert(0, NewMi);
                     Mi := NewMi;
                   end;
@@ -12986,7 +12994,9 @@ var
               end;
               NewMi := TMenuItem.Create(Mi);
               NewMi.Caption := S;
+              {$IFNDEF FPC}
               NewMi.AutoHotkeys := maManual;
+              {$ENDIF}
               NewMi.OnClick := Form.miPluginsClick;
               Mi.Insert(0, NewMi);
               Dec(gPluginFuncsgm^.Count);
