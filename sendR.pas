@@ -114,15 +114,14 @@ begin
             в конце вернуть как было. }
           if not bLay then
           begin
-            nK := ActivateKeyboardLayout(1, 0);
+            ActivateKeyboardLayout(1, 0);
             bLay := not bLay;
           end
           else
           begin
-            nK := ActivateKeyboardLayout(0, 0);
+            ActivateKeyboardLayout(0, 0);
             bLay := not bLay;
           end;
-          if nK = 0 then ;
           nK := VkKeyScan(S[nI]);
         end;
         SendOneKey(nK, ADelay, AFlag);
