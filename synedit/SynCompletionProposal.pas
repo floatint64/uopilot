@@ -66,6 +66,7 @@ uses
   Graphics,
   Forms,
   Controls,
+  LCLType,
   StdCtrls,
   ExtCtrls,
   Menus,
@@ -221,6 +222,7 @@ type
     procedure Deactivate; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Resize; override;
+    procedure DoSetBounds(ALeft, ATop, AWidth, AHeight: Integer); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 {$IFDEF SYN_CLX}
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
@@ -232,9 +234,6 @@ type
     procedure WMEraseBackgrnd(var Message: TMessage); message WM_ERASEBKGND;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE; //GBN 24/02/2002
     procedure CreateParams(var Params: TCreateParams); override;
-    {$IFDEF SYN_DELPHI_4_UP}
-    function CanResize(var NewWidth, NewHeight: Integer): Boolean; override;
-    {$ENDIF}
 {$ENDIF}
   public
     constructor Create(AOwner: Tcomponent); override;
@@ -1224,11 +1223,14 @@ begin
   BorderStyle := fbsNone;
 {$ELSE}
   BorderStyle := bsNone;
+  ShowInTaskBar := stNever;
 {$ENDIF}
   FScrollbar := TScrollBar.Create(Self);
   FScrollbar.Kind := sbVertical;
 {$IFNDEF SYN_CLX}
+  {$IFNDEF FPC}
   FScrollbar.ParentCtl3D := False;
+  {$ENDIF}
 {$ENDIF}
   FScrollbar.OnChange := ScrollbarOnChange;
   FScrollbar.OnScroll := ScrollbarOnScroll;
@@ -1316,12 +1318,15 @@ var
   VersionInfo: TOSVersionInfo;
 {$ENDIF}
 begin
-  inherited;
+  inherited CreateParams(Params);
   with Params do
   begin
     Style := WS_POPUP;
     ExStyle := WS_EX_TOOLWINDOW;
 
+    {$IFDEF FPC}
+    WindowClass.style := WindowClass.style or CS_DROPSHADOW;
+    {$ELSE}
     {$IFDEF SYN_COMPILER_3_UP}
     if ((Win32Platform and VER_PLATFORM_WIN32_NT) <> 0)
       and (Win32MajorVersion > 4)
@@ -1333,7 +1338,8 @@ begin
       and (VersionInfo.dwMajorVersion > 4)
       and (VersionInfo.dwMinorVersion > 0) {Windows XP} then
     {$ENDIF}
-      Params.WindowClass.style := Params.WindowClass.style or CS_DROPSHADOW;
+      WindowClass.style := WindowClass.style or CS_DROPSHADOW;
+    {$ENDIF}
 
     if DisplayType = ctCode then
       if FResizeable then
@@ -1515,38 +1521,24 @@ begin
 end;
 
 {$IFNDEF SYN_CLX}
-{$IFDEF SYN_DELPHI_4_UP}
-function TSynBaseCompletionProposalForm.CanResize(var NewWidth, NewHeight: Integer): Boolean;
+procedure TSynBaseCompletionProposalForm.DoSetBounds(ALeft, ATop, AWidth, AHeight: Integer);
 var
-  NewLinesInWindow: Integer;
-  BorderWidth: Integer;
+  NewLinesInWindow, BorderWidth: Integer;
 begin
-  Result := True;
-  case FDisplayKind of
-  ctCode:
-    begin
-      BorderWidth := 2 * GetSystemMetrics(SM_CYSIZEFRAME);
-
-      if FEffectiveItemHeight <> 0 then
-      begin
-        NewLinesInWindow := (NewHeight-FHeightBuffer) div FEffectiveItemHeight;
-        if NewLinesInWindow < 1 then
-          NewLinesInWindow := 1;
-      end else
-        NewLinesInWindow := 0;
-
-      FLinesInWindow := NewLinesInWindow;
-
-      NewHeight := FEffectiveItemHeight * FLinesInWindow + FHeightBuffer + BorderWidth;
-
-      if (NewWidth-BorderWidth) < FScrollbar.Width then
-        NewWidth := FScrollbar.Width+BorderWidth;
-    end;
-  ctHint:;
-  ctParams:;
+  if (FDisplayKind = ctCode) and (FEffectiveItemHeight <> 0)
+     and (FScrollbar <> nil) and not (csLoading in ComponentState) then
+  begin
+    BorderWidth := 2 * GetSystemMetrics(SM_CYSIZEFRAME);
+    NewLinesInWindow := (AHeight - FHeightBuffer) div FEffectiveItemHeight;
+    if NewLinesInWindow < 1 then
+      NewLinesInWindow := 1;
+    FLinesInWindow := NewLinesInWindow;
+    AHeight := FEffectiveItemHeight * FLinesInWindow + FHeightBuffer + BorderWidth;
+    if (AWidth - BorderWidth) < FScrollbar.Width then
+      AWidth := FScrollbar.Width + BorderWidth;
   end;
+  inherited DoSetBounds(ALeft, ATop, AWidth, AHeight);
 end;
-{$ENDIF}
 {$ENDIF}
 
 procedure TSynBaseCompletionProposalForm.Resize;
@@ -1906,7 +1898,9 @@ begin
   FResizeable := Value;
   {$IFDEF SYN_CLX}
   {$ELSE}
+  {$IFNDEF FPC}
   RecreateWnd;
+  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -2701,7 +2695,9 @@ begin
   Form.DisplayType := Value;
   {$IFDEF SYN_CLX}
   {$ELSE}
+  {$IFNDEF FPC}
   Form.RecreateWnd;
+  {$ENDIF}
   {$ENDIF}
 end;
 
