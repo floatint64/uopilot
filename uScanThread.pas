@@ -1,34 +1,34 @@
 unit uScanThread;
 
-{ ������� ����� ������� � ��, ��� ��� �����: ��� ���� ���������,
-  �������-��������, ������ � ���������� ������.
+{ Рабочий поток скрипта и всё, что ему нужно: своё окно подсказки,
+  таймеры-долбилки, разбор и выполнение команд.
 
-  ���� ��������� ������� �� ���� TRxHintWindow �� RX Library, �� ������
-  ������� � ���������� ��� ����:
+  Окно подсказки сделано на базе TRxHintWindow из RX Library, но сильно
+  урезано и переделано под себя:
 
-  * ���� � ������ �� ��������, ������� ������ TBitmap �� ����� --
-  ������� ���� FImage;
-  * ������ ������ ������������� (CreateRectRgnIndirect), round-rect �
-  ������ ��������� ������ � CreateRegion;
-  * FillRegion ��������� ���� �������� -- ����� Shade ���;
-  * CalcHintRect ������� �� ������ ������, � �� �� MaxWidth, � ��������
-  ����������� ������ ����� �� ������� 16;
-  * �������� WMNCHitTest, �������� � RxLib ���;
-  * ����������� ��������� ���������� ��������, �������� ������� �
+  * тень и «хвост» не рисуются, поэтому второй TBitmap не нужен --
+  остался один FImage;
+  * регион всегда прямоугольный (CreateRectRgnIndirect), round-rect и
+  эллипс выброшены вместе с CreateRegion;
+  * FillRegion принимает один параметр -- ветки Shade нет;
+  * CalcHintRect считает по ширине экрана, а не по MaxWidth, и вдобавок
+  выравнивает ширину вверх до кратной 16;
+  * добавлен WMNCHitTest, которого в RxLib нет;
+  * конструктор подменяет обработчик родителя, сохраняя прежний в
   FSavedWndProc. }
 
 interface
 
-uses LangClipboard, Types, geScale, SynMemo, FastMM4, jpeg, Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, TlHelp32, PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
+uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} jpeg, Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, TlHelp32, PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
 type
-  { ���������������� ����������: ���� ������. �������� �
-    Unit1.AfterOptionsLoaded �� ������ CustomVariables. }
+  { Пользовательская переменная: одна строка. Создаётся в
+    Unit1.AfterOptionsLoaded по секции CustomVariables. }
   TMyStr = class(TObject)
   public
     Text: string;
   end;
 
-  TLockZ = packed record             { ���� GdipBitmapLockBits }
+  TLockZ = packed record             { итог GdipBitmapLockBits }
       W: Integer;
       H: Integer;
       Stride: Integer;
@@ -36,10 +36,10 @@ type
       Flag: Boolean;
   end;
 
-  { ���� ������ ����� ������� -- �������� �� ������ ������� ��� ����,
-    ������� �������������� ����� ��������� �������������. }
+  { Узел списка вещей рюкзака -- читается из памяти клиента как есть,
+    поэтому неиспользуемые куски оставлены заполнителями. }
   TBackpackZ = packed record
-      Alive:  Integer;               { ���� ��� }
+      Alive:  Integer;               { узел жив }
       f04:    array[1..$20] of Byte;
       w24:    Word;
       w26:    Word;
@@ -52,33 +52,33 @@ type
       d48:    Integer;
       f4C:    array[1..$30] of Byte;
       d7C:    Cardinal;
-      Key:    Cardinal;              { ���� ��������� }
+      Key:    Cardinal;              { ключ сравнения }
       f84:    array[1..4] of Byte;
-      Next:   Integer;               { ��������� ���� }
+      Next:   Integer;               { следующий узел }
       f8C:    array[1..$28] of Byte;
   end;
 
   TvarS = packed record
     Name: string[255];
-    Value: string;                     // (������, �� �����)
+    Value: string;                     // (строка, не число)
   end;
 
   TvArray = packed record
-    Name: string[255];                 // ��� ��� �������� %
+    Name: string[255];                 // имя без ведущего %
     Data: array of array of string;
   end;
   TTimerThread = class(TThread)
   public
-    FStop: Boolean;                    // ������� ����������
-    FDone: Boolean;                    // ����� ���������
-    FWnd: Cardinal;                    // ���� �������
-    FKey: Integer;                     // wParam �������
-    FChar: Integer;                    // ������ ��� WM_CHAR, 0 -- �� �����
+    FStop: Boolean;                    // просьба прекратить
+    FDone: Boolean;                    // поток отработал
+    FWnd: Cardinal;                    // окно клиента
+    FKey: Integer;                     // wParam клавиши
+    FChar: Integer;                    // символ для WM_CHAR, 0 -- не слать
     FLParam: Cardinal;                 // lParam (Cardinal: | $C0000000)
-    FDelay: Cardinal;                  // ���� � �����
-    FSlot: Pointer;                    // ����� ������ �������
+    FDelay: Cardinal;                  // срок в тиках
+    FSlot: Pointer;                    // адрес ячейки массива
     FFiller5C: Integer;
-    FSend: Boolean;                    // Send ������ Post
+    FSend: Boolean;                    // Send вместо Post
   protected
     procedure Execute; override;
   end;
@@ -87,13 +87,13 @@ type
   public
     FStop: Boolean;
     FDone: Boolean;
-    FWnd: Cardinal;                    // ���� �������
+    FWnd: Cardinal;                    // окно клиента
     FNum: Integer;
-    FStr: string;                      // ���������� ������
-    FScript: Pointer;                  // ������ ������� (+$43D8)
+    FStr: string;                      // посылаемая строка
+    FScript: Pointer;                  // объект скрипта (+$43D8)
     FMode: Integer;
-    FDelay: Cardinal;                  // ���� � �����
-    FSlot: Pointer;                    // ����� ������ �������
+    FDelay: Cardinal;                  // срок в тиках
+    FSlot: Pointer;                    // адрес ячейки массива
     FFiller60: Integer;
   protected
     procedure Execute; override;
@@ -103,12 +103,12 @@ type
   private
     FImage: Graphics.TBitmap;
     FRect: TRect;
-    FTextRect: TRect;                 { ������������� ������ }
-    FSavedWndProc: TWndMethod;        { ������� ������� ��������� }
+    FTextRect: TRect;                 { прямоугольник текста }
+    FSavedWndProc: TWndMethod;        { прежняя оконная процедура }
     FHintText: PChar;
-    { +$24C � +$24D � ����������� ������� �� �����������, �� ��� ����� �����
-      ������� ����: ��� ��� ����� �������� �� $24C/$24D ������ $24E/$24F.
-      � RxLib �� ���� ����� FPos: THintPos, ��� ��� ����� ����� �� ��������. }
+    { +$24C и +$24D в разобранных методах не встречаются, но два байта здесь
+      обязаны быть: без них флаги съезжают на $24C/$24D вместо $24E/$24F.
+      В RxLib на этом месте FPos: THintPos, так что имена взяты по аналогии. }
     FPos: Byte;
     FStyle: Byte;
     FUseFixedSize: Boolean;
@@ -127,22 +127,22 @@ type
     procedure ActivateHint(Rect: TRect; const AHint: string); override;
   end;
 
-  { �������-��������: ���� �� ����� ���� � �� ���� FStop, ���� � ����
-    ������� ������� (������) ��� ������ (������). FSlot -- ����� ������
-    �������, � ������� ����� ��� �����: �� ��� �� ���� ������ � �������,
-    ���������. }
+  { Таймеры-долбилки: пока не вышел срок и не снят FStop, шлют в окно
+    клиента клавишу (первый) или строку (второй). FSlot -- адрес ячейки
+    массива, в которой лежит сам поток: по ней он себя оттуда и убирает,
+    отработав. }
 
   TmsgHintParam = packed record
-    Size: Integer;                     // <0 -- �������
+    Size: Integer;                     // <0 -- девятка
     Color: Integer;                    // <0 -- clInfoText
-    Left: Integer;                     // -1 -- �� �����
+    Left: Integer;                     // -1 -- не задан
     Top: Integer;
     Width: Integer;
     Height: Integer;
-    Back: Integer;                     // ���� ����
-    Style: string;                     // ����� b i u s
-    Font: string;                      // ��� ������
-    Text: string;                      // ����� ���������
+    Back: Integer;                     // цвет окна
+    Style: string;                     // буквы b i u s
+    Font: string;                      // имя шрифта
+    Text: string;                      // текст подсказки
   end;
 
   TParams = packed record
@@ -155,47 +155,47 @@ type
 
 
 
-  { ����� ������������� ������� �������. }
+  { Набор модификаторов горячей клавиши. }
   THKModsZ = set of (hkShiftZ, hkAltZ, hkCtrlZ);
 
   TLoopRec = packed record
     Name: string[255];
-    Step: Integer;                     // ��� (4-� ���������)
-    Limit: Integer;                    // ������ (3-� ���������)
-    Line: Integer;                     // ������ ������ for
-    EndLine: Integer;                  // ������ end_for
+    Step: Integer;                     // шаг (4-е выражение)
+    Limit: Integer;                    // предел (3-е выражение)
+    Line: Integer;                     // строка самого for
+    EndLine: Integer;                  // строка end_for
   end;
 
   TRepeatRec = packed record
-    Line: Integer;                     // ������ ������ repeat
-    EndLine: Integer;                  // ������ end_repeat
-    Count: Integer;                    // ������� ��������
+    Line: Integer;                     // строка самого repeat
+    EndLine: Integer;                  // строка end_repeat
+    Count: Integer;                    // сколько повторов
   end;
 
   TGosubRec = packed record
-    Line: Integer;                     // ������ ������
-    ForIdx: Integer;                   // ������� Arr50 ��� -1
-    RepIdx: Integer;                   // ������� Arr54 ��� -1
+    Line: Integer;                     // строка вызова
+    ForIdx: Integer;                   // вершина Arr50 или -1
+    RepIdx: Integer;                   // вершина Arr54 или -1
   end;
 
   TScriptVar = packed record
-    Name: string[255];                 // ��� ��� �������� #
+    Name: string[255];                 // имя без ведущего #
     Value: Int64;
   end;
 
   TScriptBlock = packed record
-    W: Integer;                        // ������
-    H: Integer;                        // ������
-    Bits: Integer;                     // ��������� �� ����
-    Stride: Integer;                   // ��� ������
+    W: Integer;                        // ширина
+    H: Integer;                        // высота
+    Bits: Integer;                     // указатель на биты
+    Stride: Integer;                   // шаг строки
     Extra: Integer;
     Handle: THandle;                   // GlobalFree
   end;
 
-  { ������ ���� ������, � ������� ��������� ����� ������ �����: �����������
-    ������ ��������, ������� ������������ � ��������� ���� ������.
-    ������ $40 ���� �������� ��� TThread (FHandle, FSuspended,
-    FFreeOnTerminate, OnTerminate), ���� ���� ���������� � +$40. }
+  { Дальше идут классы, у которых раскладка полей задана жёстко: заполнители
+    держат смещения, поэтому переставлять и вставлять поля нельзя.
+    Первые $40 байт занимает сам TThread (FHandle, FSuspended,
+    FFreeOnTerminate, OnTerminate), свои поля начинаются с +$40. }
   TRxHintWindowRef = class(THintWindow)
   public
     Filler218: array[$218..$24B] of Byte;
@@ -203,15 +203,15 @@ type
     Filler24D: array[$24D..$24F] of Byte;
   end;
 
-  { ����� ������������ �������. ������ �����������: ���� ����� �������� �
-    ���������� ����� �� ��������, ��� ���������� ��� ����������. Len ������
-    Cardinal -- ��������� � Length() ������ ���� ����� Int64. }
+  { Ответ подключаемой функции. Запись упакованная: поля лежат вплотную и
+    адресуются прямо по смещению, без арифметики над указателем. Len именно
+    Cardinal -- сравнение с Length() должно идти через Int64. }
   PPlugRec = ^TPlugRec;
 
   TPlugRec = packed record
-    Flag: Byte;                        // +0  ����� ����/���
-    Len:  Cardinal;                    // +1  ����� ������
-    Ptr:  Integer;                     // +5  ����� ������ ������
+    Flag: Byte;                        // +0  ответ есть/нет
+    Len:  Cardinal;                    // +1  длина ответа
+    Ptr:  Integer;                     // +5  адрес строки ответа
   end;
 
   TScanThread = class(TThread)
@@ -220,29 +220,29 @@ type
     Timers: array of TvarS;
     Arr48: array of TvArray;
     VarNames: TStrings;
-    Arr50: array of TLoopRec;          // ���� ������
-    Arr54: array of TRepeatRec;        // ���� repeat
-    Arr58: array of TGosubRec;         // ���� gosub
+    Arr50: array of TLoopRec;          // стек циклов
+    Arr54: array of TRepeatRec;        // стек repeat
+    Arr58: array of TGosubRec;         // стек gosub
     PromptKind: string;                // '#' / '$' / '%'
-    PromptTime: Integer;               // ������ �� ��������
+    PromptTime: Integer;               // секунд до закрытия
     VarTimer: TTimer;
     RegEx: TObject;                    // TPerlRegEx
     Blocks: array of TScriptBlock;
     ShowWait: Boolean;
     StopRequested: Boolean;
     Filler72: array[$72..$73] of Byte;
-    Title: string;                     // ������ ���� �����
+    Title: string;                     // полный путь файла
     FilePath: string;
     FileTitle: string;
     Lines: arrayOfString;
-    ClientWnd: HWND;                   // ���� ������� � �������
+    ClientWnd: HWND;                   // окно клиента у скрипта
     ProcessHandle: THandle;
     ProcessId: DWORD;
     AutoStart: Boolean;
     Flag91: Boolean;
     Paused: Boolean;
     Debug: Boolean;
-    LineCount: Integer;                // ����� ������� ������
+    LineCount: Integer;                // номер текущей строки
     StartLine: Integer;
     Msg: string[255];
     LogBuf: array[0..$3FFF] of Char;
@@ -261,35 +261,35 @@ type
     Tick3: Cardinal;
     Tick4: Cardinal;
     NextVarGrid: Cardinal;
-    LogToParent: Boolean;              // ������ � ��� �������-�������
+    LogToParent: Boolean;              // писать в лог вкладки-хозяина
     Filler43C1: array[$43C1..$43C3] of Byte;
     ClientWnd2: HWND;
     ProcessHandle2: THandle;
     ThreadId: DWORD;
-    Owner43D0: TScanThread;            // �������-������
-    Root43D4: Pointer;                  // �������� �������
-    SelfRef: Pointer;                  // ������ �� ���� ��
-    Name: string;                      // ��� �������
+    Owner43D0: TScanThread;            // вкладка-хозяин
+    Root43D4: Pointer;                  // корневая вкладка
+    SelfRef: Pointer;                  // ссылка на себя же
+    Name: string;                      // имя вкладки
     Str43E0: string;
     PromptWnd: TForm;
-    FoundWnd: HWND;                    // ����� EnumWindows
-    FindPid: DWORD;                    // ������� �������
+    FoundWnd: HWND;                    // ответ EnumWindows
+    FindPid: DWORD;                    // искомый процесс
     Arr43F0: array of string;
     Params: string;
-    ProcName: string;                  // ��� ���������
+    ProcName: string;                  // имя процедуры
     Obj43FC: TObject;                  // FreeAndNil
     Filler4400: array[$4400..$4403] of Byte;
     HKMods: THKModsZ;
-    IsProc: Boolean;                   // �������� ��� ���������
+    IsProc: Boolean;                   // запущено как процедура
     LogFlags: Word;
     Workers: array[1..10] of TTimerThread;
     Workers2: array[1..10] of TTimerThreadEx;
     Masks: tMatchMaskList;             // FreeAndNil
-    WinListText: string;               // ������� �������� ����
+    WinListText: string;               // подпись рабочего окна
     MemTarget: string;
     MemTarget2: string;
-    Obj4468: TObject;                  // .Free � �����������
-    Obj446C: TObject;                  // .Free � �����������
+    Obj4468: TObject;                  // .Free в деструкторе
+    Obj446C: TObject;                  // .Free в деструкторе
     ScreenBmp: Graphics.TBitmap;
     CapW: Integer;
     CapH: Integer;
@@ -302,10 +302,10 @@ type
     ImgPts: array of Cardinal;
     ImgTol: array of Integer;
     ImgList: array of array of Integer;
-    CapWnd: HWND;                      // ($02 -- ������� � ������)
+    CapWnd: HWND;                      // ($02 -- снимать с экрана)
     Fld44A0: Integer;
     Filler44A4: array[$44A4..$44AB] of Byte;
-    ShotBits: Pointer;                 // ����� ����� 24-���
+    ShotBits: Pointer;                 // буфер строк 24-бит
     Filler44B0: array[$44B0..$44B3] of Byte;
     ShotSize: Integer;                 // Abs(Height * Stride)
     CapTo: TPoint;
@@ -314,27 +314,27 @@ type
     ShotCount: Integer;
     ImgFmt: Integer;
     Filler44D4: array[$44D4..$44DB] of Byte;
-    { ���� ����� �� ������������, �� ��� � ���� ������ ���������: ����� ���
-      ���� ������ ���� �����������, ����� ������ ���������. }
+    { Поле нигде не используется, но тип у него именно строковый: место под
+      него должно быть управляемым, иначе съедет раскладка. }
     Fld44DC: string;
     BottomUp: Boolean;                 // Stride > 0
     Filler44E1: array[$44E1..$44E3] of Byte;
-    LogPrefix: string;                 // ��������� � ������ ����
+    LogPrefix: string;                 // приставка к строке лога
     CaretX: Integer;
     CaretY: Integer;
-    { stdcall, � �� cdecl: ����� �� ����� ������� ���� �������. }
+    { stdcall, а не cdecl: довод со стека снимает сама функция. }
     PlugFunc: procedure(P: Pointer); stdcall;
     PlugProc: THandle;
     PlugPid: DWORD;
     PlugRec: PPlugRec;
     PlugStr1: PChar;
     PlugStr2: PChar;
-    { ����� ������ � �������� -- ������ ��������, � �� ������: �����
-      `V := T.PlugBuf` ������ ����� LStrFromArray. ����� ������� -- ���������
-      ���� ����� �� �������, � �� ����� ���� �� �������. }
-    { ������ ������ ���������� � ����: ������ ����-������� ������ ��������
-      ��������� ����-��������������� ������� � ������ ����� LStrFromArray;
-      � ����� ������ ������� ��������� LStrFromPCharLen � ������ �����. }
+    { Буфер обмена с плагином -- массив СИМВОЛОВ, а не байтов: тогда
+      `V := T.PlugBuf` берётся одним LStrFromArray. Ответ плагина -- отдельное
+      поле сразу за буфером, а не хвост того же массива. }
+    { Индекс обязан начинаться с нуля: только нуль-базовый массив символов
+      считается нуль-терминированным буфером и берётся через LStrFromArray;
+      с любым другим началом получится LStrFromPCharLen и лишняя длина. }
     PlugBuf: array[0..$100000] of Char;
     PlugRes: TPlugRec;
     Filler104512: array[$104512..$10452F] of Byte;
@@ -348,18 +348,18 @@ type
     TabList: TStringList;
     ShowAllWnd: Boolean;
     Filler104545: array[$104545..$104547] of Byte;
-    LogView: TMemo;                    // ���� �������
+    LogView: TMemo;                    // мемо вкладки
     SubScript: TScanThread;
     ToMsgBox: Boolean;
     StopOnPause: Boolean;
     Filler104552: array[$104552..$104553] of Byte;
-    CtlId: Integer;                    // ����� ��������
-    CtlValue: Integer;                 // �������� ��������
-    CtlText: string[255];              // ��������� ��������
-    LineBase: Integer;                 // ����� ��������� �����
+    CtlId: Integer;                    // номер величины
+    CtlValue: Integer;                 // числовое значение
+    CtlText: string[255];              // текстовое значение
+    LineBase: Integer;                 // сдвиг нумерации строк
     LoggingCommands: Boolean;
     Filler104661: array[$104661..$104663] of Byte;
-    LogLevel: Integer;                 // 0 -- ��� ��������
+    LogLevel: Integer;                 // 0 -- лог выключен
     OldLogProc: TWndMethod;
     HoldKey: Boolean;
     Filler104671: array[$104671..$104673] of Byte;
@@ -373,8 +373,8 @@ type
     ClickDelay: Integer;               // seMouseClicksDelay
     Fld10488C: Integer;                // = $104
     Fld104890: Integer;                // = $DB
-    LogCont: Boolean;                  // �������� � ������� ������
-    LogCrLf: Boolean;                  // �������� ������� ������
+    LogCont: Boolean;                  // дописать к прошлой строке
+    LogCrLf: Boolean;                  // добавить перевод строки
     Filler104896: array[$104896..$104897] of Byte;
     Arr104898: array of Char;
     ShowRun: Boolean;                  // sbScriptProcessing.Down
@@ -395,18 +395,18 @@ type
     RestartFlag: Boolean;
     RepeatLine: Boolean;
     RepeatCmd: Boolean;
-    SubstAdvance: Boolean;             // �������� �� ������� ����� �����������
+    SubstAdvance: Boolean;             // сдвигать ли позицию после подстановки
     ParenPos: Integer;
     CmdArg: string;
     CmdArg2: string;
-    DebugForm: TForm;                  // (�� ���� TLua)
+    DebugForm: TForm;                  // (на деле TLua)
     LuaCalcStr: string;
     Filler105BF0: array[$105BF0..$105BF4] of Byte;
-    InLua: Boolean;                    // ��� lua-����
+    InLua: Boolean;                    // идёт lua-блок
     Filler105BF6: array[$105BF6..$105BF7] of Byte;
     RxLen: string;
     RxSub: string;
-    LuaRes1: Integer;                  // ���� get ��� lua
+    LuaRes1: Integer;                  // итог get для lua
     LuaRes2: Integer;
     LuaRes3: Integer;
     LuaRes4: Integer;
@@ -414,16 +414,16 @@ type
     Filler105C14: array[$105C14..$105C17] of Byte;
     Filler105C18: array[$105C18..$105C27] of Byte;
     DirMask: array[0..9] of string;
-    Args: array[0..20] of TParams;      { ��� $C }
+    Args: array[0..20] of TParams;      { шаг $C }
     HasArgs: Boolean;
-    LuaUnclosed: Boolean;              // ��� -- endlua
+    LuaUnclosed: Boolean;              // нет -- endlua
     Filler105D4E: array[$105D4E..$105D4F] of Byte;
     Backpack: TBackpackZ;
     Filler105E04: array[$105E04..$105E07] of Byte;
     PerfFreq: Int64;
-    HintWnd: TRxHintWindowRef;            // ���� ���������
+    HintWnd: TRxHintWindowRef;            // окно подсказки
     Hint: TmsgHintParam;
-    Timer: TTimer;                     // �������� $FA0
+    Timer: TTimer;                     // интервал $FA0
   protected
     procedure Execute; override;
   public
@@ -497,73 +497,73 @@ type
 
 type
 
-  { ������� TScriptArray, �� � ����� �������: ��� ���������� � ��������
-    ������� �������� ��� ���������� ����. ���������� ������ ��������
-    `gScriptso3[Cnt]` � �������� -- ������� ��������������� �� ������
-    ���������. ����������� ����� `absolute`, ����� �� ��������. }
+  { Двойник TScriptArray, но с типом потомка: даёт обращаться к элементу
+    массива скриптов без приведения типа. Приведение мешает удержать
+    `gScriptso3[Cnt]` в регистре -- элемент пересчитывается на каждом
+    обращении. Объявляется через `absolute`, места не занимает. }
   TScriptArrayS = array[0..99] of TScanThread;
 
-{ ---- �������� Lua ---------------------------------------------------------
-  ������ ��� lua_State ����� � ���� TScanThread, ������� �� ������ ������
-  ������ DebugForm. }
+{ ---- привязка Lua ---------------------------------------------------------
+  Обёртка над lua_State лежит в поле TScanThread, которое по старой памяти
+  зовётся DebugForm. }
 type
-  { TLuaCFunc � ����� ������ lua51.dll ��������� � lualib -- ������ �
-    �����������, ����� ������� ��� �������. }
-  { ������� TLuaStatusText ���� � lualib, ������ � ��� ����� �����
-    ��������� PLuaStatus (�������� ����). }
+  { TLuaCFunc и формы вызова lua51.dll объявлены в lualib -- вместе с
+    переменными, через которые они зовутся. }
+  { Таблица TLuaStatusText живёт в lualib, отсюда к ней ходят через
+    посредник PLuaStatus (объявлен ниже). }
   PPtr = ^Pointer;
 
-  { ��� ����� TLua �� ������ ��������� �������� � lualib; ����� �� �����
-    ����� uses � ������������ ��� `TLua(T.DebugForm)`. }
+  { Сам класс TLua со своими глобалями объявлен в lualib; здесь он виден
+    через uses и используется как `TLua(T.DebugForm)`. }
 
 
-{ ���� ���������� �������� ������ lualib: gLuaLoaded, gLuaProc01, �������
-  ���������; ������� CRC32 -- � CRCunit. ����� ������ ������-��������� ����:
-  ������ ���� � ����� �����, � ������ ��� ������ ���� � ��� ����. }
+{ Свои переменные привязки держит lualib: gLuaLoaded, gLuaProc01, таблица
+  состояний; таблица CRC32 -- в CRCunit. Здесь только ссылка-посредник ниже:
+  массив живёт в чужом юните, и читать его отсюда надо в два шага. }
 
 
-{ � ���������� ������, ��� ����� � ����: EvalScriptExpr ������ �� � ����
-  ����� � Unit1. }
+{ В интерфейсе потому, что зовут её двое: EvalScriptExpr отсюда же и одно
+  место в Unit1. }
 function TryCaptureImage(T: TScanThread; H: HWND): Boolean;
 
-{ LuaBindGlobal, LuaPushClosure � LuaDoString ��������� � lualib. }
-{ ���� ���������� �� ��� ������� �������: ��� ��� �� ���� �� upvalue
-  ���������, ������� � ������� ����������� ����� �� �� }
+{ LuaBindGlobal, LuaPushClosure и LuaDoString объявлены в lualib. }
+{ Один обработчик на все команды скрипта: своё имя он берёт из upvalue
+  замыкания, поэтому в таблице регистрации всюду он же }
 function LuaScriptCommand(L: Integer): Integer; cdecl;
 
 procedure StartScriptThread(T: TScanThread);
 procedure ShowScriptMsg(T: TScanThread);
 procedure RunLuaScript(T: TScanThread);
 procedure UpdateScriptButtons(T: Pointer);
-{ ����� �� ������: ���� ��� �� �����, ������ ��������� ������ ����������
-  ('#' ��� '$') � ������ � ��������. }
-{ ����� (��� �������) ���������� ������� �� ������� ������� �����:
-  '#' -- �����, '$' -- ������, '%' -- �������. X � Y -- ����������� �������
-  �������. ���������� ����� � �������. }
+{ Число из строки: если это не число, строка считается ИМЕНЕМ переменной
+  ('#' или '$') и берётся её значение. }
+{ Найти (или завести) переменную скрипта по ПЕРВОМУ СИМВОЛУ имени:
+  '#' -- число, '$' -- строка, '%' -- матрица. X и Y -- запрошенные размеры
+  матрицы. Возвращает номер в массиве. }
 function FindScriptVar(T: TScanThread; C: Char; Name: string;
   X, Y: Integer): Integer;
-{ �������� �������� � ����������, ��������� ����������. }
+{ Записать значение в переменную, найденную предыдущей. }
 procedure StoreScriptVar(T: TScanThread; C: Char; Idx: Integer; Res: string;
   Cnt: Integer; W: string; X, Y: Integer);
-{ ������ �����: N = 0 -- ������ ����� � ������ ��������, N > 0 -- N-� �����
-  ��� ����, N < 0 -- ����� ������ ������� �� ����� -N. �������� ���� --
-  T.WordPos, ������� ���������� �����. }
+{ Разбор слова: N = 0 -- первое слово в нижнем регистре, N > 0 -- N-е слово
+  как есть, N < 0 -- хвост строки начиная со слова -N. Побочный итог --
+  T.WordPos, позиция найденного слова. }
 function EvalScriptPoint(T: TScanThread; S: string; N: Integer): string;
-{ ����������� ��������� �������. }
+{ Вычислитель выражений скрипта. }
 function EvalScriptExpr(T: TScanThread; sv: string;
                         nv: Integer): string;
-{ ��������� ������ �������: �� ������ N ��������� ���� �������.
-  ������ �� Execute �� ������ ����. }
+{ Диспетчер команд скрипта: по номеру N выполняет тело команды.
+  Зовётся из Execute на каждом шаге. }
 procedure ExecScriptCommand(T: TScanThread; var N: Integer;
   var S: string);
-{ ������� ��������� ����������. ���������� �������� ����, ������ ���
-  LuaScriptCommand ����� ���� ����� �������, � ����� � ������� ��
-  ���������. }
+{ Размеры матричной переменной. Объявление вынесено сюда, потому что
+  LuaScriptCommand лежит ВЫШЕ самой функции, а вперёд в Паскале не
+  сослаться. }
 function GetArraySize(T: TScanThread; S: string; var A: Cardinal;
                       var C: Cardinal; B: Boolean): Boolean;
 
-{ �������� �������, ������� ������� � ���� ������. }
-{ ������ ����������� ��������: ��� � ���� �����, Unit1 ���� ��� ������. }
+{ Табличка функций, которые объявил о себе плагин. }
+{ Список загруженных плагинов: дом у него здесь, Unit1 берёт его отсюда. }
 var
   gPluginListjr: TStringList;
 
@@ -577,53 +577,53 @@ uses Math, ShlObj, SKey, MathEx, Unit1, HotKeyMgr, CRCunit, uCircleForm, Keydefs
 
 
 
-{ ���� WaitPartOf, WaitTextOf, WaitUnitOf, ParseWaitSuffix -- � ����� `MathEx`. }
-{ ���� SvcInstall, SvcRemove, SvcQueryState, SvcSendKeys -- � ����� `SKey`. }
-{ ���� CrcOfBuf, SendExKeyCode -- � ����� `CRCunit`. }
-{ ���� SendKeysEx, SendKeysBody, SendOneKey -- � ����� `sendR`. }
+{ Тела WaitPartOf, WaitTextOf, WaitUnitOf, ParseWaitSuffix -- в юните `MathEx`. }
+{ Тела SvcInstall, SvcRemove, SvcQueryState, SvcSendKeys -- в юните `SKey`. }
+{ Тела CrcOfBuf, SendExKeyCode -- в юните `CRCunit`. }
+{ Тела SendKeysEx, SendKeysBody, SendOneKey -- в юните `sendR`. }
 
 var
-  { ����� ���������� �������� ������ ����� ��������, � �� ������
-    ���������� ��������: ����� ������� ��� ���������� ����� -- ���� �����
-    FinalizeArray ������ ����� LStrClr. `gOpsZ[3]` ('not') ������ ����� ��
-    ������, �� ����� � ���� �� ����� ���������. }
+  { Имена логических операций держим ОДНИМ массивом, а не шестью
+    отдельными строками: тогда очистка при завершении юнита -- один вызов
+    FinalizeArray вместо шести LStrClr. `gOpsZ[3]` ('not') сейчас никто не
+    читает, но место в ряду за собой оставляет. }
 
-  { ������� ������� �������� � ����� �������. �������� �� ��������,
-    ��������� �� ��, ���� `gScriptsS[Cnt].Synchronize(...)` ������� ���
-    ���������� � ������� ������������ � ��������. � StoreScriptVar ��������
-    ��� ���������: ������� � �������� -- ������ �������, ��������� �� ������,
-    ����� ������� ����� ���������������. }
+  { Двойник массива скриптов с типом потомка. Хранения не занимает,
+    адресация та же, зато `gScriptsS[Cnt].Synchronize(...)` пишется БЕЗ
+    приведения и элемент удерживается в регистре. В StoreScriptVar заменены
+    ВСЕ обращения: двойник и оригинал -- разные символы, смешивать их нельзя,
+    иначе элемент будет пересчитываться. }
   gScriptsS: TScriptArrayS absolute gScriptso3;
 
-{ �������� ������ � �������� � ������������ � ���������� ������� ��
-  ������� ������� � ������� ����� � ��������. ������ �� Execute � ��
-  Synchronize-������.
+{ Привести кнопки и редактор в соответствие с состоянием скрипта на
+  ТЕКУЩЕЙ вкладке и вернуть фокус в редактор. Зовётся из Execute и из
+  Synchronize-обёртки.
 
-  ����� ������� -- ������� �������: tScript.Tabs[tScript.TabIndex] ������ ���
-  �������, ������� StrToInt. �������� T �� ������������ -- ��� � �
-  PauseScriptThread/StopScriptThread, �� ���� ������ ���� ������ ���������
-  Synchronize-������. }
+  Номер скрипта -- ПОДПИСЬ вкладки: tScript.Tabs[tScript.TabIndex] хранит его
+  строкой, поэтому StrToInt. Аргумент T не используется -- как и у
+  PauseScriptThread/StopScriptThread, он есть только ради единой сигнатуры
+  Synchronize-обёрток. }
 
-{ ������ �� ������ ������� ��������� ����������� `//`, �� ������ `//`
-  ������ �������. ������� ������� ������ -- ��ר���� ����� ������� ��
-  ���������� `//`; ��� ������ ����������� ��������� � ������ ����������,
-  ��� �������� ������ ��������� `//` (PosEx � P+2).
+{ Убрать из строки скрипта хвостовой комментарий `//`, не тронув `//`
+  внутри кавычек. Признак «внутри строки» -- НЕЧЁТНОЕ число кавычек до
+  найденного `//`; при чётном комментарий настоящий и строка обрезается,
+  при нечётном ищется следующий `//` (PosEx с P+2).
 
-  ����� L ������ ���� ��� �� �����: Copy ������ ����������� Break, ��� ���
-  �������� ��� �� ��������. }
+  Длина L берётся ОДИН раз до цикла: Copy всегда завершается Break, так что
+  устареть она не успевает. }
 
 
-{ ����� ���� (��� ������� ������) � ����� T.ShotBits.
+{ Снять окно (или область экрана) в буфер T.ShotBits.
 
-  �������: DDB ����� CreateCompatibleDC/CreateCompatibleBitmap, ���������� --
-  BitBlt � ������ (CapWnd = 2) ���� PrintWindow � ������ � �����������
-  BitBlt; ������ �������� ������� GDI+ (GdipCreateBitmapFromHBITMAP), ���
-  �������� ���� ������������� ���������� � BMP � �������� � gProcImageer, �
-  ���� ������� ���������� GdipBitmapLockBits � ���������� � ���� GlobalAlloc.
-  ������ ������� -- �� �����, � ������ � T.Msg � Synchronize(SyncLogMsg):
-  ���������� ��������� � ��� ������. }
-{ ����������� ����� ��� ������ ������: ������ ����������, ����� �������
-  ������ 1x1 � pf24bit. ���� ���� � try..except, ������ 3313. }
+  Порядок: DDB через CreateCompatibleDC/CreateCompatibleBitmap, наполнение --
+  BitBlt с экрана (CapWnd = 2) либо PrintWindow в память с последующим
+  BitBlt; дальше картинка отдаётся GDI+ (GdipCreateBitmapFromHBITMAP), при
+  открытом окне предпросмотра кодируется в BMP и грузится в gProcImageer, а
+  сами пиксели забираются GdipBitmapLockBits и копируются в блок GlobalAlloc.
+  Каждая неудача -- не выход, а строка в T.Msg и Synchronize(SyncLogMsg):
+  показываем сообщение и идём дальше. }
+{ Пересоздать растр под снимок экрана: старый освободить, новый завести
+  пустым 1x1 в pf24bit. Весь блок в try..except, ошибка 3313. }
 
 
 
@@ -634,12 +634,12 @@ var
 
 
 type
-  { ������ ��� ReadShortcut: �� ����� untyped var, ������ -- ��� ���. }
+  { Запись под ReadShortcut: на входе untyped var, внутри -- вот это. }
   TZzLnk = packed record
-    Path: array[0..$104] of Char;      { ���� � ������ .lnk }
-    Name: array[0..$104] of Char;      { �����: �� ��� ��������� }
-    Args: array[0..$104] of Char;      { �����: ��������� }
-    Dir:  array[0..$104] of Char;      { �����: ������� ������� }
+    Path: array[0..$104] of Char;      { путь к самому .lnk }
+    Name: array[0..$104] of Char;      { ответ: на что ссылается }
+    Args: array[0..$104] of Char;      { ответ: аргументы }
+    Dir:  array[0..$104] of Char;      { ответ: рабочий каталог }
     Pad:  array[$414..$62B] of Byte;
     Find: TWin32FindData;
   end;
@@ -662,10 +662,10 @@ type
     qAddr: Int64; nSize: Int64; const sMod: string; nPid: Cardinal);
   TChSet = set of Char;
   PChSet = ^TChSet;
-  { ������� ��� ������ -- ��������� �� ���������, ��� ������ ����� ��� ��
-    �������� 8. ��� ������� � `switch` �������� ����� ���������; TStringList
-    �� ���� ����� ����� �� ����������� ����� `Strings[]`, SEH-����� � ������
-    ��������� ���������. }
+  { Таблица имён команд -- указатель на структуру, где массив строк идёт со
+    смещения 8. Имя команды в `switch` достаётся двумя командами; TStringList
+    на этом месте давал бы виртуальный вызов `Strings[]`, SEH-рамку и лишнюю
+    строковую временную. }
   TCmdStrArrZ = array[0..255] of string;
   TCmdStrTab = record
     hdr0, hdr4: Integer;
@@ -680,47 +680,47 @@ var
 
 
 
-{ ReadMemByName � WriteMemByName -- � ����� `ReadMem`. }
+{ ReadMemByName и WriteMemByName -- в юните `ReadMem`. }
 
-{ �������� ����� ������ �������: � ���, ����� ��������� ��� ���������� --
-  ������ ��� �������� �� ������� ��������. }
+{ Показать текст ошибки скрипта: в лог, окном сообщения или подсказкой --
+  смотря что отмечено на вкладке настроек. }
 
-{ ������� ����� � ���� �������. ��������� �� ����� ������ ����������� ��
-  ��, ��� �������� � gKbdLayoutow, � ������������ � �����. }
+{ Набрать текст в окно клиента. Раскладка на время набора подменяется на
+  ту, что записана в gKbdLayoutow, и возвращается в конце. }
 
-{ ������ ����� � ������ ������� �� ����� ������. ������ �� ����� `set`
-  ����������. ����� `S` -- ���� ���� �����, ���� ��� ������ ������� `G`;
-  ���� ������� ������ � ����� �� ������ $226, ��� ��������� ������� ������
-  � ��������� �������� ������ �� ������ �������.
+{ ЗАПИСЬ ЧИСЛА В ПАМЯТЬ КЛИЕНТА ПО ИМЕНИ ЗАПИСИ. Зовётся из ветки `set`
+  диспетчера. Довод `S` -- либо само число, либо имя строки таблицы `G`;
+  если таблица задана и число не больше $226, оно считается НОМЕРОМ СТРОКИ
+  и настоящее значение берётся из второй колонки.
 
-  ������, ������� ����� �� �������:
-  * `Length(S) - 1 > 0` ������ �� �������, ��� `Length(S) > 1`;
-  * `nRow` -- Cardinal �������: ���� � ���� ����������� ����������. �� ��
-  ������ � WriteProcessMemory ��� �������� ���� �������� -- ����
-  ���������� �� ��� ����;
-  * ��������� `#0` � ����� ���������� ����� �� ����, ��� �� ��������. }
+  Мелочи, которые лучше не трогать:
+  * `Length(S) - 1 > 0` короче на команду, чем `Length(S) > 1`;
+  * `nRow` -- Cardinal нарочно: вход в цикл проверяется беззнаково. Он же
+  уходит в WriteProcessMemory как «сколько байт записано» -- одна
+  переменная на два дела;
+  * хвостовой `#0` в обоих сообщениях стоит по делу, это не опечатка. }
 
-{ ������ ������ ��������: ����������������� ����� (1a2bh � $1a2b)
-  ����������� � ����������, ����� ������ ����������� �� ������.
-  ������������� A -- ������� ������ ��� �����������. }
-
-
-{ MacroFileLoad ���� � Recorder.pas. }
-
-{ ��������� ������� ������� ���� � ���������� �� ���� �������. ����� T ��
-  ������������: ������� ������ ������ �� ������.
-
-  ������� ���� ������ ��� `Result`, ���������� ������ ��� ���� ��� �������:
-  � ��� ���� ������� �� ������������ � �������� � ���� ������� ��������
-  ������ �� ������ ����. �� ��� �� ������� ��������� ������ ���������� �
-  �������� ��������, � �� ����� ���������. }
+{ Разбор хвоста ожидания: шестнадцатеричные числа (1a2bh и $1a2b)
+  переводятся в десятичные, потом строка разбирается по словам.
+  Отрицательное A -- признак ошибки для вызывающего. }
 
 
+{ MacroFileLoad живёт в Recorder.pas. }
+
+{ Поставить скрипту рабочее окно и перечитать по нему процесс. Довод T не
+  используется: вкладка берётся заново по номеру.
+
+  Прежнее окно держит сам `Result`, отдельного локала под него нет нарочно:
+  с ним база массива не удерживается в регистре и слот вкладки читается
+  заново на каждом шаге. По той же причине последняя группа обращается к
+  элементу напрямую, а не через временную. }
 
 
 
 
-{ �������� ��������� AutoStart � LoggingCommands �� ����� ��������. }
+
+
+{ Отражает состояние AutoStart и LoggingCommands на галке настроек. }
 
 
 
@@ -761,65 +761,65 @@ const
 var
   gHKNoneZ: Byte;
   gCbStubStr: string;
-  gHoldStr: string;   { ������� ��� ����� � var-���������� }
+  gHoldStr: string;   { приёмник для веток с var-параметром }
   gCbStubInt: Integer;
 
-{ ����������� ����� EvalScriptExpr: ��������� ������ ����� `var Res`.
-  ��� ������, ������ ��� ������������ EvalScriptExpr � ��� �� ����� ������. }
-{ ����������� ����� ������: ����� ������ � ��������� ������, � ���
-  ����� -- �������� PChar. }
-{ ������ ������ � �������. S -- ����������� ��������, T �� ������������
-  �����. }
-{ ������� ���������� ����� ������� �� ������� D. ����� ������������ ���
-  �����, ��������� -- ��� ������; Asc ����� �����������. �������� ������
-  � ������� ��������, ������� ������ � ��� �� ����. }
-{ �� �� �����, �� ����������� �������: ��������� ��� �� ������ D, �
-  �������� ������� �������� ���� �����. }
+{ Процедурная форма EvalScriptExpr: результат уходит через `var Res`.
+  Имя другое, потому что переобъявить EvalScriptExpr в том же юните нельзя. }
+{ Контрольная сумма строки: длина берётся у временной строки, а сам
+  буфер -- исходный PChar. }
+{ Первая группа в скобках. S -- ЗНАЧЕНИЕВЫЙ параметр, T не используется
+  вовсе. }
+{ Быстрая сортировка СТРОК массива по столбцу D. Числа сравниваются как
+  числа, остальное -- как строки; Asc задаёт направление. Рекурсия только
+  в меньшую половину, большая уходит в тот же цикл. }
+{ То же самое, но сортируются СТОЛБЦЫ: сравнение идёт по строке D, а
+  меняются местами элементы всех строк. }
 type
-  { ������� ������ ������ �� �������� � ���������� �������, ������� �����
-    ����� 101. ���������� ��������� ������ ������ ������ ������ -- ���������
-    ���������� ��� ����, � ��� � ��������. }
+  { Массивы кривой уходят ПО ЗНАЧЕНИЮ и копируются целиком, поэтому длина
+    ровно 101. Вызывающий заполняет только четыре первые ячейки -- остальное
+    копируется как есть, и так и задумано. }
   TCurveArr = array[0..100] of Integer;
 
 
-{ ��������� ������ � �������: �������� ��� � ����� ������. �������� N
-  ����� ������� ������������ ������ �������� ���������. }
-{ ��������� ��������� ������ �� �����. ���������� ����� ����; ����������
-  ��������� �����������. ������������� ������ � CmdParts -- �� ������:
-  ������� ������ ����� � �����, ���� ������� �����. }
-{ ������ ������ � ��������. ������� ������������ ����� A � B, � �� ��� ��
-  ��������� Copy -- �� ����������, � �� �� ���������. }
-{ ������� `EvalScriptPoint`, �������� ������ � �����. ������� ����� ���,
-  �� ��������� ����� � �����:
-  * ���� ��� `downto`, ������� ������� -- ��� `I`, � �� ��������� ����;
-  * ����� ������������ ����� (`W := S[I] + W`);
-  * ������� ����� -- `I + 1`, � �� `I - Length(W)`.
-  ������ ������ `T.WordPos` ��� �� ���������� ������ -- ��� � ����. }
-{ ����� ������ -- � ����� `SKey`, ������ � �������� Svc*. }
+{ Последняя группа в скобках: просмотр идёт С КОНЦА строки. Параметр N
+  после первого присваивания служит индексом просмотра. }
+{ Разобрать командную строку на слова. Возвращает число слов; вызывающие
+  результат отбрасывают. Отрицательный индекс в CmdParts -- не описка:
+  таблица частей видна и назад, туда кладётся хвост. }
+{ Первая группа в кавычках. Границы возвращаются через A и B, и из них же
+  считается Copy -- по указателям, а не по локальным. }
+{ Близнец `EvalScriptPoint`, ЧИТАЮЩИЙ СТРОКУ С КОНЦА. Отличий ровно три,
+  всё остальное слово в слово:
+  * цикл идёт `downto`, поэтому счётчик -- сам `I`, а не отдельный слот;
+  * слово наращивается СЛЕВА (`W := S[I] + W`);
+  * позиция слова -- `I + 1`, а не `I - Length(W)`.
+  Первая запись `T.WordPos` тут же затирается второй -- так и есть. }
+{ Ручки службы -- в юните `SKey`, вместе с четвёркой Svc*. }
 
-{ ����� ��������� ������. ������� ��������� �� ����� � �������, ����
-  �������� ��� ������ �� ���������, -- �� ���� 1 ������ ��������� ��
-  ��������, � �� ������������. try..finally ����� ��-�� ����������
-  ������ �� ��������. }
-
-
-
-
-{ ��� ������ -- ���� � �� �� ��������. }
-
-{ ������� ��������� -- `or` � ����������, � �� `and`: ��� ���� ����� `-6`
-  ��� ������. ���� ������� ������ ��������� �������������. }
-
-{ ������� ServiceStop: �� �� �����
-  `if not <�����> then gSvcRetakx := <�����> else SvcQueryState(gServiceNamec)`,
-  � ���� ������� ������ ��� �� �������������. }
+{ ОПРОС СОСТОЯНИЯ СЛУЖБЫ. Единица взводится ДО всего и остаётся, если
+  менеджер или служба не открылись, -- то есть 1 значит «спросить не
+  удалось», а не «остановлена». try..finally нужен из-за строкового
+  довода по значению. }
 
 
 
 
+{ Обе строки -- одно и то же значение. }
+
+{ Условие вывернуто -- `or` с отрицанием, а не `and`: так тело ветки `-6`
+  идёт первым. Итог второго опроса намеренно выбрасывается. }
+
+{ Близнец ServiceStop: та же форма
+  `if not <опрос> then gSvcRetakx := <число> else SvcQueryState(gServiceNamec)`,
+  и итог второго опроса так же выбрасывается. }
 
 
-{ ������� ������ ������ ����������: � ����� ��� �������� ��� ���������. }
+
+
+
+
+{ Крупные локалы держим модульными: в кадре они сдвигают все временные. }
 var
   F         : TextFile;
   PI        : TProcessInformation;
@@ -830,14 +830,14 @@ var
   rLnk      : TLnkRec;
 
 type
-  { �������� �� ������ �������� ��������: ����� �� VMT ���� ������. }
+  { Накладка на объект описания величины: сразу за VMT одна строка. }
   TValDescRecZ = record
     VmtZ: Pointer;
     TxtZ: string;
   end;
   PValDescZ = ^TValDescRecZ;
 
-  { �������� �� ���� �������: ����� ������ ���� ��������� �� +$57 }
+  { Накладка на окно журнала: нужен только флаг «показано» на +$57 }
   TLogWinRecZ = record
     VmtLWZ: Pointer;
     FillLWZ: array[1..$53] of Byte;
@@ -847,19 +847,19 @@ type
 
 
 
-{ ������ ���������� ������ NtUserPostMessage �� ������� Windows; �����
-  �����, ������� cbNtUserPM.ItemIndex. ��� ����� ����� ���������
-  ����������, � ������ `NtPostMsgZ`. }
+{ Номера системного вызова NtUserPostMessage по версиям Windows; какой
+  брать, говорит cbNtUserPM.ItemIndex. Сам номер лежит отдельной
+  переменной, её читает `NtPostMsgZ`. }
 type
   TNtPmTab = array[0..3] of Cardinal;
 
 
 
-{ `p`-��������� ������ ���� ��� ��������� �� ����� PostMessage, � ������
-  ��������� �������: ����� � EAX, ������ ������ �� �����, ������� �� ������,
-  ����������� ��� ��. �������� `sysenter` �� ��������, ������� ������� ��
-  ����������. ������ ����� (�����) ������ ������ �� ����� -- �� ���� ����
-  ������ ����� ������ � PostMessage � �������� ������. }
+{ `p`-семейство команд мыши шлёт сообщение НЕ через PostMessage, а прямым
+  системным вызовом: номер в EAX, четыре довода на стеке, возврат по адресу,
+  положенному тут же. Паскалем `sysenter` не выразить, поэтому вставка на
+  ассемблере. Первый довод (поток) самому вызову не нужен -- он есть ради
+  единой формы вызова с PostMessage в соседних ветвях. }
 
 type
   TVerTab = array[0..63] of Integer;
@@ -869,114 +869,114 @@ type
   TIntGrid = array[0..0] of array[0..63] of Integer;
 type
   PIntGrid = ^TIntGrid;
-{ ������� ������� �� ������ ������ ������� (`T.ClVerIdx`). ���������
-  �����, � �� ���� �� �����: � ������ `CheckCompare`, ��������� �
+{ Таблица адресов по номеру версии клиента (`T.ClVerIdx`). Объявлена
+  ЗДЕСЬ, а не ниже по файлу: её читает `CheckCompare`, вложенная в
   `ExecScriptCommand`. }
 
-{ ��� ��������� �� ������ ������ ����� -- �� ������ ����� `homepath` �
-  `exefilename`. ��������� �����, � �� � ����� ����� ���������� ����: ���
-  ����� ����� ���� �������, � ����� ��������� ������. }
+{ Два указателя на строки чужого юнита -- их читают ветки `homepath` и
+  `exefilename`. Объявлены ЗДЕСЬ, а не в общем блоке переменных ниже: тот
+  лежит после этой функции, а вперёд ссылаться нельзя. }
 
-{ ���������� Lua � ��� �� ���� �������, �� ������� ��������
-  ExecScriptCommand � EvalScriptExpr. �������� ����� ����� `case` -- ���
-  ������� � ���� �������: 43 -- findwindow, 194 -- regexp, 246 � 248 --
-  getimage � loadimage. ������� � ����� ���� ������ ������, �����������
-  ���������� �����������. }
+{ Переходник Lua к тем же двум спискам, по которым работают
+  ExecScriptCommand и EvalScriptExpr. Числовые метки обоих `case` -- это
+  ИНДЕКСЫ в этих списках: 43 -- findwindow, 194 -- regexp, 246 и 248 --
+  getimage и loadimage. Первыми в кадре идут четыре локала, захваченные
+  вложенными процедурами. }
 
-{ ���������� � ��������� ������, �� ������� ����� ����������, ���������
-  ��������� � �������� ����� ������. ������ �����, � �� ��������� ���������:
-  �� ������ � Synchronize, � `procedure of object` ���������� �� ���������
-  ��������� ���� �� �����. }
+{ Подсветить в редакторе строку, на которой стоит выполнение, подвинуть
+  индикатор и показать номер строки. Именно МЕТОД, а не модульная процедура:
+  он уходит в Synchronize, а `procedure of object` указателем на модульную
+  процедуру быть не может. }
 
-{ ����� ������� ������� ����� ��������: ������ ������� ���������� �
-  ��������, ����������� ����� GlobalAlloc, ����� ������� �������. ������ ���
-  � ���� try..except: ���� ������ �� ������ ������ ���������. }
-
-
-{ ������ ����� �� �����: ������ ������ ������, �������� ����� ��������.
-  �������� �� ������������. ������ Exit, � �� if ������ ����� �����: ������
-  ��� ����� fmSecondfj ������������ � ��������. }
-
-{ ������ �������: ������ �����, �������� ������ �� ������. }
-
-{ ������ � �����, ������� PauseScriptThread: �� �� �������� �����������
-  ������ � �� �� ���� ������������, �� Down := False. ReadOnly ���������
-  ��� �� ���� Enabled ���������, � �� �� sbPause.Down. }
-
-{ ������ ����������: ��� ������ ������, �������� �������������.
-  ��������� � fmSecondfj ��� �������, ��� ��� with �� �����. }
-
-{ ������� ����� �������: �� ��, ��� ������ �+� �� �����. }
-
-{ ������������ ����� � ����� �������. ����� ���� ����� � �����, ������
-  ��� ������ ����� ����������� -- `var`. }
-
-{ ������� ���������. }
+{ Сброс вкладки скрипта перед запуском: чистит таблицы переменных и
+  таймеров, освобождает блоки GlobalAlloc, гасит рабочие объекты. Каждый шаг
+  в своём try..except: сбой одного не должен мешать остальным. }
 
 
+{ Скрипт встал на паузу: кнопка «пауза» нажата, редактор снова доступен.
+  Параметр не используется. Ранний Exit, а не if вокруг всего блока: только
+  так адрес fmSecondfj удерживается в регистре. }
 
-{ ����� ����������� ������ ����: � ���� ����, � ���� ������� � � ����.
-  ������ �� SyncLogMsg.
+{ Скрипт запущен: «старт» нажат, редактор закрыт на правку. }
 
-  ������ ���������� �� ������ T.LogBuf, � ����� T.LogFlags ����� � �����:
-  1 -- �����, 2 -- ��� �������, 4 -- ��� �����, 8 -- ����� ������,
-  $10 -- ����� � ��������������. ��� T.LogFlags = 0 ������ ������������� �
-  ������� ��� ����� LStrCatN �� 11 ������.
+{ Снятие с паузы, близнец PauseScriptThread: та же проверка доступности
+  кнопки и та же пара присваиваний, но Down := False. ReadOnly считается
+  уже ПО ПОЛЮ Enabled редактора, а не по sbPause.Down. }
 
-  ��������� I- �����������: ������ �����-������ ����� ����� try..except,
-  ������� �� ������ ��� ����� ��� ������ (gLogFileClosedr).
+{ Скрипт остановлен: обе кнопки отжаты, редактор разблокирован.
+  Обращений к fmSecondfj тут немного, так что with не нужен. }
 
-  ������� ���� ���� ������� (Copy �� ������� CRLF �� ���������) �������
-  Trimmed, � ������ ����� ����������� ������ �����: FileSize � ����������
-  ����� ����� ������ �� BufSize, �� ���� ������� �������� �� 128 ���� --
-  ������ ������� gLogMaxSizehk. }
+{ Завести новую вкладку: то же, что нажать «+» на форме. }
+
+{ Предупредить форму о смене вкладки. Локал живёт прямо в стеке, потому
+  что второй довод обработчика -- `var`. }
+
+{ Вкладка сменилась. }
+
+
+
+{ Вывод накопленной строки лога: в окно лога, в мемо вкладки и в файл.
+  Зовётся из SyncLogMsg.
+
+  Строка собирается из буфера T.LogBuf, а маска T.LogFlags гасит её части:
+  1 -- время, 2 -- имя вкладки, 4 -- имя файла, 8 -- номер строки,
+  $10 -- время с миллисекундами. При T.LogFlags = 0 формат фиксированный и
+  склейка идёт одним LStrCatN на 11 частей.
+
+  Директива I- обязательна: ошибки ввода-вывода ловит общий try..except,
+  который на второй раз гасит лог совсем (gLogFileClosedr).
+
+  Обрезка окна лога пополам (Copy от первого CRLF за серединой) взводит
+  Trimmed, и только тогда проверяется предел файла: FileSize у ТЕКСТОВОГО
+  файла делит размер на BufSize, то есть считает буферами по 128 байт --
+  отсюда единицы gLogMaxSizehk. }
 {$I+}
 
-{ �������� ����� ������ ���������� ��� ������� ������� � ��������� � ���
-  �������, ���������� ������� ���������. }
+{ Показать текст ошибки подсказкой над ярлыком вкладки и подержать её три
+  секунды, прокачивая очередь сообщений. }
 
 
-{ ���������� ����� `--lua ... -- endlua`. Execute �������� ������ �����
-  � T.LuaText � ���� ����.
+{ Выполнение блока `--lua ... -- endlua`. Execute собирает строки чанка
+  в T.LuaText и зовёт сюда.
 
-  ��� �������� ���� -- ���������� ����������� ������ ����� UoPilot �
-  lua_State. ���������� � ���� ����: ��� ��� �� ������ �� upvalue
-  ���������. �������� �������� (0..20) �� ������������. }
-
-
-{ ---- Sync-������ ������ ---- }
+  Три четверти тела -- однотипные регистрации команд языка UoPilot в
+  lua_State. Обработчик у всех ОДИН: своё имя он достаёт из upvalue
+  замыкания. Четвёртый параметр (0..20) не используется. }
 
 
-
+{ ---- Sync-обёртки потока ---- }
 
 
 
-{ ������� ���� ���� ����������� ������� � ��������� (fmSecondfj.FLogWin)
-  � �������� ���. -1 � ���� �������� ��� ������. }
 
-{ ����������� ������ �������. CreateSuspended ��������� �������� �
-  inherited: �������� � ��� ��� � ������ ��������, ������ ������ ��
-  ����������.
 
-  ��������� ������ ���� -- T ��� ������. ������ ���� � ����: ����
-  `VarNames := TStringList.Create; VarNames.Add('timer');` ����������
-  ������ ��� ���������� ���� � ��������, � ������ ��������� ��� ������
-  �������� ��� �� ��������. }
 
-{ --- ������� ����������� ��������� --- }
+{ Вернуть окну лога сохранённые размеры и положение (fmSecondfj.FLogWin)
+  и показать его. -1 в поле означает «не задано». }
+
+{ Конструктор потока скрипта. CreateSuspended передаётся насквозь в
+  inherited: значение и так уже в нужном регистре, лишних команд не
+  появляется.
+
+  Локальная только одна -- T под таймер. Список живёт в поле: пара
+  `VarNames := TStringList.Create; VarNames.Add('timer');` удерживает
+  только что записанное поле в регистре, а второй локальной под список
+  регистра уже не достаётся. }
+
+{ --- обвязка вычислителя выражений --- }
 type
   TChSetE = set of Char;
   PChSetE = ^TChSetE;
 
-{ ������ �������� ����� ����� � ���������, � �� �������������� ����������:
-  ���������� ������ 32 ����� � DATA, ���������� ����� ������� � ��� ����. }
+{ Наборы символов пишем ПРЯМО В ВЫРАЖЕНИИ, а не типизированной постоянной:
+  постоянная уводит 32 байта в DATA, встроенный набор ложится в пул кода. }
 
 
 
 type
-  { ��������� ���������, ������� 5..7 -- $50 ���� (2121) }
+  { состояние персонажа, клиенты 5..7 -- $50 байт (2121) }
   TStat1 = record
-    Name    : array[0..$1F] of Char;  { $00  ���, $20 ���� }
+    Name    : array[0..$1F] of Char;  { $00  имя, $20 байт }
     Strg    : SmallInt;               { $20  13 str      }
     Dext    : SmallInt;               { $22  15 dex      }
     Intl    : SmallInt;               { $24  14 int      }
@@ -987,9 +987,9 @@ type
     Mana    : SmallInt;               { $2E   5 mana     }
     ManaMax : SmallInt;               { $30  67          }
     Gold    : Cardinal;               { $34   1 gold     }
-    Res38   : Cardinal;               { $38  �� �������� }
+    Res38   : Cardinal;               { $38  не читается }
     PSys    : Word;                   { $3C  59          }
-    Res3E   : Word;                   { $3E  �� �������� }
+    Res3E   : Word;                   { $3E  не читается }
     Foll    : Byte;                   { $40  71          }
     FollMax : Byte;                   { $41  72          }
     Fire    : Word;                   { $42  60          }
@@ -999,13 +999,13 @@ type
     Luck    : Word;                   { $4A  64          }
     DmgMax  : Word;                   { $4C  70          }
     Dmg     : Word;                   { $4E  65          }
-  end;                                { ����� $50 }
+  end;                                { всего $50 }
 
 type
-  { �� �� ��� ��������� �������� -- $3C ����, �� �����������,
-    ��� ������� ($26 ������ $20): `nn := $25` (2121) }
+  { то же для остальных клиентов -- $3C байт, всё беззнаковое,
+    имя длиннее ($26 против $20): `nn := $25` (2121) }
   TStat2 = record
-    Name  : array[0..$25] of Char;    { $00  ���, $26 ���� }
+    Name  : array[0..$25] of Char;    { $00  имя, $26 байт }
     Hits  : Word;                     { $26   4 hits  }
     Strg  : Word;                     { $28  13 str   }
     Stam  : Word;                     { $2A   6 stam  }
@@ -1015,7 +1015,7 @@ type
     Gold  : Cardinal;                 { $34   1 gold  }
     Armor : Word;                     { $38   3 armor }
     Wght  : Word;                     { $3A   2 wght  }
-  end;                                { ����� $3C }
+  end;                                { всего $3C }
 
 type
   TThreadEntry32 = record
@@ -1028,37 +1028,37 @@ type
     dwFlags: DWORD;
   end;
 
-{ ������ ������� ������� -- ��������� ��� ������. ��������� ����: True --
-  ������, False -- ������ ��������� (����� `size`).
-  ��� ���� `arr.N` -- ��������� � ������� ����� �������: �� ����� ���,
-  ����� -- ����� �������. }
+{ Размер массива скрипта -- прочитать или задать. Последний флаг: True --
+  задать, False -- только прочитать (ветка `size`).
+  Имя вида `arr.N` -- обращение к массиву ЧУЖОЙ вкладки: до точки имя,
+  после -- номер скрипта. }
 
-{ ������ ������ `%���[������,�������]` ������ ������ �������: ���� � ��
-  ������� P � ����� var-������ ����� ��� �������, ��� �������, �����
-  �������, ����� � Arr48, ���� �������� � ������� ����������� `]`.
-  `nAt` ����������� � ����� �� �������� -- ������������ ��������� �������. }
+{ Разбор ссылки `%имя[строка,столбец]` внутри строки скрипта: ищет её от
+  позиции P и через var-доводы отдаёт имя массива, оба индекса, номер
+  вкладки, номер в Arr48, само значение и позицию закрывающей `]`.
+  `nAt` заполняется и нигде не читается -- присваивание оставлено нарочно. }
 
-{ ��������� �������� �� ����� � ����� ������ � ��������� �� ��� ������
-  ������� �����: ����� ������ ���� ��������� �����, �� ��������� ��������
-  � ImgList. ����� �� ����� `loadimage` � `findimage`.
-  �������� ������ � ������� -- Cardinal, ������ ������ -- Integer.
-  ImgList -- ��������� ������������ ������ (`SetLength(..., N, 3)`), � ��
-  ������ ����������. }
+{ Загрузить картинку из файла в буфер снимка и построить по ней список
+  опорных точек: самый частый цвет считается фоном, всё остальное попадает
+  в ImgList. Зовут из веток `loadimage` и `findimage`.
+  Счётчики строки и столбца -- Cardinal, индекс списка -- Integer.
+  ImgList -- ДВУМЕРНЫЙ динамический массив (`SetLength(..., N, 3)`), а не
+  массив указателей. }
 
-{ ������ � EAX, var-����� � EDX; ����� ����������� ����� `test al,al`.
-  ����� �������� ����� EvalScriptExpr.
+{ Строка в EAX, var-целое в EDX; ответ проверяется через `test al,al`.
+  Лежит вплотную перед EvalScriptExpr.
 
-  �������� ������ � ���� ��� -- Result �������� �� EBX. ����� ��� �� ��
-  `try`, � �� ������ ������� ������: ������ � ��� Result ������� � EBX.
-  `if 1 = 0 then` �����, ����� ������ �� ����: ������ ���� �������� (�����
-  ���������� ������� ������ � ������), �� �� ��������� (����� � finally
-  ������� LStrClr). }
+  Полезной работы в теле нет -- Result приходит из EBX. Рамка тут не от
+  `try`, а от уборки местной строки: только с ней Result остаётся в EBX.
+  `if 1 = 0 then` нужен, чтобы уборки НЕ БЫЛО: строку надо ПОМЯНУТЬ (иначе
+  переменная пропадёт вместе с рамкой), но не присвоить (иначе в finally
+  встанет LStrClr). }
 
-{ ���������� `OpenThread` -- � ����� `mySys`. }
+{ Объявление `OpenThread` -- в юните `mySys`. }
 
-{ ����� � EAX ���� �� �����, �� ����� ������ ��� �����, ������� ��
-  ������� � �������. ���� ����� ������ ������ �� ����� �����, ���� �����
-  �� �������� AttachThreadInput; ���������� -- � finally. }
+{ Довод в EAX телу не нужен, но место вызова его кладёт, поэтому он
+  остаётся в подписи. Окно ввода чужого потока не отдаёт фокус, пока входы
+  не сцеплены AttachThreadInput; отцепление -- в finally. }
 
 
 
@@ -1078,7 +1078,7 @@ type
 type
   TColBytes = array[0..2] of Byte;
 type
-  { �������� �� ������-��������� ������: �� VMT ���� ������. }
+  { Накладка на объект-держатель строки: за VMT одна строка. }
   TStrHoldRecZ = record
     VmtSHZ: Pointer;
     Txt: string;
@@ -1158,7 +1158,7 @@ type
   TCardTab221A = array[0..63] of Cardinal;
 type
   PCardTab221A = ^TCardTab221A;
-  { `TModHelper` �������� � `ReadMem`, ���� ����� ����� uses. }
+  { `TModHelper` объявлен в `ReadMem`, сюда виден через uses. }
 type
   TProcEnt = packed record
     dwSize: Cardinal;
@@ -1206,9 +1206,9 @@ type
 type
   PEbT = ^TEbT;
 type
-  { ������ ������ ������� A � ������ ������� B ����� ������� -- ��� ���
-    ������� ������. ��� ����� ���������� ������ ��������� `for` � �����
-    ������� `with`, ������ �� ������� ������. }
+  { Локалы хвоста области A и головы области B одной записью -- так они
+    ложатся подряд. Три слота посередине заняты счётчиком `for` и двумя
+    якорями `with`, полями их держать нельзя. }
   TEbR1 = packed record
     _re_wcnt     : Integer;
     _re_wlen     : Integer;
@@ -1219,7 +1219,7 @@ type
     rxLoc_F99D   : TPerlRegEx;
   end;
 type
-  { ���� ���� ��� DecodeDate/DecodeTime }
+  { семь слов под DecodeDate/DecodeTime }
   TEbW = packed record
     wYear        : Word;
     wMon         : Word;
@@ -1230,7 +1230,7 @@ type
     wMSec        : Word;
   end;
 type
-  { ������� ������, 104 ����� }
+  { остаток хвоста, 104 байта }
   TEbR2 = packed record
     _re_bFlag    : Boolean;
     _re_ok       : Boolean;
@@ -1300,14 +1300,12 @@ var
   gMonitorNo: Integer;
 
 
-{ ����������� ��������� �������.
+{ ВЫЧИСЛИТЕЛЬ ВЫРАЖЕНИЙ СКРИПТА.
 
-  ������ -- ������ ����� N �� ������ S (�� ��, ��� EvalScriptPoint, ������
-  ��������� � �������� � �������� �������), ������ ����� � ���� ����� ����
-  ��������� ��� ��������� � ������ ������� �� ��������. ���� ����� �����
-  � `case idx of` ����. }
-
-
+  Голова -- разбор слова N из строки S (то же, что EvalScriptPoint, только
+  множество с кавычкой И фигурной скобкой), дальше поиск в этом слове всех
+  известных имён выражений и замена каждого на значение. Сами ветки лежат
+  в `case idx of` ниже. }
 
 
 
@@ -1332,54 +1330,56 @@ var
 
 
 
-{ �������� ������� SyncGetControlText: �������� �������� � ������� �����.
-  ������ 1..3 �������� �� ���������� ������ � � ������ ��� ��������� ��
-  ����� -- ������ S � ���� ������ �� ������������. }
-
-{ ������� ������� `screenshot`: ����� �����, ���� ������� ��� ��������
-  ���� � ��������� � ����, ��� �������� ����� � Msg. ���������� .jpg
-  ����������� �� TJPEGImage � ��������� �� SpinEdit1. CapWnd: 0 -- ����
-  �����, 1 -- ���� ������� (��� ��������), ����� -- ����� ����� ����. }
 
 
+{ Обратная сторона SyncGetControlText: положить значение в элемент формы.
+  Номера 1..3 приходят от диспетчера команд и к списку имён отношения не
+  имеют -- строка S в этих ветках не используется. }
 
-
+{ Команда скрипта `screenshot`: снять экран, окно клиента или заданное
+  окно и сохранить в файл, имя которого лежит в Msg. Расширение .jpg
+  переключает на TJPEGImage с качеством из SpinEdit1. CapWnd: 0 -- весь
+  экран, 1 -- окно клиента (или активное), иначе -- прямо хэндл окна. }
 
 
 
 
-{ ������� ��������, ���� �� ������ ����. ���� 0 ������ ���������: ����
-  ������������ � $FFFFFFFF, � �� ������������ � ������. }
-
-{ �� ��, �� �������: Phase 1 -- ��������� ������, 2 -- ������� �����
-  ������ �� �����. }
-
-{ � RxLib ��� ������� ����� � implementation-������ Rxhints.pas � ������
-  �� ����� -- ���� �������� ����������� ����. }
 
 
 
 
-{ �������� �����������: ������ ��������, ����� ������� ���������
-  ������������ �� �����, � ������ ����� �������������� ����������. }
+{ Долбить клавишей, пока не выйдет срок. Срок 0 значит «навсегда»: поле
+  выставляется в $FFFFFFFF, а не складывается с тиками. }
 
-{ �������� ������� ���������, ��������� ��� ����. �� ������ �� WM_MOVE
-  ������ ���� � ���������� ������� ��������� �� �����, ����� ���� ������
-  ������� ��������� ������. }
+{ То же, но строкой: Phase 1 -- очередной повтор, 2 -- добивка после
+  выхода из цикла. }
 
-
-
-
-{ � RxLib ����� ���: ���� ����� ���� ��� ��������� }
-
-{ � RxLib ������ �������� Shade, ����� ����� ���� ��� }
+{ В RxLib эта функция сидит в implementation-секции Rxhints.pas и наружу
+  не видна -- тело пришлось скопировать сюда. }
 
 
-{ ��� ActivateHint, � �� CalcHintRect: � ����� SetWindowPos � ���������
-  FActive, � ������� Rect -- �� ������� ����������, � ����� ���������:
-  -1 � ���� �������� ��������� ���.
-  ������/������: ������������� �������� -> ���� ����������� �� ������.
-  Left = -1 -> ������� � ������� ���� ������ � �������� 4. }
+
+
+{ Зеркалит конструктор: сперва картинка, потом оконная процедура
+  возвращается на место, и только затем унаследованный деструктор. }
+
+{ Перехват оконной процедуры, снимающий сам себя. На первом же WM_MOVE
+  ставит флаг и возвращает прежнюю процедуру на место, после чего всегда
+  передаёт сообщение дальше. }
+
+
+
+
+{ в RxLib этого нет: окно ловит мышь как заголовок }
+
+{ у RxLib второй параметр Shade, здесь ветки тени нет }
+
+
+{ Это ActivateHint, а не CalcHintRect: в конце SetWindowPos и установка
+  FActive, а входной Rect -- не готовые координаты, а набор пожеланий:
+  -1 в поле означает «посчитай сам».
+  Ширина/высота: отрицательное значение -> берём вычисленное по тексту.
+  Left = -1 -> прижать к правому краю экрана с отступом 4. }
 
 
 
@@ -1481,7 +1481,7 @@ begin
     ScreenBmp.Width := 1;
     ScreenBmp.Height := 1;
   except
-    Msg := '������ ���������� ������� 3313 ';
+    Msg := 'Ошибка выполнения скрипта 3313 ';
     Synchronize(ShowScriptHint);
   end;
 end;
@@ -1511,9 +1511,9 @@ var
   X: Cardinal;
   a, b: Integer;
   Err: DWORD;
-  { ������� ������ � WideChar ��������� ��������� ����������, � �� ������
-    ������ �������: ����� `@Img` ������ � ���� ������, ��� ������ ������.
-    ����� � ����� �� �������� -- �������� ���� � �������� �� ������ ������. }
+  { Перевод строки в WideChar считается ОТДЕЛЬНЫМ оператором, а не внутри
+    списка доводов: иначе `@Img` уходит в стек раньше, чем готова строка.
+    Слота в кадре не занимает -- значение живёт в регистре до самого вызова. }
   PW: PWideChar;
 begin
   Stride := 0;
@@ -1541,9 +1541,9 @@ begin
     T.CapH := V;
     if GetEncoderClsid('image/bmp', Cid) > 0 then
     begin
-      T.Msg := '�� ������� ������������ ��������.';
-      { Data ������-��������� ������ ����� ������, ��� ����������: �
-        ����������� ��� �������� ��������� � ���� � ����� ������� �������. }
+      T.Msg := 'Не удалось закодировать картинку.';
+      { Data метода-указателя берётся ГОЛЫМ именем, без приведения: с
+        приведением оба значения сливаются в одно и вызов выходит длиннее. }
       TScanThread(T).Synchronize(T.SyncLogMsg);
     end;
     if gDlg59671Ct7.Visible then
@@ -1583,9 +1583,9 @@ begin
   case nMode of
     2: Stride := T.Fld44A0;
   end;
-  { ����� ������ `if`, � �� `case`: `case nMode of 0, 2:` ���������������
-    �������, � ��� ������������ ������ � ����������� ������ ��� � �������
-    � ���� `sub` ������ `cmp`. }
+  { Здесь именно `if`, а не `case`: `case nMode of 0, 2:` разворачивается
+    длиннее, а два употребления довода с приведением кладут его в регистр
+    и дают `sub` вместо `cmp`. }
   if (Integer(nMode) = 0) or (Integer(nMode) - 2 = 0) then
     begin
     P := PByteArray(T.ShotBits);
@@ -1616,9 +1616,9 @@ begin
             T.ImgTol[Cnt - 1] := 1;
           end;
         end;
-        { ������ ���������� `X` ����� ������ ����� �������: ������� ��� ������
-          �� ���, � ����� �������������� ������� ��������� -- `T` �������
-          � ESI, `X` ������ � EBX. ������� ������. }
+        { Лишнее упоминание `X` стоит внутри цикла нарочно: снаружи оно ничего
+          не даёт, а здесь переворачивает раздачу регистров -- `T` остаётся
+          в ESI, `X` уходит в EBX. Хватает одного. }
         X := X;
         Inc(X, 3);
       end;
@@ -1658,9 +1658,9 @@ begin
     T.CapWnd := Tmp;
     SetLength(T.ImgList, Tmp, 3);
     end;
-  { � ����� `if`, � �� `case`. ����� `if nMode = 0` ���������� ����� �
-    �������, ��� ��������; `shl 0` �� ����� �� ����� �������, �� �������
-    �������� -- � �������� ��-���� ���������������. }
+  { И здесь `if`, а не `case`. Голое `if nMode = 0` сравнивает прямо с
+    памятью, без загрузки; `shl 0` не стоит ни одной команды, но требует
+    регистра -- и значение всё-таки материализуется. }
   if (Integer(nMode) shl 0) = 0 then
     GlobalFree(THandle(T.ShotBits));
   T.ShotBits := nil;
@@ -1695,14 +1695,14 @@ begin
   DC := GetDC(0);
   if DC = 0 then
   begin
-    Self.Msg := '����������� ��������.';
+    Self.Msg := 'Поверхность неровная.';
     Self.Synchronize(Self.SyncLogMsg);
   end;
   try
     MemDC := CreateCompatibleDC(DC);
     if MemDC = 0 then
     begin
-      Self.Msg := '�� ������� ��������� �����������.';
+      Self.Msg := 'Не удалось выровнять поверхность.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if Self.CapWnd = 2 then
@@ -1710,19 +1710,19 @@ begin
       Bmp := CreateCompatibleBitmap(DC, Self.ShotW, Self.ShotH);
       if Bmp = 0 then
       begin
-        Self.Msg := '�� ������� ������� ��������.';
+        Self.Msg := 'Не удалось создать картинку.';
         Self.Synchronize(Self.SyncLogMsg);
       end;
       OldBmp := SelectObject(MemDC, Bmp);
       if (OldBmp = 0) or (OldBmp = HGDI_ERROR) then
       begin
-        Self.Msg := '�� ������� ������� ��������.';
+        Self.Msg := 'Не удалось выбрать картинку.';
         Self.Synchronize(Self.SyncLogMsg);
       end;
       OK := BitBlt(MemDC, 0, 0, Self.ShotW, Self.ShotH, DC, PFrom.X, PFrom.Y, SRCCOPY);
       if not OK then
       begin
-        Self.Msg := '�� ������� ����������� ��������.';
+        Self.Msg := 'Не удалось скопировать картинку.';
         Self.Synchronize(Self.SyncLogMsg);
       end;
     end
@@ -1731,20 +1731,20 @@ begin
       Bmp := CreateCompatibleBitmap(DC, W, H);
       if Bmp = 0 then
       begin
-        Self.Msg := '�� ������� ������� ��������.';
+        Self.Msg := 'Не удалось создать картинку.';
         Self.Synchronize(Self.SyncLogMsg);
       end;
       OldBmp := SelectObject(MemDC, Bmp);
       if (OldBmp = 0) or (OldBmp = HGDI_ERROR) then
       begin
-        Self.Msg := '�� ������� ������� ��������.';
+        Self.Msg := 'Не удалось выбрать картинку.';
         Self.Synchronize(Self.SyncLogMsg);
       end;
       PrintWindow(Self.CapWnd, MemDC, 0);
       OK := BitBlt(MemDC, 0, 0, Self.ShotW, Self.ShotH, MemDC, PFrom.X, PFrom.Y, SRCCOPY);
       if not OK then
       begin
-        Self.Msg := '�� ������� ����������� �������� ��������.';
+        Self.Msg := 'Не удалось скопировать картинку повторно.';
         Self.Synchronize(Self.SyncLogMsg);
       end;
     end;
@@ -1753,17 +1753,17 @@ begin
     SI.GdiplusVersion := 1;
     if GdiplusStartup(Token, @SI, nil) <> 0 then
     begin
-      Self.Msg := '�+ �� �������.';
+      Self.Msg := 'С+ не запущен.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if GdipCreateBitmapFromHBITMAP(Bmp, 0, Img) <> 0 then
     begin
-      Self.Msg := '�� ������� ������� �������� �� ������.';
+      Self.Msg := 'Не удалось создать картинку из памяти.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if GetEncoderClsid('image/bmp', Cid) > 0 then
     begin
-      Self.Msg := '�� ������� ������������ ��������.';
+      Self.Msg := 'Не удалось закодировать картинку.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if gDlg59671Ct7.Visible then
@@ -1783,21 +1783,21 @@ begin
     R.Height := Self.ShotH;
     if GdipBitmapLockBits(Img, @R, 3, PixelFormat24bppRGB, @BD) <> 0 then
     begin
-      Self.Msg := '�� ���������.';
+      Self.Msg := 'Не закрылось.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
     Self.ShotSize := Abs(Integer(BD.Height) * BD.Stride);
     Self.ShotBits := Pointer(GlobalAlloc(GPTR, Self.ShotSize));
     if Self.ShotBits = nil then
     begin
-      Self.Msg := '������ ���������� ��������.';
+      Self.Msg := 'Некуда копировать картинку.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
-    { ������ DIB ���� ����� �����, ����� Stride �������������: ����� �������
-      ����� ������ ��������� ������. ���������� ������ (Height -- UINT,
-      Stride -- Integer), ������� ������������ ��������� 64-������. �������
-      ���������� � 32 ����� �����������: ��� ���� �� ��������� ��������
-      �� imul. }
+    { строки DIB идут снизу вверх, когда Stride отрицательный: тогда началом
+      кадра служит ПОСЛЕДНЯЯ строка. Знаковость разная (Height -- UINT,
+      Stride -- Integer), поэтому произведение считается 64-битным. Внешнее
+      приведение к 32 битам ОБЯЗАТЕЛЬНО: без него всё выражение сужается
+      до imul. }
     if BD.Stride > 0 then
       Src := BD.Scan0
     else
@@ -1809,7 +1809,7 @@ begin
     Self.Lock.Stride := BD.Stride;
     if GdipBitmapUnlockBits(Img, @BD) <> 0 then
     begin
-      Self.Msg := '�� ���������.';
+      Self.Msg := 'Не открылось.';
       Self.Synchronize(Self.SyncLogMsg);
     end;
     GdipDisposeImage(Img);
@@ -1821,7 +1821,7 @@ begin
       Self.ShotFailed := True;
   except
     Self.ShotFailed := True;
-    Self.Msg := '������ ���������� ������� 3317 ';
+    Self.Msg := 'Ошибка выполнения скрипта 3317 ';
     Self.Synchronize(Self.ShowScriptHint);
   end;
   ReleaseDC(0, DC);
@@ -1915,19 +1915,19 @@ begin
 end;
 
 procedure EbSaveImg(T: TScanThread);
-{ ��������� ��� ������ ���� �������� � ���� ���������� GDI+: �������
-  GDI+, ��������� ����� ����� `T.Lock` � ������ PixelFormat24bppRGB, �����
-  CLSID ����������� �� MIME-����� � �������� ����.
+{ Сохранить уже снятый блок пикселей в файл средствами GDI+: поднять
+  GDI+, завернуть буфер строк `T.Lock` в битмап PixelFormat24bppRGB, взять
+  CLSID кодировщика по MIME-имени и записать файл.
 
-  ������ ���������, � �� �������: ������ ��� �� ����� �����.
+  Именно процедура, а не функция: ответа она не отдаёт вовсе.
 
-  try..finally ��� �� ���� -- ��� ������ ���������� ���� ���������
-  WideString �� `WideString(T.ImgFile)`, � ���� finally �� ������ WStrClr.
+  try..finally тут не свой -- его ставит компилятор ради временной
+  WideString от `WideString(T.ImgFile)`, и весь finally из одного WStrClr.
 
-  `T.CapWnd` ����� �� ����, � ����� �������: 1 = bmp, 2 = jpeg, 3 = png.
-  ����� ��� ����� `saveimage` �� ���������� ����� �����.
+  `T.CapWnd` здесь НЕ окно, а номер формата: 1 = bmp, 2 = jpeg, 3 = png.
+  Кладёт его ветка `saveimage` по расширению имени файла.
 
-  ����� �� ������ �� ���� ������� GDI+ �� �����������. }
+  Ответ ни одного из пяти вызовов GDI+ не проверяется. }
 var
   token: DWORD;
   img: Pointer;
@@ -1971,9 +1971,9 @@ end;
 
 procedure TScanThread.Execute;
 var
-  { ��������� ����� ����� ������� ���������� � ������ HoldFrameZ, � ��
-    ������� ����������: W/WIdx/WaitStart ����� � ���� ScanWatchList �
-    DoWait, �� ��������� ������ HoldFrameZ. }
+  { Раскладку кадра задаёт ПОРЯДОК УПОМИНАНИЯ в мёртвой HoldFrameZ, а не
+    порядок объявления: W/WIdx/WaitStart тянут к себе ScanWatchList и
+    DoWait, всё остальное раздаёт HoldFrameZ. }
   W: string;
   WIdx: Integer;
   WaitStart: Cardinal;
@@ -2098,13 +2098,13 @@ var
   Pad: array[1..3652] of Byte;
 label
   Restart, Again, ScanLoop, NoLua, RunCmd, NextLine;
-  { fmSecondfj �������������� �� ������ �� 13 ��������� -- ���������� ���
-    � ��������� ����� ������. }
-  { ������ ������ ������� ��������� (Self.Params): ����� ������� �� �������
-    ����������� ������������ ����������. ������ ������ ����� ����� ��� --
-    '#' �����, '$' ������, '%' �������, -- � �������� ������ ��
-    Self.Arr43F0[N-2]. ����� ��������� ��������� � ��� ������ � �����
-    ������������ � Res, ������� ����� �� ������. }
+  { fmSecondfj перечитывается на каждом из 13 обращений -- кэшировать его
+    в локальной здесь нельзя. }
+  { Разбор строки запуска процедуры (Self.Params): слова начиная со ВТОРОГО
+    объявляются наблюдаемыми величинами. Первый символ слова задаёт вид --
+    '#' число, '$' строка, '%' матрица, -- а значение берётся из
+    Self.Arr43F0[N-2]. Шесть обнулённых счётчиков и обе строки в конце
+    складываются в Res, который никто не читает. }
   procedure ScanWatchList;
   var
     Wd: string;
@@ -2121,9 +2121,9 @@ label
     N: Integer;
     Cnt: Integer;
     A: Integer;
-    { ��� ����� ������� �������� ��������� ����������, � �� `Cnt`: ���� ���
-      � ��� �� �������� � ���� �� ����� �� ����� �������, ���� ������� �
-      `Cnt` ������ ���, � ���� ESI/EDI �� ����������������. }
+    { Под копию индекса заведена ОТДЕЛЬНАЯ переменная, а не `Cnt`: живёт она
+      в том же регистре и кода не стоит ни одной команды, зато снимает с
+      `Cnt` лишний вес, и пара ESI/EDI не переворачивается. }
     Ix: Integer;
     Tab: TScanThread;
     C: Char;
@@ -2210,7 +2210,7 @@ label
         if gLangOffsety > 0 then
           Self.Msg := '(' + IntToStr(N) + LoadStr(gLangOffsety + $1BA)
         else
-          Self.Msg := '(' + IntToStr(N) + '): �� ���� ���������� ��� ����������';
+          Self.Msg := '(' + IntToStr(N) + '): Не могу определить имя переменной';
         ShowScriptMsg(TScanThread(Self));
         Exit;
       end;
@@ -2225,15 +2225,15 @@ label
       N := N + 1;
       Wd := EvalScriptPoint(Self, Self.Params, N);
     end;
-    { ��������� ����� -- �� �� ����� ��������� ��������� � � ��� ��
-      �������, ��� � ����� ���������. }
+    { Слагаемых шесть -- те же шесть обнулённых счётчиков и в том же
+      порядке, что в блоке обнуления. }
     Res := Pfx + IntToStr(Cnt + A + n1 + n2 + X + Y);
   end;
 
-  { ����� ����� �������� �������. ��� ������, � �� ����: BigR ���� �
-    �������� � ����������� Cnt � ESI, � Big[0] -- ������ �� ������
-    ��������, ����� ��������� ������ � ����. ����������
-    `PWord(@gLangOffsety)^` �� ������ ������ ������� ��� gLangOffsety. }
+  { Пауза между строками скрипта. Две булевы, а не одна: BigR живёт в
+    регистре и выталкивает Cnt в ESI, а Big[0] -- массив из одного
+    элемента, чтобы наверняка встать в кадр. Приведение
+    `PWord(@gLangOffsety)^` во втором чтении убирает кэш gLangOffsety. }
   procedure DoWait(S: string);
   var
     Ms: Integer;
@@ -2257,7 +2257,7 @@ label
       if gLangOffsety > 0 then
         Self.Msg := LoadStr(PWord(@gLangOffsety)^ + $1A9)
       else
-        Self.Msg := '����������� ������� �������� ����� �����.';
+        Self.Msg := 'Неправильно указана задержка между строк.';
       case UpCase(S[Length(S)]) of
         'S':
           begin
@@ -2347,23 +2347,23 @@ label
       Self.Synchronize(Self.SyncShowWait);
     end;
   end;
-  { ���������, � �� ��������, � ����� ����� `DoWait`: ��������� ����
-    ����������� ����� ����� ��������, � ������� ����� �����.
-    ����������� ������ �� ������� -- ���� �� ������� �� ������ ������
-    ��������. }
+  { Вложенная, а не юнитовая, и стоит ПОСЛЕ `DoWait`: вложенные тела
+    выпускаются перед телом родителя, и порядок здесь важен.
+    Статической ссылки не заводит -- тело не трогает ни одного локала
+    родителя. }
 
   function StripComment(S: string): string;
   var
-    { ��� `L` ����� �������� -- ������������ ������� �� ��������
-      `CutComment`, ��� �� Cardinal: ��� ��������� ������ � Int64, �����
-      ������� ����� ��������. }
+    { Тип `L` здесь ЗНАКОВЫЙ -- единственное отличие от близнеца
+      `CutComment`, где он Cardinal: там сравнение уходит в Int64, здесь
+      остаётся одной командой. }
     L: Integer;
-    P, N, I: Integer;      { ������������ ���������� ��������� �� ������:
-                             I � N ����� � ���������, � �� � ����� }
-    { ������� ��������� �������: ������������ � ����� �� �������� --
-      ������������ �������. ������ �� �� �� ������� �� �����, ���� ������
-      ������ `I` � ���� ����� ������������ ������� ������� `for`: ��� ����
-      ������� �������� �������, � `I` ������� � ������. }
+    P, N, I: Integer;      { перестановка объявлений раскладку не меняет:
+                             I и N живут в регистрах, а не в кадре }
+    { Позиция последней кавычки: запоминается и нигде не читается --
+      недоделанный остаток. Команд от неё не выходит ни одной, зато второе
+      чтение `I` в теле цикла перевешивает скрытый счётчик `for`: без него
+      счётчик забирает регистр, а `I` уезжает в другой. }
     J: Integer;
   begin
     P := Pos('//', S);
@@ -2397,9 +2397,9 @@ label
   end;
 
 
-  { ����� �� ����������. ������ ���� � ������ ������� ������: ������,
-    ������� ��������� ����������, ��������� � ������� ������� ����������,
-    � �� ����������, � ������ ���� ����� ���� �������. }
+  { Никем не вызывается. Держит кадр и ЗАДАЁТ ПОРЯДОК слотов: локалы,
+    видимые вложенным процедурам, раздаются в порядке ПЕРВОГО УПОМИНАНИЯ,
+    а не объявления, и список ниже задаёт этот порядок. }
   procedure HoldFrameZ;
   begin
     Cnt := 0;
@@ -2774,9 +2774,9 @@ NoLua:
                   Dec(K);
                   while K > 0 do
                   begin
-                    { ���������: ������� K ������� � Lines[CurLine] -- �
-                      ������, ��� ����������� �����������, � ������� ������� ��
-                      Self.Line, �� ���� �� ������, ��� �� ��������. }
+                    { Кривовато: позиция K найдена в Lines[CurLine] -- в
+                      строке, ГДЕ КОММЕНТАРИЙ ЗАКРЫВАЕТСЯ, а символы берутся из
+                      Self.Line, то есть из строки, где он ОТКРЫЛСЯ. }
                     if not (Self.Line[K] in [#9, ' ']) then
                     begin
                       Fin := True;
@@ -2824,7 +2824,7 @@ NoLua:
                 if gLangOffsety > 0 then
                   Self.Msg := LoadStr(gLangOffsety + $1DC) + #0
                 else
-                  Self.Msg := '������ ������ �����, ��� ���...'#0;
+                  Self.Msg := 'Клиент скорее мертв, чем жив...'#0;
               end
               else
               begin
@@ -2832,7 +2832,7 @@ NoLua:
                 if gLangOffsety > 0 then
                   Self.Msg := LoadStr(gLangOffsety + $1DD) + #0
                 else
-                  Self.Msg := '������ �����...'#0;
+                  Self.Msg := 'Клиент мертв...'#0;
               end;
               if Self.AutoStart then
                 Synchronize(TScanThread(Self).PauseScriptThread);
@@ -2872,7 +2872,7 @@ NextLine:
         if gLangOffsety > 0 then
           Self.Msg := 'Unknown'#0
         else
-          Self.Msg := '��������� ����������� ������.'#0;
+          Self.Msg := 'Абсолютно неизвестная ошибка.'#0;
         Synchronize(TScanThread(Self).ShowScriptHint);
         Synchronize(SyncLogMsg);
       end;
@@ -2882,7 +2882,7 @@ NextLine:
       Self.Msg := '(' + IntToStr(Self.CurLine) + LoadStr(gLangOffsety + $1DF) + Self.Msg
     else
       Self.Msg := '(' + IntToStr(Self.CurLine) +
-        '): ������! ��������� ������������ �������! '#13#10 + Self.Msg;
+        '): Ошибка! Проверьте правильность скрипта! '#13#10 + Self.Msg;
     Self.Msg := Self.Msg + #13 + #10 + Self.Line + #0;
     if not Self.StopRequested or (Copy(Self.Lines[0], 1, 2) <> '--') then
       ShowScriptMsg(TScanThread(Self));
@@ -2909,7 +2909,7 @@ begin
     Inc(P, Length(Self.Lines[I]) + 2);
   fmSecondfj.edScript.SelStart := P;
   fmSecondfj.edScript.SelLength := 1;
-  { ��� inc ������, � �� add reg,2: � ��������� ��� ��������� ������� }
+  { два inc подряд, а не add reg,2: в исходнике две отдельные единицы }
   fmSecondfj.gScript.Progress := N + 1 + 1;
   fmSecondfj.pPos.Caption := IntToStr(Self.LineCount);
 end;
@@ -3027,7 +3027,7 @@ begin
   S := ExtractFileName(T.Title);
   SetForegroundWindow(Application.Handle);
   T.Msg := FixLineBreaks(T.Msg) + #0;
-  { ������� ������ � ������� ����� ��� /n ��� \n -- ������������� � CRLF }
+  { перевод строки в скрипте пишут как /n или \n -- разворачиваем в CRLF }
   for I := 1 to Length(T.Msg) - 1 do
     if ((T.Msg[I] = '/') or (T.Msg[I] = '\')) and (T.Msg[I + 1] = 'n') then
     begin
@@ -3172,7 +3172,7 @@ begin
               Rewrite(gLogFilejr);
           gLogFileOpenar := True;
           if Self.LogCrLf then
-            { Write, � �� Writeln: ������� ������ ������������ ��� -- ������
+            { Write, а НЕ Writeln: перевод строки дописывается сам -- отсюда
               S + #13 + #10. }
             Write(gLogFilejr, S + #13 + #10)
           else
@@ -3256,7 +3256,7 @@ begin
   L1.Width := $9A;
   L1.Height := $E;
   if (gLangOffsety = 2000) or (gLangOffsety = 0) then
-    L1.Caption := '�������� ��������:'
+    L1.Caption := 'Выберите значение:'
   else
     L1.Caption := 'Select value:';
   S := LogBuf;
@@ -3647,7 +3647,7 @@ var
   nRes: Integer;
 begin
   asm
-    { `sysenter` �������� �� �������� -- ������� �� ���������� }
+    { `sysenter` Паскалем не выразить -- вставка на ассемблере }
     push  lPar
     push  wPar
     push  uMsg
@@ -3667,8 +3667,8 @@ end;
 
 procedure TScanThread.SyncLog6548;
 begin
-  { ������ ������ ����� ���� ����� ������� � ������� �����: �� �������,
-    �� Self. }
+  { Просто дёргает пункт меню «окно журнала» у главной формы: ни локалов,
+    ни Self. }
   fmSecondfj.miLogWindowClick(fmSecondfj);
 end;
 
@@ -3707,7 +3707,7 @@ end;
 
 constructor TScanThread.NewScriptTab(CreateSuspended: Boolean);
 var
-  { ������������ ���������: ���� ���������� �������, ESI. }
+  { Единственная локальная: пять упоминаний таймера, ESI. }
   T: TTimer;
 begin
   inherited Create(CreateSuspended);
@@ -3894,8 +3894,8 @@ end;
 
 procedure TScanThread.SyncLog737C;
 begin
-  { ������ ����� cbLoggingCommands �� ���� LoggingCommands -- �� ������
-    ���� ������ AutoStart. }
+  { Ставит галку cbLoggingCommands по полю LoggingCommands -- но только
+    если взведён AutoStart. }
   if AutoStart then
     fmSecondfj.cbLoggingCommands.Checked := LoggingCommands;
 end;
@@ -3992,8 +3992,8 @@ begin
   end;
   R := FTextRect;
   Inc(R.Left, 2);
-  { $810 = DT_NOPREFIX or DT_WORDBREAK; ��������� � ������ ���, ������ ������
-    DrawTextBiDiModeFlagsReadingOnly, � �� DrawTextBiDiModeFlags(0). }
+  { $810 = DT_NOPREFIX or DT_WORDBREAK; параметра у флагов нет, значит зовётся
+    DrawTextBiDiModeFlagsReadingOnly, а не DrawTextBiDiModeFlags(0). }
   DrawText(FImage.Canvas.Handle, FHintText, -1, R,
     DT_LEFT or DT_NOPREFIX or DT_WORDBREAK or DrawTextBiDiModeFlagsReadingOnly);
   Canvas.Draw(0, 0, FImage);
@@ -4007,13 +4007,13 @@ begin
   FActive := False;
   FHintText := PChar(AHint);
   R := Types.Rect(0, 0, Screen.Width, 0);
-  { ��������� ������ ������ ������, ����� ��� �� ��������� � $C10 � ������
-    ��� ��������� or ������ ������ }
+  { константы должны стоять слитно, иначе они не свернутся в $C10 и выйдет
+    три отдельных or вместо одного }
   DrawText(Canvas.Handle, FHintText, -1, R,
     DT_CALCRECT or DT_WORDBREAK or DT_NOPREFIX or DrawTextBiDiModeFlagsReadingOnly);
   Inc(R.Right, 8);
   Inc(R.Bottom, 4);
-  { ������ ����������� ����� �� ������� 16 }
+  { ширина округляется вверх до кратной 16 }
   Extra := (R.Right - R.Left) mod 16;
   if Extra > 0 then Inc(R.Right, 16 - Extra);
 
@@ -4144,7 +4144,7 @@ begin
   if Message.Msg = WM_COPY then
   begin
     Message.Msg := 0;
-    { SelText ����� ����� � ������, ��� ������������� ���������� }
+    { SelText стоит ПРЯМО в вызове, без промежуточной переменной }
     SetClipboardText(Clipboard, LogView.SelText);
   end;
   OldLogProc(Message);
@@ -4205,43 +4205,43 @@ function LuaScriptCommand(L: Integer): Integer; cdecl;
 type
   TLuaArgs = array[0..20] of string;
   PLuaArgs = ^TLuaArgs;
-  { ������������ ������, ������������ �� ��������, ������� ������������
-    ����: ���������� `TvArray.Data` �� Unit1 �� ������������ �����������.
-    �� ����� ������ ���������� �� ����� �� ����� �������. }
+  { Динамический массив, передаваемый ПО ЗНАЧЕНИЮ, требует ИМЕНОВАННОГО
+    типа: безымянный `TvArray.Data` из Unit1 по присваиванию несовместим.
+    На месте вызова приведение не стоит ни одной команды. }
   aas = array of array of string;
 var
-  P: PChar;      { ��������, ��������� $537EB0 � ���� ����� }
-  b: Boolean;    { ��������: ������� (True) ��� ��������� }
-  i: Integer;    { ��������: ������ � ������, �� �� var-����� }
-  idx: Integer;  { ��������: ����� ������� }
-                 { Result -- ������� �������� ������ LUA }
+  P: PChar;      { захвачен, вложенная $537EB0 в него ПИШЕТ }
+  b: Boolean;    { захвачен: команда (True) или выражение }
+  i: Integer;    { захвачен: индекс в списке, он же var-довод }
+  idx: Integer;  { захвачен: номер вкладки }
+                 { Result -- СКОЛЬКО ЗНАЧЕНИЙ ОТДАНО LUA }
   S: string;
   nm: string;
   W: string;
   n1, n2, old: Integer;
-  { GetArraySize ���� �� var-�������� � ��������� ��� Cardinal -- �� ����
-    ��� �� ������, ��� �� ������ �����. }
+  { GetArraySize берёт их var-доводами и объявлены они Cardinal -- на кадр
+    это не влияет, оба по четыре байта. }
   aX, aY: Cardinal;
   A: TLuaArgs;
-  { ���� -- �����, ������� ����� �������� (esi -- ����� ������� Lua).
-    ��������� ���������� �������: ���� �������� �� ����������, ���� �����
-    � ����� ����� � �� ������ �������� ����. }
+  { Ниже -- имена, которым нужны регистры (esi -- число доводов Lua).
+    Объявлены последними нарочно: если регистра не достанется, слот уедет
+    в конец кадра и не собьёт разметку выше. }
   q, k: Integer;
-  { ������ �������, ������� ������ � ��������: ����� `terminated` (280)
-    ������ � ���� ���� � ����� Lua. ���� � ����� �� �����. }
+  { Второй признак, живущий только в регистре: ветка `terminated` (280)
+    читает в него поле и отдаёт Lua. Дома в кадре не имеет. }
   bv: Boolean;
-  { ����� ��������� ����������, ��������� FindScriptVar. ���� � ��������,
-    ���� � ����� �� �����. }
+  { Номер матричной переменной, найденной FindScriptVar. Живёт в регистре,
+    дома в кадре не имеет. }
   vi: Integer;
-  { ������� ������� ��������, ������ ���� ��� �� ����� 284: ���� �
-    �������� � ������� ������� ����� ��������. ����� `with` ����� ��
-    �������� -- ������� `with` �� ����� �� �������, � ����� ���������
-    ������. }
+  { Элемент массива скриптов, взятый ОДИН раз на ветку 284: живёт в
+    регистре и подаётся доводом одной командой. Через `with` этого не
+    получить -- предмет `with` по имени не назвать, и довод считается
+    заново. }
   TE: TScanThread;
 
-  { �������� ��������. ���� ������ ���������: ������� ������� ������, �
-    ������� ��������� ����� �����. ����� � �� ����, ������ � ���� ��� ��
-    �����, ���� ������� ������ ���������� ����� � ���� ������� ������. }
+  { ДЕРЖАЛКА ЗАХВАТОВ. Кадр задают вложенные: первыми ложатся локалы, у
+    которых вложенная взяла адрес. Никто её не зовёт, значит и байт она не
+    стоит, зато порядок первых упоминаний здесь и есть порядок слотов. }
   procedure HoldZ;
   begin
     P := nil;
@@ -4250,22 +4250,22 @@ var
     idx := 0;
   end;
 
-  { ������ LUA ��������� ��������� ���������� �������: ������� ������,
-    ����� � ������� � ����� ������. ����� ������ �� ��������, ��� � �
-    PushLines -- ������ DynArrayAddRef � ������� � DynArrayClear � finally.
-    ��� ������� �� PushLines:
-    * ������ ������ ������� ������������ ������� -- ��������
-    `Length(M[k]) > 0` ����� �� lua_pushnumber, �� ���� � �������
-    �������� �����, � �� ������ ����������;
-    * �������� ������� ��������� �� ������ ������, � �� ���� ��� �����
-    ������: � ���� ������ ����� �������. }
+  { ОТДАТЬ LUA ДВУМЕРНУЮ МАТРИЧНУЮ ПЕРЕМЕННУЮ СКРИПТА: таблица таблиц,
+    ключи с единицы в обоих ярусах. Довод берётся ПО ЗНАЧЕНИЮ, как и у
+    PushLines -- отсюда DynArrayAddRef в прологе и DynArrayClear в finally.
+    Два отличия от PushLines:
+    * ПУСТАЯ СТРОКА МАТРИЦЫ ПРОПУСКАЕТСЯ ЦЕЛИКОМ -- проверка
+    `Length(M[k]) > 0` стоит ДО lua_pushnumber, то есть в таблице
+    остаются дырки, а не пустые подтаблицы;
+    * ЧИСЛОВОЙ ПРИЗНАК СЧИТАЕТСЯ НА КАЖДУЮ ЯЧЕЙКУ, а не один раз перед
+    циклом: в него входит НОМЕР СТОЛБЦА. }
   procedure PushMatrix(M: aas);
   var
-    { ���� �� ������ ����� ������, ��� � PushLines: ��������� ������� �����
-      �� ��� ����� (k, q � ������� ����������� �����), ������� ��������
-      `for` ���� � ������. ��������� ����� -- ��������� ��� `fild` �
-      lua_pushnumber � ��� ���������� PChar -> string; ��������� �� �������
-      ������: ����� `k` ������ ������� � ���� ����� ���. }
+    { Кадр на четыре байта больше, чем у PushLines: регистров хватает ровно
+      на три имени (k, q и счётчик внутреннего цикла), счётчик внешнего
+      `for` живёт в памяти. Остальные слоты -- временные под `fild` в
+      lua_pushnumber и под приведение PChar -> string; объявлять их именами
+      нельзя: тогда `k` теряет регистр и кадр растёт ещё. }
     k: Integer;
     q: Integer;
     bNum: Boolean;
@@ -4281,14 +4281,14 @@ var
         begin
           P := PChar(M[k][q]);
           gLuaPushNumberdp(L, q + 1);
-          { ��� ������, ��� �����:
-            * `i in [75, 89]` ��� ���� ������ `i`, ��� ���������
-            ��������� -- ���;
-            * ������������ ����� `if ... then True else False` ����� ����
-            `True` ������, ������������ ��������� -- ���� `False`.
-            ��� �����, ���� ��� �� � ��������: ��� ���� �������� ������
-            ��������. ���� `bNum` �� �������� -- ���� � �������� ��
-            ������������ �� ��������. }
+          { Две мелочи, обе важны:
+            * `i in [75, 89]` даёт ОДНО чтение `i`, два отдельных
+            сравнения -- два;
+            * присваивание через `if ... then True else False` кладёт блок
+            `True` первым, присваивание выражения -- блок `False`.
+            Имя нужно, хотя тут же и читается: без него строятся прямые
+            переходы. Дома `bNum` не получает -- живёт в регистре от
+            присваивания до проверки. }
           if (not b) and ((i = 43) and (q = 0) or (i in [75, 89])) then
             bNum := True
           else
@@ -4306,30 +4306,30 @@ var
     end;
   end;
 
-  { ������ ������ ����� �������� LUA. ����� ������ �� �������� -- ������
-    DynArrayAddRef � ������� � DynArrayClear � finally; ��� `const` �� ����
-    �� �� ����, �� �������.
-    ���� ������� -- ����� ������ � �������, �������� -- ���� ������,
-    � ��� findcolor (75) � findimage (89) -- �����: �� ����� �������
-    ��������, � Lua �������� ��� ������, � �� �������. }
+  { ОТДАТЬ МАССИВ СТРОК ТАБЛИЦЕЙ LUA. Довод берётся ПО ЗНАЧЕНИЮ -- отсюда
+    DynArrayAddRef в прологе и DynArrayClear в finally; при `const` не было
+    бы ни того, ни другого.
+    Ключ таблицы -- номер строки с единицы, значение -- сама строка,
+    а для findcolor (75) и findimage (89) -- ЧИСЛО: их вывод целиком
+    числовой, и Lua получает его числом, а не текстом. }
   procedure PushLines(Lines: arrayOfString);
   var
-    { ������� ���������� ����� -- ��� ����: �����, ����� ������� ��� fild
-      � lua_pushnumber, ������ �������� �����, ������ �������. }
+    { ПОРЯДОК ОБЪЯВЛЕНИЯ ЗДЕСЬ -- ЭТО КАДР: целое, через которое идёт fild
+      в lua_pushnumber, строка числовой ветки, строка обычной. }
     n: Integer;
     k: Integer;
     bNum: Boolean;
   begin
-    { �������� �����: ��� -$C- ������ �� ���������, �� �������� � `n`
-      ������� � ��� ��� ��� ����� ���, ������ ��� `fild`. ��� �� ���
-      �������� ��������� ���� ���������, � ���� ���� ��������. }
+    { Держалка слота: при -$C- команд не выпускает, но отнимает у `n`
+      регистр и даёт ему дом ровно там, откуда идёт `fild`. Без неё под
+      пересчёт заводится своя временная, и весь кадр съезжает. }
     Assert(@n <> nil);
-    { ��� ����� �����:
-      * `i in [75, 89]` ������ `(i = 75) or (i = 89)` -- �������� ��������
-      ���� ���, ��� ��������� ��������� ���� ��� ������;
-      * `if ... then bNum := True else bNum := False` ������ ������������
-      ��������� -- �� ����� ������� ��������� �����: ���� `True` ���
-      �����, � �� ����� `False`. }
+    { Две формы разом:
+      * `i in [75, 89]` вместо `(i = 75) or (i = 89)` -- значение читается
+      ОДИН раз, два отдельных сравнения дают два чтения;
+      * `if ... then bNum := True else bNum := False` вместо присваивания
+      выражения -- от этого зависит раскладка веток: блок `True` идёт
+      сразу, а не после `False`. }
     if (not b) and (i in [75, 89]) then
       bNum := True
     else
@@ -4351,20 +4351,20 @@ var
     end;
   end;
 
-  { ������� ���� ������ ApplyWorkWindow -- ��������� ������ ����; �����
-    ��������� ����� ����� ���. }
+  { Рабочее окно ставит ApplyWorkWindow -- процедура модуля выше; своей
+    вложенной копии здесь нет. }
 
-  { ������� LUA ��� ������� N � ������ �������. ����� ����������� --
-    `lua_pushnil` � `lua_next` �� ����; �������� ������
-    `lua_tolstring(L, -1, nil)` � ������������� ����� ������, � ����
-    ������� �� ����� �� ���������� ���� (`LuaPop(L, 1)` ������� ������
-    ��������).
-    ���� ��� ����� `jmp @test`: ������� -- �����, �� ���� �������, � ����
-    � ���� �� �����������. `L` ������ �� ����� ��������. }
+  { ТАБЛИЦА LUA ПОД НОМЕРОМ N В СТРОКУ ДОВОДОВ. Обход стандартный --
+    `lua_pushnil` и `lua_next` до нуля; значение берётся
+    `lua_tolstring(L, -1, nil)` и приклеивается через пробел, а ключ
+    остаётся на стеке до следующего шага (`LuaPop(L, 1)` снимает только
+    значение).
+    Цикл идёт через `jmp @test`: условие -- вызов, то есть дорогое, и вход
+    в него не дублируется. `L` берётся из кадра родителя. }
   function TableToStr(N: Integer): string;
   var
-    { ������ ������ ����� -- ��������� ��� ���������� PChar -> string,
-      ��������� � �� �����. }
+    { Вторая ячейка кадра -- временная под приведение PChar -> string,
+      объявлять её не нужно. }
     R: string;
   begin
     R := '';
@@ -4379,8 +4379,8 @@ var
     Result := R;
   end;
 
-  { ������ ������� Lua � A[0..20] � � T.Args[1..20].
-    ��� ������: 0 -- ���, 1 -- �����, 2 -- ������, 3 -- ������� Lua. }
+  { Разбор доводов Lua в A[0..20] и в T.Args[1..20].
+    Вид довода: 0 -- нет, 1 -- число, 2 -- строка, 3 -- таблица Lua. }
   procedure ParseArgs(var Arr: TLuaArgs; Cnt: Integer);
   var
     j: Integer;
@@ -4398,15 +4398,15 @@ var
         gScriptso3[idx].Args[j].Val := j;
         gScriptso3[idx].Args[0].Val := j;
       end
-      { ����������� `lua_isnumber`, � �������� ����� ���������
-        `lua_tolstring` -- ��� �����������, ������ �� ����. }
+      { Проверяется `lua_isnumber`, а значение потом снимается
+        `lua_tolstring` -- так исторически, менять не буду. }
       else if gLuaIsNumberej(L, j) <> 0 then
       begin
         Arr[j - 1] := gLuaToLStringej(L, j, nil);
         d := StrToFloatDef(Arr[j - 1], 0);
-        { ���������� �����: � ��������� ������������ ������� ��������� �����,
-          ��� ������ � ST(0). ����� ����������� -- ��� �� High(Int64)
-          ������� �� Single. }
+        { ПОСТОЯННАЯ СЛЕВА: у сравнения вещественных порядок операндов задаёт,
+          кто попадёт в ST(0). Точка обязательна -- без неё High(Int64)
+          сожмётся до Single. }
         if 9223372036854775807.0 < d then
         begin
           gScriptso3[idx].Args[j].Str := Arr[j - 1];
@@ -4433,26 +4433,26 @@ var
     end;
   end;
 
-  { ������ ���� �������|������/������|������ � ������� ������ LUA.
-    `/` ������� ������, `|` ������� ������. ����� ������ �� ��������, �
-    �� `const`.
-    ���������: ������� �������� ������ ������� ��������� ������ � �����
-    `|` � ������� �� �������, ������� �� ������ ������ lua_pushnumber �
-    lua_createtable ��� �� �����������. }
+  { СТРОКА ВИДА «ячейка|ячейка/ячейка|ячейка» В ТАБЛИЦУ ТАБЛИЦ LUA.
+    `/` кончает строку, `|` кончает ячейку. Довод берётся ПО ЗНАЧЕНИЮ, а
+    не `const`.
+    Осторожно: признак «таблица строки открыта» взводится только в ветке
+    `|` и никогда не гасится, поэтому со второй строки lua_pushnumber и
+    lua_createtable уже не выпускаются. }
   procedure PushVersion(V: string);
   var
-    { -$4 �������� `n` �� �� ����������, � ������ ��� ��� ������ ���������
-      ��������� PushCell; ��� ������ ��-�� ����� -- -$8. }
+    { -$4 достаётся `n` не по объявлению, а потому что его ПЕРВЫМ упоминает
+      вложенная PushCell; дом довода из-за этого -- -$8. }
     n: Integer;
     r: Integer;
     W: string;
     bOpen: Boolean;
     c, i, ln: Integer;
 
-    { ���� ������ ������, �������� � �������� �������. ����� ������ ������:
-      ���� ������ ����������� � �����, Lua �������� �����, � �� �����.
-      ����������� ������������, ������ � ������� ������������� �����������
-      ������ �� ���� ��������. }
+    { Пара «номер ячейки, значение» в открытую таблицу. ЧИСЛО УХОДИТ ЧИСЛОМ:
+      если ячейка переводится в целое, Lua получает число, а не текст.
+      Вложенность двухъярусная, отсюда и двойное разыменование статической
+      ссылки на кадр родителя. }
     procedure PushCell(S: string; K: Integer);
     begin
       gLuaPushNumberdp(L, K);
@@ -4470,9 +4470,9 @@ var
     ln := Length(V);
     bOpen := False;
     gLuaCreateTableej(L, 0, 0);
-    { ������� ������� (��� ��������), ������� ���� � ���� �������������, �
-      �� ����� ��� `jmp @test`. �������� ������ `i <= ln`: �� �������
-      ������� �������, � ����� ������� ����� ���������. }
+    { Условие дешёвое (два регистра), поэтому вход в цикл продублирован, а
+      не уведён под `jmp @test`. Написано именно `i <= ln`: от порядка
+      доводов зависит, в какую сторону пойдёт сравнение. }
     while i <= ln do
     begin
       case V[i] of
@@ -4509,20 +4509,20 @@ var
   end;
 
 begin
-  { �������� ����� �����. Result ������ ������ � �����: ����� �� ��������
-    �������, ������ ������. ��� -$C- Assert �� ��������� �� ����� �������,
-    �� ������ ������ ������ ��� �������� � ��� ��� ���. }
+  { ДЕРЖАЛКА СЛОТА ИТОГА. Result должен лежать в кадре: иначе он забирает
+    регистр, нужный дальше. При -$C- Assert не выпускает ни одной команды,
+    но взятие адреса лишает имя регистра и даёт ему дом. }
   Assert(@Result <> nil);
-  { �� �� �������� ��� `old`: ����� �� ������������ �������, ��� ������
-    Result ��� ���������. }
+  { Та же держалка для `old`: иначе он подхватывает регистр, как только
+    Result его освободит. }
   Result := 0;
   idx := -1;
   for k := 0 to 99 do
   begin
-    { ������������ `bv` ����� ������ ����� �������: ������� ��� �� ���
-      ������, � ����� ��������� ��� � ������� -- ������ ���� ������ �� �����
-      ������ � `push ecx` � �������, � ������ `A` ����� �� �����.
-      ������� ������ ����. }
+    { Употребление `bv` стоит ВНУТРИ ЦИКЛА нарочно: снаружи оно не даёт
+      ничего, а здесь поднимает его в регистр -- лишний байт уходит из кадра
+      вместе с `push ecx` в прологе, и массив `A` встаёт на место.
+      Хватает одного раза. }
     bv := bv;
     if (gScriptsS[k] <> nil) and (gScriptsS[k].DebugForm <> nil) and
        (TLua(gScriptsS[k].DebugForm).Handle = L) then
@@ -4534,8 +4534,8 @@ begin
   k := gLuaGetTopej(L);
   ParseArgs(A, k);
   S := A[0];
-  { ��� ���������, � �� ����: ����� ���������� ��������� ������ ���������
-    ������, ���� ��������� �� ������ ����� � ���� ������ A ��������. }
+  { ДВА ОПЕРАТОРА, А НЕ ОДИН: одним выражением заводится лишняя временная
+    строка, кадр вырастает на четыре байта и весь массив A съезжает. }
   nm := gLuaToLStringej(L, LuaUpvalueIndex(1), nil);
   nm := nm + '';
   if gScriptsS[idx].StopRequested then
@@ -4547,30 +4547,30 @@ begin
   begin
     b := True;
     i := gCmdList2jj.IndexOf(nm);
-    { �������� �������� ��������� -- `i < 0` -- �������: ��� case ������
-      ������ ��������� ����, � `then` �������� ��������� � �����. }
+    { Проверка написана «наоборот» -- `i < 0` -- нарочно: так case КОМАНД
+      уходит физически вниз, а `then` занимают выражения и хвост. }
     if i < 0 then
     begin
       i := gCmdListah7.IndexOf(nm);
       if i >= 0 then
       begin
         b := False;
-        { case �� ����������. ����� -- ������� � gCmdListah7.
-          ��� �����, ������� else, ������������� � ����� ����. }
+        { case по ВЫРАЖЕНИЯМ. Метки -- индексы в gCmdListah7.
+          ВСЕ ветки, включая else, ПРОВАЛИВАЮТСЯ в хвост ниже. }
         case i of
-          { ��������� ���������� ��� �������ܻ. ������ ����� -- ������, �������� --
-            ������; ������ ��� case ������ �� ������ � ���� �� `i`, � ������
-            ������, ��� ������ �������� Lua: ������, ������� ��� ���������. }
+          { НАСТРОЙКА «ПРОЧИТАТЬ ИЛИ ЗАПИСАТЬ». Пустой довод -- чтение, непустой --
+            запись; отсюда ДВА case подряд по одному и тому же `i`, а третий
+            решает, ЧЕМ отдать значение Lua: числом, строкой или признаком. }
           40,44,95,100,197,198,230..234,237,239,240,277,278,280:
             begin
               S := EvalScriptExpr(gScriptsS[idx], 'calc ' + S, -1);
               n1 := StrToIntDef(S, 0);
               if S <> '' then
-                { ������. ������� �������� ������ ������� �
-                  `old`, � ������ ����� ���� ��������������. }
+                { ЗАПИСЬ. Прежнее значение сперва ложится в
+                  `old`, и только потом поле переписывается. }
                 case i of
-                  { workwindow: ������� ���� ������ ApplyWorkWindow, ��� �� ������������
-                    Pid � Tid. }
+                  { workwindow: рабочее окно ставит ApplyWorkWindow, она же перечитывает
+                    Pid и Tid. }
                   44:
                     begin
                       old := gScriptsS[idx].ClientWnd2;
@@ -4623,8 +4623,8 @@ begin
                     end;
                 end
               else
-                { ������. ��� �� ������ ���� �� ���������,
-                  ������� �������� ������ �����. }
+                { ЧТЕНИЕ. Тот же список плюс те настройки,
+                  которые записать нельзя вовсе. }
                 case i of
                   44: old := gScriptsS[idx].ClientWnd2;
                   100: old := gScriptsS[idx].ClipLen;
@@ -4644,8 +4644,8 @@ begin
                   278: W := gScriptsS[idx].FileTitle;
                   280: bv := gScriptsS[idx].StopRequested;
                 end;
-              { ��� ������. ����� ����� case ���� ��������
-                ����, ������� ������ case ����� ����� ���, � �� ������. }
+              { ЧЕМ ОТДАТЬ. Ветки обоих case выше сходятся
+                сюда, поэтому третий case стоит ПОСЛЕ них, а не внутри. }
               case i of
                 44,95,100,230..234,237,239,240: gLuaPushIntegerej(L, old);
                 40,197,198,277,278: gLuaPushLStringej(L, PChar(W), Length(W));
@@ -4653,8 +4653,8 @@ begin
               end;
               Result := 1;
             end;
-          { ����� ���� ���������: ������� ������, ��� ���������� ����� �� �
-            ������, ��������� `get ` ��� `calc ` � ������ � EvalScriptExpr. }
+          { ОБЩЕЕ ТЕЛО ВЫРАЖЕНИЙ: склеить доводы, при надобности взять их в
+            скобки, приписать `get ` или `calc ` и отдать в EvalScriptExpr. }
           0..7,10..28,30..33,37..39,42,45..49,53..58,73,76,78..83,85..88,
           90..94,96..99,101..154,159..177,182..189,193,195,196,199,
           220..228,238,241..250,281,282:
@@ -4662,10 +4662,10 @@ begin
               S := '';
               for q := 0 to k - 1 do
                 S := S + ' ' + A[q];
-              { ����� ����� ����������: `bt` ����������� ������ ��� `in`, � �� ���
-                `case`. ����� ������ (281, 282) � ���������� �� ������� --
-                � ��������� Delphi ������� 256 ���������, ������� ������
-                ������� `or` ����� ��������� ��������. }
+              { Набор лежит ПОСТОЯННОЙ: `bt` выпускается только для `in`, а не для
+                `case`. Хвост набора (281, 282) в постоянную не влезает --
+                у множества Delphi потолок 256 элементов, поэтому вторым
+                доводом `or` стоит сдвинутая проверка. }
               if (i in [43,45..47,49,57,58,76,80,83,87,88,96..99,108..112,
                         117..135,137..154,159,182..189,193,224..228,238,
                         244..249]) or ((i - 200) in [81,82]) then
@@ -4678,12 +4678,12 @@ begin
                 else
                   S := 'calc ' + nm + ' ' + S;
               end;
-              { ���������� case �� ���� �� �������: ��� ������
-                �������� ����������� Lua. }
+              { Внутренний case по ТОМУ ЖЕ индексу: чем именно
+                отдавать вычисленное Lua. }
               case i of
-                { getimage, loadimage: ���� �������� �������
-                  �x|y|w/h�, � ����������� �� �������� ����������� ������,
-                  � �� ������ -- � ���������� ���� ��� Delete. }
+                { getimage, loadimage: итог приходит строкой
+                  «x|y|w/h», и разбирается он ЧЕТЫРЬМЯ развёрнутыми шагами,
+                  а не циклом -- у последнего шага нет Delete. }
                 246,248:
                   begin
                     W := EvalScriptExpr(gScriptsS[idx], S, -1);
@@ -4715,9 +4715,9 @@ begin
                       Result := 1;
                     end;
                   end;
-                { windowpos: � �������� ��� ������ �����
-                  ��������� ��� ������� 40, ��� ������� -- ������ ����
-                  ����� LuaRes1..5. }
+                { windowpos: с доводами это ЗАПИСЬ через
+                  диспетчер под номером 40, без доводов -- чтение пяти
+                  ячеек LuaRes1..5. }
                 42:
                   begin
                     if k > 1 then
@@ -4738,7 +4738,7 @@ begin
                       Result := 5;
                     end;
                   end;
-                { size: �� �� ������, �� ������ ��� }
+                { size: те же ячейки, но только две }
                 48:
                   begin
                     i := 49;
@@ -4747,7 +4747,7 @@ begin
                     gLuaPushNumberdp(L, gScriptsS[idx].LuaRes2);
                     Result := 2;
                   end;
-                { �����, �������� �� ��������� 1 }
+                { Целое, значение по умолчанию 1 }
                 45,46,49,53..55,81,85,159,199,241:
                   begin
                     S := EvalScriptExpr(gScriptsS[idx], S, -1);
@@ -4761,20 +4761,20 @@ begin
                     gLuaPushIntegerej(L, StrToIntDef(S, -1));
                     Result := 1;
                   end;
-                { suspendprocess, resumeprocess. ����� ̨�����: ������� case 286 � 287
-                  � ���� �� �������, ��� ������ � else. }
+                { suspendprocess, resumeprocess. ВЕТКА МЁРТВАЯ: внешний case 286 и 287
+                  к себе не пускает, они уходят в else. }
                 286,287:
                   begin
                     S := EvalScriptExpr(gScriptsS[idx], S, -1);
                     gLuaPushIntegerej(L, StrToIntDef(S, -1));
                     Result := 1;
                   end;
-                { windowfrompoint. ��� ����������� ������� ���� �����, � ������������ --
-                  ������� Lua �� ���. ����� ��� �������� ����������� 1.0 �
-                  2.0, � �� ����� FPU.
-                  ��� ������, ������� ��� ����� �����: `W` ����������� � ��
-                  ������������, � � ���� ������� `n2`, �������� � ���� �����
-                  ����� �� ����������. }
+                { windowfrompoint. Без разделителя отдаётся одно число, с разделителем --
+                  ТАБЛИЦА Lua из пар. Ключи пар кладутся постоянными 1.0 и
+                  2.0, а не через FPU.
+                  Два огреха, которые тут давно живут: `W` вычисляется и не
+                  используется, а в пару кладётся `n2`, которому в этой ветке
+                  никто не присваивал. }
                 112:
                   begin
                     S := EvalScriptExpr(gScriptsS[idx], S, -1);
@@ -4804,20 +4804,20 @@ begin
                     S := '';
                   end;
               else
-                { �� ��������� ������� ������� }
+                { Всё остальное отдаётся СТРОКОЙ }
                 S := EvalScriptExpr(gScriptsS[idx], S, -1);
                 gLuaPushLStringej(L, PChar(S), Length(S));
                 Result := 1;
               end;
             end;
-          { regexp: ������ ����������� � ��������, � �����
-            ������������� ������ `#luatemp`, � ������� �������� ���
-            �������� -- �����, ��������� ����� � ��� ��������. }
+          { regexp: доводы склеиваются В КАВЫЧКАХ, к имени
+            приписывается ДВАЖДЫ `#luatemp`, и обратно приходят три
+            значения -- длина, найденный кусок и код возврата. }
           194:
             begin
               S := '';
               for q := 0 to k - 1 do
-                S := S + ' "' + A[q] + '�"�';
+                S := S + ' "' + A[q] + 'Щ"А';
               S := 'calc ' + nm + ' (#luatemp #luatemp' + S + ')';
               S := EvalScriptExpr(gScriptsS[idx], S, -1);
               gLuaPushNumberdp(L, StrToIntDef(gScriptsS[idx].RxLen, -1));
@@ -4826,10 +4826,10 @@ begin
               gLuaPushNumberdp(L, StrToIntDef(S, -10));
               Result := 3;
             end;
-          { findcolor, findimage. �����-������� (��� 3) � ����� ��� ������� �����
-            ����������� � ������ ��������� ���������� � ��������� �����
-            �������; ����� ������ ����������� ��� ������. ���� -- ����
-            ��������� ���������� �������, ���� �����. }
+          { findcolor, findimage. Довод-ТАБЛИЦА (вид 3) в пятом или седьмом месте
+            переводится в строку вложенной процедурой и подменяет собой
+            склейку; иначе доводы склеиваются как обычно. Итог -- либо
+            матричная переменная целиком, либо число. }
           75,89:
             begin
               S := '';
@@ -4883,10 +4883,10 @@ begin
               gLuaPushIntegerej(L, n2);
               Result := n1;
             end;
-          { findwindow. � �������� ���� ������ � ���������
-            ���������� � ������ ��������; ��� ������� -- ���� ����, ������
-            ��� ��������� � ����� StrAlloc � ������ ������� �� ����� ����
-            �����������, ���������. }
+          { findwindow. С доводами итог просят в матричную
+            переменную и отдают таблицей; без доводов -- ищут окно, читают
+            его заголовок в буфер StrAlloc и отдают таблицу из одной пары
+            «дескриптор, заголовок». }
           43:
             begin
               S := '';
@@ -4928,9 +4928,9 @@ begin
               end;
               Result := 1;
             end;
-          { clipboard. ���� ����� -- ������, ���� ������� --
-            ������ � ��������� ���������� ($luatemp, ������), ������ ������ --
-            ������ � ��������� (%luatemp, �������). }
+          { clipboard. Один довод -- запись, ноль доводов --
+            чтение в ТАЙМЕРНУЮ переменную ($luatemp, строка), больше одного --
+            чтение в МАТРИЧНУЮ (%luatemp, таблица). }
           77:
             begin
               if k = 1 then
@@ -4965,11 +4965,11 @@ begin
               end;
               S := '';
             end;
-          { checkgetcolor: ��� ��������. ������ ������� ��� ������ ������� � �����
-            � Args; ����� ������ ���������, ��� ������ ����� ��������
-            (`Kind = 1`), ������ ��������� � ����� Lua ��� ������� �����.
-            ������� ������ �����: LuaRes3, LuaRes1, LuaRes2. ������� ���
-            ����� � ���� LuaCalcStr, ��� ������. }
+          { checkgetcolor: три значения. Разбор доводов уже сделан заранее и лежит
+            в Args; ветка только проверяет, что второй довод посчитан
+            (`Kind = 1`), гоняет выражение и отдаёт Lua три готовых числа.
+            Порядок именно такой: LuaRes3, LuaRes1, LuaRes2. Склейка идёт
+            прямо в поле LuaCalcStr, без локала. }
           284:
             begin
               TE := gScriptsS[idx];
@@ -4991,7 +4991,7 @@ begin
               Result := 3;
               S := '';
             end;
-          { version: ��� ������ �� ������, � �� �� nm }
+          { version: имя берётся ИЗ СПИСКА, а не из nm }
           285:
             begin
               S := 'calc ' + gCmdNamesdd[i];
@@ -5000,8 +5000,8 @@ begin
               Result := 1;
               S := '';
             end;
-          { scripts: ���� ������ � ��������� ����������
-            %luatemp � ������ ������ Lua ��������. }
+          { scripts: итог просят В МАТРИЧНУЮ переменную
+            %luatemp и оттуда отдают Lua таблицей. }
           84:
             begin
               S := 'get ' + gCmdNamesdd[i] + ' %luatemp';
@@ -5016,16 +5016,16 @@ begin
               GetArraySize(gScriptsS[idx], 'luatemp', aX, aY, True);
             end;
         else
-          { else: `calc <���> (<������>)` � ���� ������� }
+          { else: `calc <имя> (<доводы>)` и итог СТРОКОЙ }
           S := 'calc ' + nm + ' (' + S + ')';
           S := EvalScriptExpr(gScriptsS[idx], S, -1);
           gLuaPushLStringej(L, PChar(S), Length(S));
           Result := 1;
         end;
       end;
-      { �����, ����� ��� ������ ��� �� � ����� ������ � ��� ���� ����� case
-        ���������. ���� ��� ��� �� � ����� ������, ������� ������ case ���
-        ���� �� �����. }
+      { ХВОСТ, общий для «имени нет ни в одном списке» и для всех веток case
+        выражений. Двух имён нет ни в одном списке, поэтому меткой case они
+        быть не могут. }
       if nm = 'get_script_text' then
       begin
         if k > 0 then
@@ -5043,23 +5043,23 @@ begin
       else
         if nm = 'set_script_text' then
         begin
-          { ���� ���: ��������� ���������, � ���� �������������. ������� � Lua
-            ���������������� � �� ������ ������. }
+          { Тела нет: сравнение считается, а итог выбрасывается. Команда в Lua
+            зарегистрирована и не делает ничего. }
         end;
     end
     else
     begin
-      { case �� �������� �������. ����� -- ������� � gCmdList2jj. ����� ������
-        ����� � ������, ����� ����� get_script_text. }
+      { case по КОМАНДАМ скрипта. Метки -- индексы в gCmdList2jj. Ветки уходят
+        прямо в эпилог, минуя хвост get_script_text. }
       case i of
-        { ������� ����������� � ������ Lua-���������� }
+        { Команда исполняется и следом Lua-исключение }
         32:
           begin
             ExecScriptCommand(TScanThread(gScriptsS[idx]), i, S);
             gLuaRaiseby(L);
           end;
-        { ����� �������: `<���> <�����> <�����>`, � � ����� ������ ������ ��� �
-          � �������. }
+        { ОБЩАЯ СКЛЕЙКА: `<имя> <довод> <довод>`, а у части команд доводы ещё и
+          в скобках. }
         8,9,12,13,15..31,33..37,40,48..60,63..108,110,112,113,117..119,
         121..123,126..131:
           begin
@@ -5072,16 +5072,16 @@ begin
             S := nm + ' ' + S;
             ExecScriptCommand(TScanThread(gScriptsS[idx]), i, S);
           end;
-        { `dir`: ������ ������������ �������������� �� ����
-          ������ (�����, ������, ...) � ����������� � �������, ���� ������
-          � ��������� ����������. }
+        { `dir`: доводы одновременно раскладываются по полю
+          класса (маска, фильтр, ...) И склеиваются в команду, итог просят
+          в матричную переменную. }
         109:
           begin
             S := '';
             for q := 0 to k - 1 do
             begin
-              { DirMask -- ������ �� ������ �����, ������� ����� ��������
-                ��������� ����� ��������. }
+              { DirMask -- массив из десяти строк, поэтому адрес элемента
+                считается одной командой. }
               gScriptsS[idx].DirMask[q] := A[q];
               S := S + ' ' + A[q];
             end;
@@ -5099,17 +5099,17 @@ begin
             gLuaPushNumberdp(L, gScriptsS[idx].ClipLen);
             Result := 2;
           end;
-        { `readmem` (61) � `writemem` (62): ���� ������ � $luatemp � ������ Lua
-          ��� �����, ����� ������ ������ ������ ������� ������: `b`,`w` ->
-          �����, `d` -> Int64, `f`,`r` -> �������, �� ������ -> else.
-          ������ ����� ���������� �� `c`, �� ���� ������ � else �������. }
+        { `readmem` (61) и `writemem` (62): итог просят в $luatemp и отдают Lua
+          тем видом, какой назван ПЕРВОЙ БУКВОЙ второго довода: `b`,`w` ->
+          целое, `d` -> Int64, `f`,`r` -> дробное, всё прочее -> else.
+          Пустая буква заменяется на `c`, то есть уходит в else нарочно. }
         61,62:
           begin
             if i = 61 then
               S := nm + ' $luatemp ' + A[0]
             else
               S := nm + ' "' + A[0] + '"';
-            { ����� � �������, � �� � ����: A[0] ��� ������ ���� }
+            { обход с ЕДИНИЦЫ, а не с нуля: A[0] уже вклеен выше }
             for q := 1 to k - 1 do
               S := S + ' ' + A[q];
             ExecScriptCommand(TScanThread(gScriptsS[idx]), i, S);
@@ -5138,8 +5138,8 @@ begin
             end;
             Result := 1;
           end;
-        { `logging` �������������� � ������� `set logging ...`
-          � ������ ���������� ��� ����� ������� 40 (delimiter/set). }
+        { `logging` пересобирается в команду `set logging ...`
+          и уходит диспетчеру под ЧУЖИМ номером 40 (delimiter/set). }
         111:
           begin
             S := 'set logging';
@@ -5161,10 +5161,10 @@ var
   E, P1, P2, N, Cnt: Integer;
   R: Integer;
 begin
-  { ������ ����� `--lua ... -- endlua` ������ ������� UoPilot.
-    ������� �������-������ ������� ����� �������, ����� � ��� lua_State
-    �������������� ��� ������� ����� (311 ����, ���������� � ���� ���� --
-    �� ����� ���� �� upvalue � ������), ����� ����������� ��� ����. }
+  { Запуск блока `--lua ... -- endlua` внутри скрипта UoPilot.
+    Сначала объекту-обёртке отдаётся номер скрипта, потом в его lua_State
+    регистрируются ВСЕ команды языка (311 штук, обработчик у всех один --
+    он узнаёт себя по upvalue с именем), потом выполняется сам чанк. }
   TLua(T.DebugForm).ScriptNo := StrToInt(T.Name);
   TLua(T.DebugForm).RegP('findwindow', @LuaScriptCommand, 1);
   TLua(T.DebugForm).RegP('size', @LuaScriptCommand, 1);
@@ -5502,7 +5502,7 @@ begin
   end;
   if Err = 0 then
     Exit;
-  { ���������� �� ������ ����� -- �� ������ �������, � ��� �� �������� }
+  { прерывание по кнопке «стоп» -- не ошибка скрипта, о ней не сообщаем }
   if (Err = 2) and T.StopRequested and not T.Flag91 then
     Exit;
   T.StopRequested := True;
@@ -5512,7 +5512,7 @@ begin
     S := 'Lua error.'#13#10 + M;
   if gLuaIsStringej(TLua(T.DebugForm).Handle, -1) <> 0 then
     S := S + gLuaToLStringej(TLua(T.DebugForm).Handle, -1, nil);
-  { � ������ ������ Lua ����� ������ ����� ����� `]:` � `:` }
+  { в тексте ошибки Lua номер строки стоит между `]:` и `:` }
   P1 := Pos(']:', S);
   if P1 > 0 then
   begin
@@ -5542,10 +5542,10 @@ begin
 end;
 
 function EnumFindWndProc(H: HWND; L: Integer): Boolean; stdcall;
-{ �������� ����� EnumWindows ��� ������ ���� �� ������ ��������. �����
-  False ������������� �������; ��������� ���� ������� � ���� ������, ������
-  �� ������ ������� ����� ��������, � ��� ����� �������� ������ �������
-  (lParam = SelfRef). ����� -- Boolean, � �� BOOL. }
+{ Обратный вызов EnumWindows для поиска окна ПО НОМЕРУ ПРОЦЕССА. Ответ
+  False останавливает перебор; найденное окно кладётся в поле потока, оттуда
+  же берётся искомый номер процесса, а сам поток приходит вторым доводом
+  (lParam = SelfRef). Ответ -- Boolean, а не BOOL. }
 var
   Pid: DWORD;
 begin
@@ -5562,25 +5562,25 @@ begin
 end;
 
 procedure EbFindWnd(T: TScanThread; var S: string; F: Boolean);
-{ ����� ���� �� �������� -- ����� ������� ������� �����. ��� ���������,
-  ����� ������� ����� var-������.
+{ Поиск окна по описанию -- самая большая функция юнита. Это процедура,
+  ответ отдаётся через var-строку.
 
-  `findwindow` ����� ���� �������� ���� � ������� �������:
-  * ���� �������� ���������� �� ��������, ������� ��� � gWordCharsadq;
-  * ������ �������� -> ������� ���� ��������� �����;
-  * F=False: FindWindow �� ���������, ����� �� ������, ����� ����� ����
-  ���� �������� ������ -- ������ ������ ������ ���������
-  (AnsiStrLIComp), ����� ��������� ���������;
-  * F=True: ����� ���� ���� �� Application.Handle � ����������� ������
-  `�����|���������/`, � ���� �� ���������� ����� �� ������� -- ������
-  ����� �� ������ �������; ��������� � '|', '/' ��� �������� �� ����
-  ������ � �������;
-  * ���� ���� ��� -- ������ ������� � ����� ������ (Process32First/Next);
-  * ���� � �������� ���, � �������� -- �����, ��� ��������� �������
-  ��������, � ���� ������ ����� EnumWindows.
+  `findwindow` отдаёт сюда описание окна и признак «список»:
+  * края описания обрезаются по СИМВОЛАМ, которых нет в gWordCharsadq;
+  * пустое описание -> текущее окно переднего плана;
+  * F=False: FindWindow по заголовку, потом по классу, потом обход всех
+  окон верхнего уровня -- сперва точное начало заголовка
+  (AnsiStrLIComp), потом вхождение подстроки;
+  * F=True: обход всех окон от Application.Handle с накоплением списка
+  `номер|заголовок/`, а если по заголовкам никто не нашёлся -- ВТОРОЙ
+  обход по ИМЕНАМ КЛАССОВ; заголовок с '|', '/' или кавычкой по краю
+  берётся в кавычки;
+  * если окна нет -- ищется ПРОЦЕСС с таким именем (Process32First/Next);
+  * если и процесса нет, а описание -- число, оно считается номером
+  процесса, и окно ищется через EnumWindows.
 
-  `if (W > 0) and LFound then ;` � ������ -- �� ������: ������� ���������,
-  � ���� � ���� ���. }
+  `if (W > 0) and LFound then ;` в хвосте -- не описка: условие считается,
+  а тела у него нет. }
 var
   Res: string;
   sT: string;
@@ -5877,9 +5877,9 @@ begin
   else
     W := TScanThread(gScriptso3[Scr].SelfRef);
   Idx := 0;
-  { `with` ����� �� ���������: ���������� � ��� ������� ��������� ��������,
-    ��� ������� ���������� ���� ������� -- ������ ����� �������. ��� ��
-    ���� ������� ������� ������. ��� �� ������� � `ScanWatchList`. }
+  { `with` здесь не украшение: приведение в нём заводит отдельное значение,
+    под которое выделяется свой регистр -- вторая копия объекта. Без неё
+    цикл считает предмет заново. Так же сделано в `ScanWatchList`. }
   with TScanThread(W) do
   while Length(Arr48) > Idx do
   begin
@@ -5889,10 +5889,10 @@ begin
         Exit;
       if Col <= 0 then
       begin
-        { ������� ����� -- `i`, � �� ��������� ����������: �������� ������� �
-          ����� ����� ��� ������, ���� � `i` ��� ������� ������������ ����,
-          � ������ � ���� �� �������� `W` � ������� ���������. � ���������
-          ���������� ������� ����������. }
+        { Счётчик здесь -- `i`, а не отдельная переменная: значение разбора к
+          этому месту уже мертво, зато у `i` два десятка употреблений выше,
+          и только с ними он обгоняет `W` в раздаче регистров. С отдельной
+          переменной раздача зеркалится. }
         for i := 1 to Length(Arr48[Idx].Data[Row - 1]) do
           if i > 1 then
             R := R + T.Str1048B8 + Arr48[Idx].Data[Row - 1][i - 1]
@@ -5986,8 +5986,8 @@ begin
 end;
 
 function EvalScriptPoint(T: TScanThread; S: string; N: Integer): string;
-  { ��������� �������� ����� ���� � Unit1 � ������ ����� ���������.
-    ���� ������� -- ���� �������; � ������ EvalScriptExpr �� ���. }
+  { Множество символов слова живёт в Unit1 и берётся через указатель.
+    Своя добавка -- одна кавычка; в голове EvalScriptExpr их две. }
 var
   W: string;
   Q: Boolean;
@@ -6055,8 +6055,8 @@ begin
 end;
 
 function EvalScriptPart(T: TScanThread; S: string; N: Integer): string;
-  { ����� �������� ����� ���� � ����� ����� � ������ ����� ���������.
-    ������ ����, ������� � ���������� ������. }
+  { Набор символов слова живёт в чужом юните и берётся через указатель.
+    Чтение одно, поэтому и кэшировать нечего. }
 var
   W: string;
   Q: Boolean;
@@ -6143,11 +6143,11 @@ procedure EbRegexAnchor;
 var
   sAnc: string;
 begin
-  { ������ �� PCRE �����, ����� ����������� �� �������� ������ � ���
-    pcre*.obj: ������������ ������������ TPerlRegEx -- ����� `regexp` ����
-    �� �������. ������ ���������, � �� �������-������: ����� ���������
-    ������� ���������� ���� �� � `EvalScriptExpr` ������ ���������
-    ���������. ��������� ��� ������ �� ����� -- ����� ������. }
+  { Ссылка на PCRE нужна, чтобы компоновщик не выбросил обёртку и все
+    pcre*.obj: единственный пользователь TPerlRegEx -- ветка `regexp` этой
+    же функции. Именно ПРОЦЕДУРА, а не функция-строка: вызов строковой
+    функции оператором завёл бы в `EvalScriptExpr` лишнюю строковую
+    временную. Результат тут никому не нужен -- нужна ссылка. }
   with TPerlRegEx.Create do
   try
     RegEx := '.';
@@ -6528,7 +6528,7 @@ end;
 
 function EvalScriptExpr(T: TScanThread; sv: string; nv: Integer): string;
 label
-  NextChar;                     { ����� ����������� � Inc(k) }
+  NextChar;                     { Выход подстановки к Inc(k) }
 var
   wcnt        : Integer;
   bFlag: Boolean;
@@ -6569,7 +6569,7 @@ var
   nQ2        : Integer;
   hp         : Cardinal;
   crd: array[0..2] of SmallInt;
-  bDir: Byte;                    { ����� chardir }
+  bDir: Byte;                    { ветвь chardir }
   sd         : string;
   sdi        : Integer;
   pw         : PWideChar;
@@ -6589,7 +6589,7 @@ var
   quo: Boolean;
   hasq: Boolean;
   cK: Char;
-  cS: Char;                      { ����� size }
+  cS: Char;                      { ветвь size }
   wSk: SmallInt;
   wv: Word;
   ptA: TPoint;
@@ -6663,7 +6663,7 @@ var
   nLim       : Integer;
   nSave      : Integer;
   k1         : Integer;
-  u1         : Integer;   { ����� ParseWaitSuffix }
+  u1         : Integer;   { довод ParseWaitSuffix }
   jj_2BE9    : Integer;
   dep_2BE9   : Integer;
   i1: Int64;
@@ -6680,15 +6680,15 @@ var
   nVal: Int64;
   nWnd       : Integer;
   bErrShown  : Boolean;
-  jj_2A15    : array[1..3] of Byte;     { �������: ts2 ������� �� -$290 }
+  jj_2A15    : array[1..3] of Byte;     { добивка: ts2 остаётся на -$290 }
   ts2: TTimeStamp;
   dtA: Double;
   dep_2A15   : Integer;
-  ebR1: TEbR1;   { ������ ������� B }
+  ebR1: TEbR1;   { голова области B }
   st2: TStat2;
   nmv: ShortString;
   ebR2: TEbR2;
-  padFmB     : array[1..140] of Byte;   { ��������� ������� B }
+  padFmB     : array[1..140] of Byte;   { раскладка области B }
   st1: TStat1;
   crd548: array[0..2] of Integer;
   buf: array[0..255] of Char;
@@ -6696,19 +6696,19 @@ var
   mbi: TMemoryBasicInformation;
   rcW: TRect;
   sFind: string[255];
-  sFind99C: array[0..255] of Char;   { ����� windowpos }
-  ebW         : TEbW;   { ���� ���� ��� ���� � ����� }
-  te_1A04     : TlHelp32.TThreadEntry32;   { ����� ������� B }
+  sFind99C: array[0..255] of Char;   { буфер windowpos }
+  ebW         : TEbW;   { семь слов под дату и время }
+  te_1A04     : TlHelp32.TThreadEntry32;   { хвост области B }
 
-  { ������ �������� ����� � ����� �����; �������������� ��������� ��� ����
-    ��������� ������ ���� ����� ���� ������� -- ��� �� ������� �
+  { Массив скриптов лежит в чужом юните; типизированная константа даёт одно
+    обращение вместо двух через слот импорта -- так же сделано в
     `TScanThread.Execute`. }
 
-  { ��������� �����. ������� ���������� ����� � ���� ��������� �����: ����
-    ������� �� ������ ����������, ������ ��� ������ ����. ��������� `T`,
-    `sv`, `nv` ����� � ���� ������� � ������ �������� �� ������� ���������,
-    ���������� EBX/ESI ��������� ����. ���� ��������� �� ������ ������ --
-    ��� ����� �� ���������, � ���������. }
+  { ДЕРЖАТЕЛЬ КАДРА. Порядок упоминаний ЗДЕСЬ и есть раскладка кадра: слот
+    выдаётся на первом упоминании, курсор идёт сверху вниз. Параметры `T`,
+    `sv`, `nv` стоят в этом порядке и заодно выбывают из раздачи регистров,
+    освобождая EBX/ESI счётчикам слов. Сама процедура не делает ничего --
+    она нужна не программе, а раскладке. }
   procedure EbHoldFrameZ;
   begin
     FillChar(arrCol, SizeOf(arrCol), 0);
@@ -6725,39 +6725,39 @@ var
     FillChar(nv, SizeOf(nv), 0);
   end;
 
-  { ��������� ��������� �����������. ��������� ������ ������ �����
-    `findcolor` � `arrCol`: ����� �� ������ �� `V`, ���� ����� �� ��������.
-    ����� ������ ���� ����� -- ���� �������������� `R(..)G(..)B(..)` �
-    ����������� ����� �����, ���� ���� ����� (���� � ������� ��� ���),
-    ������� �������������� �� ������.
+  { ВЛОЖЕННАЯ ПРОЦЕДУРА ВЫЧИСЛИТЕЛЯ. Разбирает список цветов ветки
+    `findcolor` в `arrCol`: слово за словом из `V`, пока слова не кончатся.
+    Слово бывает двух видов -- либо покомпонентное `R(..)G(..)B(..)` с
+    диапазонами через дефис, либо одно число (тоже с дефисом или без),
+    которое раскладывается по байтам.
 
-    ����� ������� � �� ��� �����: �������� ������� ���� � ������� -- ���
-    ��������� ���������, � �� ��������� -- ������ ������� ������� �����
-    ����������� ������. ������� �� ���������� � ������ ����. }
+    Своих локалов у неё нет вовсе: двадцать двойных слов в прологе -- это
+    строковые временные, а всё остальное -- локалы внешней функции через
+    статическую ссылку. Порядок их упоминания и держит кадр. }
   procedure ScriptIdle2;
   begin
     a := 1;
     qq := 0;
-    sEe := EvalScriptExpr(T, V, a);        { ��������� -$4 }
+    sEe := EvalScriptExpr(T, V, a);        { временная -$4 }
     while sEe <> '' do
     begin
       SetLength(arrCol, qq + 1);
-      arrCol[qq].Lo3 := Pos('B(', UpperCase(sEe));   { ��������� -$8 }
-      arrCol[qq].Lo2 := Pos('G(', UpperCase(sEe));   { ��������� -$C }
-      arrCol[qq].Lo1 := Pos('R(', UpperCase(sEe));   { ��������� -$10 }
+      arrCol[qq].Lo3 := Pos('B(', UpperCase(sEe));   { временная -$8 }
+      arrCol[qq].Lo2 := Pos('G(', UpperCase(sEe));   { временная -$C }
+      arrCol[qq].Lo1 := Pos('R(', UpperCase(sEe));   { временная -$10 }
       if (arrCol[qq].Lo3 > 0) or (arrCol[qq].Lo2 > 0) or
          (arrCol[qq].Lo1 > 0) then
       begin
         if arrCol[qq].Lo3 > 0 then
         begin
           sB := FindParenGroup(T, sEe, arrCol[qq].Lo3, ptC.X, ptC.Y);
-          arrCol[qq].Lo3 := Pos('-', sB);            { ��������� -$14 }
+          arrCol[qq].Lo3 := Pos('-', sB);            { временная -$14 }
           if arrCol[qq].Lo3 > 0 then
           begin
             arrCol[qq].Hi3 := StrToInt(Copy(sB, arrCol[qq].Lo3 + 1,
                                             Length(sB) - arrCol[qq].Lo3));
             arrCol[qq].Lo3 := StrToInt(Copy(sB, 0, arrCol[qq].Lo3 - 1));
-          end                            { ��������� -$18 � -$1C }
+          end                            { временные -$18 и -$1C }
           else
           begin
             arrCol[qq].Hi3 := StrToInt(sB);
@@ -6772,13 +6772,13 @@ var
         if arrCol[qq].Lo2 > 0 then
         begin
           sB := FindParenGroup(T, sEe, arrCol[qq].Lo2, ptC.X, ptC.Y);
-          arrCol[qq].Lo2 := Pos('-', sB);            { ��������� -$20 }
+          arrCol[qq].Lo2 := Pos('-', sB);            { временная -$20 }
           if arrCol[qq].Lo2 > 0 then
           begin
             arrCol[qq].Hi2 := StrToInt(Copy(sB, arrCol[qq].Lo2 + 1,
                                             Length(sB) - arrCol[qq].Lo2));
             arrCol[qq].Lo2 := StrToInt(Copy(sB, 0, arrCol[qq].Lo2 - 1));
-          end                            { ��������� -$24 � -$28 }
+          end                            { временные -$24 и -$28 }
           else
           begin
             arrCol[qq].Hi2 := StrToInt(sB);
@@ -6793,13 +6793,13 @@ var
         if arrCol[qq].Lo1 > 0 then
         begin
           sB := FindParenGroup(T, sEe, arrCol[qq].Lo1, ptC.X, ptC.Y);
-          arrCol[qq].Lo1 := Pos('-', sB);            { ��������� -$2C }
+          arrCol[qq].Lo1 := Pos('-', sB);            { временная -$2C }
           if arrCol[qq].Lo1 > 0 then
           begin
             arrCol[qq].Hi1 := StrToInt(Copy(sB, arrCol[qq].Lo1 + 1,
                                             Length(sB) - arrCol[qq].Lo1));
             arrCol[qq].Lo1 := StrToInt(Copy(sB, 0, arrCol[qq].Lo1 - 1));
-          end                            { ��������� -$30 � -$34 }
+          end                            { временные -$30 и -$34 }
           else
           begin
             arrCol[qq].Hi1 := StrToInt(sB);
@@ -6817,9 +6817,9 @@ var
         nn := Pos('-', sEe);
         if nn > 0 then
         begin
-          { ��������� -$38 (��������), -$3C (�������), -$40 (Copy) }
+          { временные -$38 (значение), -$3C (склейка), -$40 (Copy) }
           q := StrToInt(EvalScriptExpr(T, 'calc ' + Copy(sEe, 0, nn - 1), 1));
-          { � -$44, -$48, -$4C -- �� �� ��� �� ������ �������� }
+          { и -$44, -$48, -$4C -- те же три на второй половине }
           nn := StrToInt(EvalScriptExpr(T, 'calc ' +
                          Copy(sEe, nn + 1, Length(sEe) - nn), 1));
         end
@@ -6865,7 +6865,7 @@ var
       end;
       Inc(qq);
       Inc(a);
-      sEe := EvalScriptExpr(T, V, a);      { ��������� -$50 }
+      sEe := EvalScriptExpr(T, V, a);      { временная -$50 }
     end;
   end;
 
@@ -7007,9 +7007,9 @@ begin
         end;
         if not quo then
         begin
-          { ���� ���, � �� ���: ����� ����� � ������� ������� ����� ���� �������.
-            ��������� ����� ������ �� ��� ����, � ��������� `bMatch` ��������
-            �� ��������� �� �����. }
+          { ОДНО ИМЯ, А НЕ ДВА: длина слова и позиция вставки делят один регистр.
+            Отдельная длина заняла бы ещё один, и байтовому `bMatch` регистра
+            не досталось бы вовсе. }
           pIns := Length(nm);
           w := Copy(ts, p, pIns);
           Delete(ts, p, pIns);
@@ -7017,7 +7017,7 @@ begin
           idx := gCmdListah7.IndexOf(AnsiLowerCase(nm));
           case idx of
           -1:
-            begin { ��� �� �������� }
+            begin { имя не опознано }
       Insert(w, ts, pIns);
       Inc(p, Length(w));
             end;
@@ -9443,7 +9443,7 @@ begin
                   IntToStr(TScanThread(T).Blocks[qq].Extra) + '/';
               end
               else
-                V := '������ �� ����������.';
+                V := 'Сервис не реализован.';
               rd := 4;
               ReleaseDC(0, dcS);
             except
@@ -9874,9 +9874,9 @@ begin
                                   Break;
                                 if PChar(@PByteArray(pc)^[nn])^ = sFind[1] then
                                 begin
-                                  { ����� ���������������� `bFlag`: � �����
-                                    ����� �� ��� ���� -- ��������� ������
-                                    �� ������� ����� ����� ����. }
+                                  { Здесь переиспользуется `bFlag`: к этому
+                                    месту он уже мёртв -- последнее чтение
+                                    на полторы сотни строк выше. }
                                   nH := 2;
                                   bFlag := True;
                                   while nH <= nQ do
@@ -11634,7 +11634,7 @@ begin
         end;
         TScanThread(T).RegEx := TPerlRegEx.Create;
         ebR1.rxLoc_F99D := TPerlRegEx(TScanThread(T).RegEx);
-        { ������� �����: ������ SetRegEx, ����� SetSubject. }
+        { Порядок важен: сперва SetRegEx, потом SetSubject. }
         ebR1.rxLoc_F99D.RegEx := sOptV;
         ebR1.rxLoc_F99D.Subject := s3160;
         if ebR1.rxLoc_F99D.Match then
@@ -12564,8 +12564,8 @@ begin
       end
       else
       begin
-        { `lastp` ���� � �����, �������� ��� ��� �� ��������: ESI �����
-          `pIns`, ������� ���������� ����� ��� � ������ �����. }
+        { `lastp` живёт в кадре, регистра ему тут не достаётся: ESI занят
+          `pIns`, который становится живым ещё в начале ветки. }
         Insert(w, ts, pIns);
         Inc(p, Length(w));
       end;
@@ -12843,7 +12843,7 @@ begin
       end;
             end;
           end;
-          { ����� �����: ����� ������ miErrorReadCP }
+          { общий хвост: галки группы miErrorReadCP }
           if fmSecondfj.miStopSErrorRead.Checked and err then
             T.StopRequested := True;
           if fmSecondfj.miPauseSErrorRead.Checked and err then
@@ -12862,12 +12862,12 @@ begin
                 MsgBox(PChar(LoadStr(gLangOffsety + $1C8)),
                        'UOPilot Error Message', $40000)
               else
-                MsgBox('������ ������ ���������� ����',
+                MsgBox('Ошибка чтения параметров чара',
                        'UOPilot Error Message', $40000);
             end;
         end
-        { ��� ����� `else` ���� �� `if not quo`, � �� ��������� ��������.
-          ���� -- ������� �������, ���� ����� �������� �����. }
+        { Это ветка `else` того же `if not quo`, а не отдельная проверка.
+          Цикл -- сложное условие, вход через проверку внизу. }
         else
         begin
           q := Length(ts);
@@ -12878,7 +12878,7 @@ begin
         Inc(p, Pos(nm, Copy(LowerCase(ts), p + 1, Length(ts) - p)));
       end;
     end;
-    { ����� �� `isop`, � �� ������ `if not isvar`, ����� �� ������ ��
+    { ВЫХОД ПО `isop`, и он ВНУТРИ `if not isvar`, сразу за циклом по
       `gCmdListah7`. }
     if isop then
     begin
@@ -12886,17 +12886,17 @@ begin
       Exit;
     end;
   end;
-  { ��������� ����� -- ������ ��� �������, ������� �� �����.
-    ������ ������ ������ ������, � �� `FillChar`: ���� ������ ����� `@���`,
-    � ����� �������� ������ ������������. ��� -$C- `Assert` �� ����� ��
-    ����� �������. }
+  { ДЕРЖАТЕЛЬ КАДРА -- только тем локалам, которым он нужен.
+    Держит именно ВЗЯТИЕ АДРЕСА, а не `FillChar`: флаг ставит любое `@имя`,
+    а вызов вчетверо дороже присваивания. При -$C- `Assert` не стоит ни
+    одной команды. }
   Assert(@isvar <> nil);
-  { ������ 1 �� `#` � `$`. ���� � ���� -- ������� �� ������� �����.
-    `sTail` -- �������, `nRep` -- ������� 32 ��������.
+  { ПРОХОД 1 по `#` и `$`. Вход в цикл -- переход на условие внизу.
+    `sTail` -- приёмник, `nRep` -- счётчик 32 повторов.
 
-    ������ ����� -- ��� �� ������ ���� �̨�, ��� � � ������� 2, �������
-    ����������������: ��� ���������� ���������� ������ ����� �� ������
-    �������. }
+    Сторож здесь -- ТОТ ЖЕ СПИСОК ПЯТИ ИМЁН, что и у прохода 2, целиком
+    продублированный: при совпадении управление уходит прямо во вторую
+    цепочку. }
   if ((tt <> 'set') and (tt <> 'for') and (tt <> 'exec') and
       (tt <> 'macro_load') and (tt <> 'terminate')) or (nv <> 1) then
   begin
@@ -12906,10 +12906,10 @@ begin
     sTail := ts;
     while Length(ts) > k do
     begin
-      { ������ 1: ������� � ������ �� ������������.
-        ��� ��� �Continue� -- ��������� `if`, � �� �������� `Continue`:
-        ��� ������� �� �� �������� � ��������� `Inc(k)`. `Break` ���
-        �������������� ������ ������ �� ����. }
+      { Секция 1: сторожи и защита от зацикливания.
+        Все три «Continue» -- вложенные `if`, а не оператор `Continue`:
+        тот прыгнул бы на проверку и пропустил `Inc(k)`. `Break` при
+        неизменившейся строке уходит за цикл. }
       if T.StopRequested then
       begin
         Result := '0';
@@ -12930,17 +12930,17 @@ begin
               nRep := 32;
               sTail := ts;
             end;
-            { ������ 2a: ��� ����������, ����������� ������ ����� � ����������
-              � ������� �������. }
+            { Секция 2a: вид переменной, рекурсивный разбор имени и подготовка
+              к разбору индекса. }
             cK := ts[k];
             tt := EvalScriptExpr(T, sv, 0);
             Inc(k);
             nm := '';
             p := Length(ts);
             bDot := False;
-            { ������ 2b: ���� ����� ���������� �� �����������. ����� ������������ --
-              `case` �� ����� �������� (�������� '('..')' ���� ������
-              ���������), � �� `in`-���������. `except` ���� �������. }
+            { Секция 2b: сбор имени переменной до разделителя. Отсев разделителей --
+              `case` по шести символам (диапазон '('..')' плюс четыре
+              одиночных), а не `in`-множество. `except` пуст нарочно. }
             try
               while (k <= p) and (ts[k] in gWordCharsadq) do
               begin
@@ -12958,16 +12958,16 @@ begin
               end;
             except
             end;
-            { ������ 3a: ��� � ������ �������, ������
-              ����.������ ��� `#`. `sd` (-$98) -- ������ ������. }
+            { Секция 3a: имя в нижний регистр, разбор
+              «имя.индекс» для `#`. `sd` (-$98) -- строка головы. }
             nm := AnsiLowerCase(nm);
             p := 0;
             if cK = '#' then
             begin
-              { �������� ����������: ���� `Vars`, ������� 264 �����
-                (string[255] + Int64), ����������� ����� IntToStr. �������
-                � `$` ���: � ���� ������ ����, ������ ���, ������ ���
-                �������� � ������ Dec(k). }
+              { Числовые переменные: поле `Vars`, элемент 264 байта
+                (string[255] + Int64), подстановка через IntToStr. Зеркала
+                с `$` нет: у него другое поле, другой шаг, другой тип
+                значения и лишний Dec(k). }
               i := Pos('.', nm);
               if i > 0 then
               begin
@@ -13008,9 +13008,9 @@ begin
             end
             else if cK = '$' then
             begin
-              { ��������� ����������: ���� +$44, ������� 260
-                (string[255] + string), �������� ��� � Insert ��������,
-                � ����� ������� Dec(k). }
+              { Строковые переменные: поле +$44, элемент 260
+                (string[255] + string), значение идёт в Insert НАПРЯМУЮ,
+                и после вставки Dec(k). }
               i := Pos('.', nm);
               if i > 0 then
               begin
@@ -13056,19 +13056,19 @@ NextChar:
       Inc(k);
     end;
   end;
-  { ������ 2: ��������� ���������� `%���[������]`.
+  { ПРОХОД 2: МАТРИЧНЫЕ ПЕРЕМЕННЫЕ `%имя[индекс]`.
 
-    ������ ���� ��� -- �� `Exit`, � ������ �������: ���������� ������ �� �
-    ������, � �� ����� ��������, �� ���� ������ 2 ������ ������������.
-    ������� -- `(and-�������) or (nv <> 1)`, � �� ������������� `if`.
+    Список ПЯТИ имён -- не `Exit`, а сторож прохода: управление уходит не в
+    эпилог, а на общую концовку, то есть проход 2 просто пропускается.
+    Условие -- `(and-цепочка) or (nv <> 1)`, а не двухуровневый `if`.
 
-    ���� ��� ������ ������: ������� `q` �� Length(ts) ����, �� ������ ����
-    `k := q`. ��� `if ... then repeat ... until`, � �� `for ... downto`:
-    �������� ����� � �� �����, � � �������.
+    Цикл идёт СПРАВА НАЛЕВО: счётчик `q` от Length(ts) вниз, на каждом шаге
+    `k := q`. Это `if ... then repeat ... until`, а не `for ... downto`:
+    проверка стоит и на входе, и в подвале.
 
-    ������� -- ���� `Arr48`, ������� `TvArray` 260 ����. ������ ���������
-    � ����-������: ��� ����� � ������� ��������� ��� �� �������.
-    ����������� ��� ������� ���� ������ -- `Str1048B8`. }
+    Массивы -- поле `Arr48`, элемент `TvArray` 260 байт. Данные двумерные
+    и НУЛЬ-БАЗНЫЕ: при счёте с единицы адресация идёт со сдвигом.
+    Разделитель при склейке всей строки -- `Str1048B8`. }
   if ((tt <> 'set') and (tt <> 'for') and (tt <> 'exec') and
       (tt <> 'macro_load') and (tt <> 'terminate')) or (nv <> 1) then
   begin
@@ -13083,9 +13083,9 @@ NextChar:
           if ts[k] = '%' then
             if ts[k + 1] in gWordCharsadq then
             begin
-              { ���� �����. � ������� �� ������� 1 ����� ���
-                `bDot`: ����� '#', '$' � '%' ����� � ������� �����, � �� �
-                ����, � ������ ������ ������ ����� `case`. }
+              { Сбор имени. В отличие от прохода 1 здесь НЕТ
+                `bDot`: отсев '#', '$' и '%' стоит в УСЛОВИИ цикла, а не в
+                теле, и только скобки уходят через `case`. }
               cK := ts[k];
               tt := EvalScriptExpr(T, sv, 0);
               Inc(k);
@@ -13105,8 +13105,8 @@ NextChar:
               p := 0;
               if cK = '%' then
               begin
-                { ��� ������ � `V`, � `nm` ���������� ������:
-                  � ��� ������ ��������� ���������, �� ����������� ']'. }
+                { Имя уходит в `V`, а `nm` собирается заново:
+                  в нём теперь индексное выражение, до закрывающей ']'. }
                 V := AnsiLowerCase(nm);
                 nm := '';
                 while (Length(ts) >= k) and (ts[k] <> ']') do
@@ -13116,9 +13116,9 @@ NextChar:
                 end;
                 if (Length(ts) >= k) and (ts[k] = ']') then
                 begin
-                  { ����.������: ����� ������ ������� � `i`, ����� -1. �����
-                    ��������� ������ -- ����� ���������� �����������, � ��
-                    ����� �����. }
+                  { «имя.скрипт»: номер чужого скрипта в `i`, иначе -1. Длины
+                    считаются ДВАЖДЫ -- двумя отдельными выражениями, а не
+                    одним общим. }
                   i := Pos('.', V);
                   if i > 0 then
                   begin
@@ -13138,9 +13138,9 @@ NextChar:
                   end;
                   Delete(ts, lastp, sdi);
                   sdi := lastp;
-                  { ������ �������: ������ ����� ������ �
-                    `lastp`, ������ (��������������) ������� ������� �
-                    `sd`. ������ `sd` ������ ���� ������ �������. }
+                  { Разбор индекса: первое число уходит в
+                    `lastp`, второе (необязательное) остаётся строкой в
+                    `sd`. Пустой `sd` значит «вся строка целиком». }
                   while (Length(nm) > 0) and not (nm[1] in ['0'..'9']) do
                     Delete(nm, 1, 1);
                   sd := '';
@@ -13164,7 +13164,7 @@ NextChar:
                   end;
                   if i < 0 then
                   begin
-                    { ���� �����: ��� ������� ����������� }
+                    { СВОЙ поток: обе границы проверяются }
                     while Length(T.Arr48) > p do
                     begin
                       if T.Arr48[p].Name = V then
@@ -13193,8 +13193,8 @@ NextChar:
                     end;
                   end
                   else
-                    { ����� ������: �������� ������ ���, � ������ �����������
-                      ������ -- `sd <> ''` ������ `qq > 1`. }
+                    { ЧУЖОЙ скрипт: проверок границ НЕТ, и сторож разделителя
+                      другой -- `sd <> ''` вместо `qq > 1`. }
                     while Length(gScriptso3[i].Arr48) > p do
                     begin
                       if gScriptso3[i].Arr48[p].Name = V then
@@ -13224,13 +13224,13 @@ NextChar:
         Dec(q);
       until q <= 0;
   end;
-  { ����� ��������. ���� �� �������� ������� ������� 2. }
+  { ОБЩАЯ КОНЦОВКА. Сюда же приходит пропуск прохода 2. }
   if nv = 0 then
     Result := AnsiLowerCase(ts)
   else
   begin
-    { ������ ����������� �������, �� ������ ���� ������
-      ������� ������ ���. }
+    { Снятие обрамляющих кавычек, но только если внутри
+      кавычек больше нет. }
     qq := Length(ts);
     if qq > 1 then
       if ts[1] = '"' then
@@ -13240,12 +13240,12 @@ NextChar:
           if Pos('"', tt) = 0 then
             ts := tt;
         end;
-    { ������� ���� ��� 'x' ������������� �� '0x'. ����� ������ `LowerCase`,
-      � �� `AnsiLowerCase`. }
+    { Ведущий ноль без 'x' достраивается до '0x'. Здесь именно `LowerCase`,
+      а не `AnsiLowerCase`. }
     if nv > 0 then
-      { ��������� � ��������, � �� ���������: `Length(X) > 1` ��� ���
-        �������, `Length(X) - 1 > 0` -- ���. ��� �� ������, ��� � ����� 'd'
-        � `writemem`/`readmem`. }
+      { Сравнение С ЕДИНИЦЕЙ, а не вычитание: `Length(X) > 1` даёт две
+        команды, `Length(X) - 1 > 0` -- три. Тот же случай, что в ветке 'd'
+        у `writemem`/`readmem`. }
       if Length(ts) > 1 then
         if ts[1] = '0' then
           if LowerCase(ts[2]) <> 'x' then
@@ -13294,9 +13294,9 @@ begin
   if (Length(S) > 1) and (S[1] = '0') and (LowerCase(S[2]) <> 'x') then
     S := '0x' + S;
   nV := StrToInt64(S);
-  { ��� ��������� `if` ������ `and`: ��� ��� �� (�������� ���������), ��
-    ���� ������ ������ ����� ����, � ����� `G` �������� ������� ����� �
-    ������� ���������. }
+  { ДВА ВЛОЖЕННЫХ `if` ВМЕСТО `and`: код тот же (короткое замыкание), но
+    цена уровня внутри вдвое ниже, и довод `G` обгоняет счётчик цикла в
+    раздаче регистров. }
   if G <> nil then
   if nV <= $226 then
   begin
@@ -13308,7 +13308,7 @@ begin
       if gLangOffsety > 0 then
         T.Msg := LoadStr(gLangOffsety + $1C9) + S + LoadStr(gLangOffsety + $1CA) + #0
       else
-        T.Msg := '������ � ��������� ������� (' + S + ') �� �������.' + #0;
+        T.Msg := 'Запись с указанным номером (' + S + ') не найдена.' + #0;
       ShowScriptMsg(T);
       if T.ToMsgBox then
       begin
@@ -13363,10 +13363,10 @@ function FindScriptVar(T: TScanThread; C: Char; Name: string;
   X, Y: Integer): Integer;
 var
   DX, DY, L, Grow, Idx: Integer;
-  { ������� ����� �������������, ������ �� ���� ����� ������ ��. Ƹ�����
-    ���������� ����� � ����� ������ ������ ��������� �������� � ���������
-    ������ `mov`. ������ ����� �� ����� -- �������� � ��� ������� ���� �
-    �������. }
+  { Потомок ОДНИМ присваиванием, дальше по телу ходит только он. Жёсткое
+    приведение прямо в месте вызова ломает нумерацию значений и добавляет
+    лишний `mov`. Команд локал не стоит -- параметр и так кладётся сюда в
+    прологе. }
   TS: TScanThread;
 begin
   TS := TScanThread(T);
@@ -13551,7 +13551,7 @@ var
   DY: Integer;
   Grow: Integer;
   L: Integer;
-  TS: TScanThread;             { ������� ��� ���������� }
+  TS: TScanThread;             { потомок без приведения }
 begin
   TS := TScanThread(T);
   try
@@ -13666,10 +13666,10 @@ var
   k, i, p: Integer;
   s2: string;
 begin
-  { ��� �� �������� � �� ������ ������. ������������ ���� �� ��� �� �����
-    �������, �� ��� `T` ��� ���� �������������� ������������ -- ������ �
-    ��� ESI �������� `T`, � EDI -- `k`. ��� ���� ���� ���������� ��
-    ������� � �������� ����������. }
+  { Это не опечатка и не пустая строка. Присваивание себе не даёт ни одной
+    команды, но даёт `T` ещё одно тарифицируемое употребление -- только с
+    ним ESI достаётся `T`, а EDI -- `k`. Без него веса расходятся на
+    единицу и регистры зеркалятся. }
   T := T;
   Result := False;
   k := -1;
@@ -13839,9 +13839,9 @@ end;
 procedure SortScriptArray2(T: TScanThread; N, M, H, I, D: Integer;
                            Asc: Boolean);
 var
-  { nI �������� ������: ���� � nI � nJ ����� ����� (� ������� ��
-    SortScriptArray, ��� nI ������ ��� � Length(Data[nI])), � ��� ������
-    ����� ������� �������� ����, ��� �������� ������. }
+  { nI объявлен ПЕРВЫМ: веса у nI и nJ здесь равны (в отличие от
+    SortScriptArray, где nI читает ещё и Length(Data[nI])), а при равных
+    весах регистр достаётся тому, кто объявлен раньше. }
   nI: Integer;
   nJ, nK: Integer;
   sPv, sT: string;
@@ -13944,11 +13944,11 @@ begin
   end;
 end;
 
-{ ������ ���� ���� �� `goto` � `CheckOneExpr` -- �� ������������
-  ���������, ������� ��� ����� � ������ ������ ����� FinalizeArray, �
-  ������ ��������� � ��������. �������� �� ���� ��������� � ������������
-  ���� (`repeat`/`while`/`for`), � �� � �������� ���� �����, ������� �����
-  `goto` �� ����� �� ������ �����. }
+{ Массив плюс цикл на `goto` в `CheckOneExpr` -- то единственное
+  сочетание, которое даёт сразу и слитую чистку одним FinalizeArray, и
+  прямые обращения к глобалям. Надбавка за цикл привязана к структурному
+  виду (`repeat`/`while`/`for`), а не к обратной дуге графа, поэтому форма
+  `goto` не стоит ни одного байта. }
 
 procedure WaitDelayStub(const S: string);
 begin
@@ -13956,17 +13956,17 @@ end;
 
 procedure ExecScriptCommand(T: TScanThread; var N: Integer;
   var S: string);
-{ ���� ���Ĩ� � ������: ���� ������ ��� �������������� ���������
-  �������� �� ���������, � ������� � 127 �������� �������� ���������
-  ���������. }
+{ кадр СВЕДЁН В ЗАПИСИ: поле записи для распределителя регистров
+  символом не считается, и потолок в 127 символов перестаёт вытеснять
+  временные. }
 type
   TFzZ0 = packed record
     v108      : array[1..252] of Byte;
     v00C      : Integer;
   end;
-  { `pWide` ������� ������ � ������� �����: ���������� �������� �������� �
-    �������� ������ ����� ���� -- ���� ������, � � �������� ������ ����
-    ������ ��������������. ���� ��� ���� ��� ��. }
+  { `pWide` вынесен отсюда в обычный локал: записанное значение держится в
+    регистре только когда цель -- ПОЛЕ ЗАПИСИ, а у обычного локала слот
+    честно перечитывается. Слот при этом тот же. }
   TFzZ2 = packed record
     bF        : Boolean;
     v12C      : Integer;
@@ -13975,8 +13975,8 @@ type
   TFzZ3 = packed record
     nL        : Integer;
     nK        : Integer;
-    { ���� ����� `WaitDelay` -- ������ ������� �����, ����� ��� `WaitStart`
-      � ������ `TScanThread.DoWait` � Unit1 }
+    { сюда пишет `WaitDelay` -- начало отсчёта паузы, ровно как `WaitStart`
+      у сестры `TScanThread.DoWait` в Unit1 }
     nWaitStart: Cardinal;
   end;
   TFzZ5 = packed record
@@ -14039,26 +14039,26 @@ type
     qAddr     : Int64;
     qC        : Int64;
   end;
-  { ������˨���� �����: �������� � DeadFrame3Z ���������, ������� ����
-    ������� � ������� ����������. }
+  { ЗАКРЕПЛЁННАЯ ЧАСТЬ: держалка в DeadFrame3Z оставлена, поэтому слот
+    выдаётся В ПОРЯДКЕ ОБЪЯВЛЕНИЯ. }
   TFzZ13 = packed record
     v2AC      : array[1..24] of Byte;
     nPid      : Cardinal;
     hProc     : THandle;
   end;
-  { ���������� �����: ������� ������ ���� � ��� ��������, ������� ���� ��
-    ������� ����� ������� `on E:`, � �� �� ������� ���������� -- ���� �
-    ������������� ����� ��� ��� ������ ����������. ���������� ����� ���
-    ������ ��� ���� �� ����� ������ `absolute`. }
+  { ОТЛОЖЕННАЯ ЧАСТЬ: крупнее восьми байт и БЕЗ ДЕРЖАЛКИ, поэтому слот ей
+    выдаётся ПОСЛЕ объекта `on E:`, а не по порядку объявления -- этим и
+    освобождается место под сам объект исключения. Вариантная часть даёт
+    второе имя тому же слоту вместо `absolute`. }
   TFzZ13B = packed record
     case Integer of
       0: (pK    : PStrPtr;
           pName : PStrPtr;
           pB2   : PByteArray);
-      1: (pCode : PByte);              { ��� �� ���� ������ ����� }
+      1: (pCode : PByte);              { тот же слот другим типом }
   end;
   TFzZ14 = packed record
-    rLnk      : TLnkRec;               { ����� �� PI }
+    rLnk      : TLnkRec;               { ровно до PI }
     PI        : TProcessInformation;
     SI        : TStartupInfo;
     rcLeft    : Integer;
@@ -14069,11 +14069,11 @@ type
 var
   a         : Cardinal;
   wr        : Cardinal;
-  fzZ0      : TFzZ0;                   { ����� 2 }
-  { �����������: � ���� �� ��������, ������� ������ ���������
-    ��������� �� �� ������� }
+  fzZ0      : TFzZ0;                   { полей 2 }
+  { регистровые: в кадр не попадают, поэтому мёртвая вложенная
+    процедура их не трогает }
   nSaveLine, nOfs: Integer;
-  { ���� ����� ������� ���������� �������� �������� }
+  { тела зовут давящие переменные пробника напрямую }
   pr0, pr1: Integer;
   nDepth: Integer;
   nPrevY, pBar, pSlash: Integer;
@@ -14099,22 +14099,22 @@ var
   end;
 
 var
-  { ������ � ����� �� `CheckCompare` ����� ��� ����: ������� ������ �
-    ������ � ��������� �� ���� ������ }
+  { читает и пишет их `CheckCompare` через три хопа: счётчик байтов в
+    буфере и собранная из него строка }
   nIx       : Integer;
   sMemStr   : string;
   pWide     : PWideChar;
-  nB        : Integer;                 { ��� ����� fzZ1 }
+  nB        : Integer;                 { БЫЛ полем fzZ1 }
 
   procedure DeadFrame1Z;
   begin
     FillChar(nIx, SizeOf(nIx), 0);
     FillChar(sMemStr, SizeOf(sMemStr), 0);
-    { ��� ���� ������ `pWide` �� �������� ������ �����, � ������� � �����
-      �����: ������� ��������� -- �������� �� �������, � ��������, ��������
-      �� ����������, ������� ����� ����, � �� �� ������� ����������.
-      `FillChar` ���� ����� �� ������, ������������ ���������, � ����
-      ����� �� �����. ���� ������ ����������� �� ��������� �����. }
+    { Без этой строки `pWide` не получает своего слота, а уезжает в хвост
+      кадра: обычный указатель -- кандидат на регистр, а кандидат, регистра
+      не получивший, кладётся ПОСЛЕ всех, а не по порядку объявления.
+      `FillChar` берёт довод по ссылке, кандидатство снимается, и слот
+      встаёт на место. Поля записи кандидатами не считаются вовсе. }
     FillChar(pWide, SizeOf(pWide), 0);
     FillChar(nB, SizeOf(nB), 0);
     if Length(S) = -1 then Exit;
@@ -14122,16 +14122,16 @@ var
 
 var
   sC        : string;
-  bOk       : Boolean;                 { ��� ����� fzZ2 }
-  fzZ2      : TFzZ2;                   { ����� 2 }
+  bOk       : Boolean;                 { БЫЛ полем fzZ2 }
+  fzZ2      : TFzZ2;                   { полей 2 }
   nD        : Integer;
   sE        : string;
   nF        : Integer;
   sG        : string;
-  { ��� ��� ������ ���������� ���� ������ �����������, ����� � ��� �������:
-    �������� �������� ������ ����� ������� ���������� � ̨����� ���������,
-    � ������ ������� ����� ����������� -- ������� ����������. �������� ����
-    ��� �������� � `DeadFrame3Z`. }
+  { Эти три строки перенесены сюда только объявлением, слоты у них прежние:
+    смещение обычного локала задаёт ПОРЯДОК УПОМИНАНИЯ В МЁРТВОЙ ВЛОЖЕННОЙ,
+    а состав первого куска финализации -- ПОРЯДОК ОБЪЯВЛЕНИЯ. Держалки этих
+    трёх остались в `DeadFrame3Z`. }
   sQ        : string;
   sBin      : WideString;
   sV274     : string;
@@ -14163,56 +14163,56 @@ var
   end;
 
 var
-  { `nO` ������� �� ������ � ������� �����: � ���� ������ ��� ����, �������
-    � ��������� ��������� ���, � �� ��������, �� � ������������
-    ����������������� �������� ���� ����� ������ �������. �������� �����
-    ������� -- ������ ��� ���� ������� �� �����: �������� ����� ��������
-    ������ ������ N. }
+  { `nO` вынесен из записи в обычный локал: у поля записи вес выше, поэтому
+    в сравнении грузилось оно, а не соперник, да и присваивание
+    непосредственного значения полю стоит лишней команды. Объявлен ПЕРЕД
+    записью -- только так слот остаётся на месте: соседний занят домашним
+    слотом довода N. }
   nO        : Integer;
   nP        : Integer;
   nElse     : Integer;
   nBack     : Integer;
-  fzZ5      : TFzZ5;                   { ����� 2 }
-  fzZ6      : TFzZ6;                   { ����� 2 }
+  fzZ5      : TFzZ5;                   { полей 2 }
+  fzZ6      : TFzZ6;                   { полей 2 }
   bNoOff    : Boolean;
   cKz       : Char;
-  fzZ7      : TFzZ7;                   { ����� 7 }
+  fzZ7      : TFzZ7;                   { полей 7 }
   nDX1      : Integer;
-  fzZ8      : TFzZ8;                   { ����� 11 }
+  fzZ8      : TFzZ8;                   { полей 11 }
   bBinz     : Boolean;
-  fzZ9      : TFzZ9;                   { ����� 1 }
+  fzZ9      : TFzZ9;                   { полей 1 }
   nX        : Integer;
   nLenQ     : Integer;
-  fzZ10     : TFzZ10;                  { ����� 2 }
+  fzZ10     : TFzZ10;                  { полей 2 }
   nPrevXQ   : Integer;
   ptYQ      : Integer;
   ptX       : Integer;
-  fzZ11     : TFzZ11;                  { ����� 7 }
+  fzZ11     : TFzZ11;                  { полей 7 }
   bG        : Boolean;
   mD        : Integer;
   v224      : array[1..4] of Byte;
   nE        : Integer;
   qA        : Int64;
-  fzZ12     : TFzZ12;                  { ����� 11 }
+  fzZ12     : TFzZ12;                  { полей 11 }
   bAbs      : Boolean;
   sW278     : string;
   sType     : string;
   nPos      : Integer;
   aCases    : array of TCaseRec;
   hMtx      : THandle;
-  arrB      : array of TColRec;        { elSize 6, � �� 1 }
-  fzZ13     : TFzZ13;                  { ����� 3, �������� ���� }
-  fzZ13B    : TFzZ13B;                 { ����� 3, �������� ��� }
+  arrB      : array of TColRec;        { elSize 6, а не 1 }
+  fzZ13     : TFzZ13;                  { полей 3, держалка есть }
+  fzZ13B    : TFzZ13B;                 { полей 3, ДЕРЖАЛКИ НЕТ }
   fArr      : TextFile;
   fBin      : file;
   bufStr    : string[255];
   bufChr    : array[0..255] of Char;
-  fzZ14     : TFzZ14;                  { ����� 22 }
+  fzZ14     : TFzZ14;                  { полей 22 }
 const
-  { ������� -- ������� ���������� `ExecScriptCommand`, � ����� �����
-    ������� `var` �������: RTTI ����������� ���� ����������� ��� �������
-    ����������, ������ ���������� ������� ������� ������ ���� �����
-    ��������. }
+  { Шестёрка -- местная постоянная `ExecScriptCommand`, и стоит ПОСЛЕ
+    раздела `var` нарочно: RTTI безымянного типа выпускается при РАЗБОРЕ
+    объявления, значит объявление шестёрки обязано стоять НИЖЕ обоих
+    массивов. }
   gOpsZ: array[0..5] of string = ('and', 'or', 'xor', 'not', '&&', '||');
 
   procedure DeadFrame3Z;
@@ -14254,13 +14254,13 @@ const
     FillChar(hMtx, SizeOf(hMtx), 0);
     FillChar(arrB, SizeOf(arrB), 0);
     FillChar(fzZ13, SizeOf(fzZ13), 0);
-    { �������� `fzZ13B`, `fArr`, `fBin`, `bufStr`, `bufChr`, `fzZ14` �����
-      �������. ���������� �� ��������� ��������� ����� ���� ����������, �
-      ��� ���� ����� ������� ������ ���� ��� ����� ������� � �������� ����
-      ����� ������� `on E:` -- ������ ��� ����� � �����. }
+    { Держалки `fzZ13B`, `fArr`, `fBin`, `bufStr`, `bufChr`, `fzZ14` сняты
+      нарочно. Упоминание во вложенной процедуре выдаёт слот немедленно, а
+      без него локал крупнее восьми байт ждёт своей очереди и получает слот
+      ПОСЛЕ объекта `on E:` -- именно это здесь и нужно. }
   end;
 
-{ ������ ����� ������: ��� �� �����, ������ ��� }
+{ вторые имена слотов: тот же адрес, другой тип }
 var
   bDone     : Boolean absolute bNoOff;
   bNum      : Boolean absolute bNoOff;
@@ -14272,35 +14272,35 @@ var
   rF228     : Real48 absolute nE;
   sF220     : Single absolute mD;
 
-  { ���� ������ ����������� ��������� `exp ...`. ������� �� � ���������, �
-    � `CheckCondition`, � ���� ���� � ��. ����� -- `var`. }
-  { ��������� ������ � ������� `if`. ��� �����
-    ������� �� ������ `)`, �� �� ����� �� ������ `(`, ������� ��, ��� �����
-    ����, ��������� ���������� `exp ...`, �������� ����� ������ �� �������� �
-    ��������� �� ��� ����� ' 0 ' ��� ' 1 '. ����� ������ ������ �������
-    ������������ � ����, �� ���� ������ ���������� ������. ����� ������ ��
-    �������� -- ��������� ��� ������ �������, � ����� ��� ��������� � '1'.
-    ����� -- ������ �� ��������, � �� `const`: � ������� ����� `@LStrAddRef`
-    � ���� ���� � �����, � ���� ��� ������ ������������.
-    �������� `(` -- ���� � ���������� � ��������� �������.
-    ��� ��������, ������ ������ � �������� ����:
-    * `Dec(j)` ����� ����� ����� `for j := i downto 1`, � �����������
-    ������ �� ��������, �� ������� ���� ��������: ����� �� ���� -- ������
-    ��� (`j` ������ -1), ����� �� `Break` -- ����;
-    * ' ' + Chr(..) + ' ' ��������� ��������� ��������: `PStrCpy`,
-    `PStrNCat` � ������ 2, ����� � ������ 3, � ������ �����
-    `LStrFromString`. ��� ������� ����, ��� ��� ��� ��������� -- ��������
-    � Char, � �� ������� ������. }
+  { Счёт ОДНОГО логического выражения `exp ...`. Вложена не в диспетчер, а
+    в `CheckCondition`, и кадр берёт у неё. Довод -- `var`. }
+  { РАСКРЫТИЕ СКОБОК в условии `if`. Идёт слева
+    направо до первой `)`, от неё назад до парной `(`, считает то, что между
+    ними, отдельным выражением `exp ...`, вырезает кусок ВМЕСТЕ со скобками и
+    вставляет на его место ' 0 ' или ' 1 '. После каждой замены счётчик
+    сбрасывается в ноль, то есть разбор начинается заново. Когда скобок не
+    осталось -- считается вся строка целиком, а ответ это сравнение с '1'.
+    Довод -- строка ПО ЗНАЧЕНИЮ, а не `const`: в прологе стоит `@LStrAddRef`
+    и свой слот в кадре, и тело эту строку переписывает.
+    Непарная `(` -- окно с сообщением и остановка скрипта.
+    ДВЕ ТОНКОСТИ, ВИДНЫЕ ТОЛЬКО В МАШИННОМ КОДЕ:
+    * `Dec(j)` стоит ПОСЛЕ цикла `for j := i downto 1`, и проверяется
+    именно то значение, на котором цикл кончился: дошёл до нуля -- скобки
+    нет (`j` станет -1), вышел по `Break` -- есть;
+    * ' ' + Chr(..) + ' ' считается КОРОТКИМИ строками: `PStrCpy`,
+    `PStrNCat` с длиной 2, затем с длиной 3, и только потом
+    `LStrFromString`. Это признак того, что все три слагаемых -- литералы
+    и Char, а не длинные строки. }
   function CheckCondition(S: string): Boolean;
   var
-    { ���� ���� � ������ �����. ���� `CheckCondition` �� �� ������ � ��
-      ����� �� ����; ���� �� ����� ������, ��� � ��� ����� ��������� �����
-      ����������� ������, � ����� ����� �������� ���� ������ ������ -- �
-      ����� ������ �����:
-      mOfs, mDC -- �� ���� `CheckCompare`: ������� � ����� � �����
-      `ReadProcessMemory` (��������� � $100 �����������, ������
-      Cardinal) � ���� `GetDC(0)`, ������� ����� ��� � `GetPixel`;
-      nPos, nBeg, nEnd -- �� ���� `CheckOneExpr`. }
+    { ПЯТЬ СЛОВ В ГОЛОВЕ КАДРА. Сама `CheckCondition` их не читает и не
+      пишет ни разу; слот им нужен потому, что к ним лезут ВЛОЖЕННЫЕ через
+      статическую ссылку, а такой локал получает слот раньше довода -- в
+      самой голове кадра:
+      mOfs, mDC -- их берёт `CheckCompare`: счётчик и длина в цикле
+      `ReadProcessMemory` (сравнение с $100 беззнаковое, значит
+      Cardinal) и итог `GetDC(0)`, который потом идёт в `GetPixel`;
+      nPos, nBeg, nEnd -- их берёт `CheckOneExpr`. }
     mOfs: Cardinal;
     mDC: Cardinal;
     nPos: Integer;
@@ -14308,72 +14308,72 @@ var
     nEnd: Integer;
     i: Integer;
     j: Integer;
-    { ������� �����: ������ ��������� ����� �������. }
+    { Порядок важен: строка объявлена ПЕРЕД булевой. }
     sX: string;
     bGo: Boolean;
 
-    { ��������� ���� ��������� �������. ������� � `CheckCondition`, � �� �
-      ���������, � ���� ���� � ��.
+    { ВЫЧИСЛИТЬ ОДНО ВЫРАЖЕНИЕ УСЛОВИЯ. Вложена в `CheckCondition`, а не в
+      диспетчер, и кадр берёт у неё.
 
-      ������ � ������ ������:
-      1) `%...[...]` -- ����������� ��������� ����������: �� `%` ������
-      `[`, �� �� `]`, ����� ���������� � ���������� ��
-      `"` + calc-�������� + `"`;
-      2) `$...` -- ����������� ��������� ����������: `get ` ��� ���,
-      ��� ���������� �� ����� ������, �� ��� ����� ���
-      `"` + calc-�������� + `"`, � ������� ���������� �� �����
-      ������� (� ������� ������ ������ ������ ���);
-      3) ������ ����� �������: ����� 2 -- ���� ��������. ����� --
-      �������� � ����� ����� 1; `and`/`or`/`xor`/`&&`/`||` -- ��������
-      ����� 1, ������ ����� ����� � �������� ��� �����; ����� --
-      ������� `CheckCompare` � �������� '0'/'1' ���� ������ �����
-      ���������� �����;
-      4) ������ ������������ `1&0|1...`: ����� -- ������ ����, ������
-      ������ `����, ��������`, ������ ���� -- ���� � �������.
+      Работа в четыре захода:
+      1) `%...[...]` -- подстановка МАТРИЧНОЙ переменной: от `%` ищется
+      `[`, от неё `]`, кусок вырезается и заменяется на
+      `"` + calc-значение + `"`;
+      2) `$...` -- подстановка СТРОКОВОЙ переменной: `get ` даёт имя,
+      оно вырезается по ДЛИНЕ ответа, на его место идёт
+      `"` + calc-значение + `"`, и позиция сдвигается на длину
+      вставки (у первого захода такого сдвига нет);
+      3) разбор слева направо: слово 2 -- знак операции. Пусто --
+      дописать в ответ слово 1; `and`/`or`/`xor`/`&&`/`||` -- дописать
+      слово 1, первую букву знака и отрезать два слова; иначе --
+      позвать `CheckCompare` и дописать '0'/'1' плюс первую букву
+      следующего знака;
+      4) свёртка накопленного `1&0|1...`: ответ -- первый знак, дальше
+      парами `знак, значение`, лишний знак -- окно с ошибкой.
 
-      ����� `var`: � �������� ��� ����� ������, � �� ��������. }
+      Довод `var`: в регистре идёт АДРЕС строки, а не значение. }
     function CheckOneExpr(var sE: string): Boolean;
     label
       LOpsZ;
     var
-      { ��� ������������� � ������ ����� -- �� �� �������: ����
-        `CheckOneExpr` �� �� �������, � ��� ����� ��������� `CheckCompare`,
-        � ������ ������ -- ������� 64-��������� ���������. }
+      { ДВА ВОСЬМИБАЙТНЫХ В ГОЛОВЕ КАДРА -- та же причина: сама
+        `CheckOneExpr` их не трогает, в них пишет вложенная `CheckCompare`,
+        а читает парами -- обычное 64-разрядное сравнение. }
       qA: Int64;
       qB: Int64;
       sT: string;
       sR: string;
       b: Boolean;
-      { ������ ��������� ��������� ����������, � �� ����� ����� ������� --
-        ����� `-2` �������� ����� ����������. � ������ `-2` ����� �� ����
-        �������. ������� ��� �������� ����, ����� �� ����. }
+      { Двойка считается ОТДЕЛЬНЫМ оператором, а не прямо среди доводов --
+        тогда `-2` приходит через переменную. С прямым `-2` вышла бы одна
+        команда. Регистр она получает сама, слота не берёт. }
       nCut: Integer;
 
-      { �������� ��� ��������. ������� � `CheckOneExpr`, ������� �� `T` ��
-        ��� ���� �� ����������� �������.
+      { СРАВНИТЬ ДВА ОПЕРАНДА. Вложена в `CheckOneExpr`, поэтому до `T` ей
+        три хопа по статическим ссылкам.
 
-        ������ ��������� ������ ������ ���������, �������� ������ ������
-        �� ������ ������ ��������, ����� ����� �������� ����������� ��
-        ������.
+        Голова разбирает восемь знаков сравнения, середина читает строку
+        из памяти чужого процесса, общий хвост отрезает разобранное от
+        строки.
 
-        ����� `k` -- ������� ���� ���������; ����� ����� ��������� �������
-        ������� �� ����� `k+1`, � �������� ��� ���� ����� ����� �������. }
+        Число `k` -- сколько слов разобрано; общий хвост склеивает остаток
+        начиная со слова `k+1`, и приходит оно туда прямо через регистр. }
       function CheckCompare(var sC: string): Boolean;
       var
-        { ����� ����� ������: sOp, sRest, sA, sB, ������ Result � ptC. �����
-          ������ �������� �� ���� ���� �� �����; ����� `point` ������
-          ���������. }
+        { СТРОК РОВНО ЧЕТЫРЕ: sOp, sRest, sA, sB, дальше Result и ptC. Пятая
+          строка сдвинула бы весь кадр на слово; слово `point` берётся
+          временной. }
         sOp: string;
         sRest: string;
         sA: string;
         sB: string;
-        { ����� ��¨� � ����������� ������, � �� � `Result`: ��� ����� -- �����
-          �������� �������� � `ptC`. ��������� �������� �� �� � ������
-          ����� � ������� ��� ������ �� �����. }
+        { ОТВЕТ ЖИВЁТ В ИМЕНОВАННОМ ЛОКАЛЕ, А НЕ В `Result`: его место -- между
+          четырьмя строками и `ptC`. Спиленный кандидат лёг бы в голову
+          кадра и сдвинул все строки на слово. }
         b: Boolean;
         ptC: TPoint;
-        { �����������: ���������� �� Int64 ��� `xor edx,edx`, � ���������
-          ��������� ����� -- `jb`/`ja`/`jae`/`jbe`. }
+        { БЕЗЗНАКОВЫЕ: расширение до Int64 идёт `xor edx,edx`, а сравнения
+          половинок цвета -- `jb`/`ja`/`jae`/`jbe`. }
         nPix: Cardinal;
         nC1: Cardinal;
         nC2: Cardinal;
@@ -14385,7 +14385,7 @@ var
         begin
           sA := EvalScriptExpr(T, sC, 1);
           sB := EvalScriptExpr(T, sC, 3);
-          { ���� �� ��������� -- ��� ������� `%NN`, ������ -- ��� ������ }
+          { один из операндов -- код символа `%NN`, другой -- сам символ }
           if (Length(sA) > 1) and (Length(sB) > 1) and
             ((sA[1] = '%') or (sB[1] = '%')) and (sA[1] <> sB[1]) then
             if sA[1] = '%' then
@@ -14443,13 +14443,13 @@ var
         else
         begin
           sOp := '';
-          { ����� `point` ������ �� ���������, � �� � ����������: ������ �����
-            ��� ���� ��� }
+          { слово `point` уходит во ВРЕМЕННУЮ, а не в переменную: своего слота
+            под него нет }
           if EvalScriptPoint(T, sC, 1) = gCmdNamesdd[7] then
           begin
-            { ��������� ����� ������ �� ������� �� ������ ������ �������, ������
-              ������� �� ���� ������������� ����� ������: ������ 4 ����� ��
-              ������ `a` ����� � `a`, ����� ������������ -- � `wr`. }
+            { Начальный адрес берётся из таблицы по номеру версии клиента, дальше
+              цепочка из двух разыменований ЧУЖОЙ памяти: читаем 4 байта по
+              адресу `a` снова в `a`, число прочитанного -- в `wr`. }
             a := gClT590A98aq[T.ClVerIdx];
             ReadProcessMemory(TScanThread(T).ProcessHandle2, Pointer(a),
               @a, 4, DWORD(wr));
@@ -14464,11 +14464,11 @@ var
               Inc(mOfs, $10);
             end;
             wr := $100;
-            { �� ������ ���������� ������. ������ ���� ������� -- ������ ���
-              �����������, � � ������� `WideCharToString`; ����� �����
-              ���������� �� ������ �� ������� ����. ��� ��� ��������
-              (`nIx`, `sMemStr`, `pWide`) -- ����� ����� ����������, � ��
-              ����. }
+            { Из буфера собирается строка. Второй байт нулевой -- значит она
+              ДВУХБАЙТНАЯ, и её снимает `WideCharToString`; иначе байты
+              добираются по одному до первого нуля. Все три величины
+              (`nIx`, `sMemStr`, `pWide`) -- слоты кадра ДИСПЕТЧЕРА, а не
+              свои. }
             nIx := 0;
             sMemStr := '';
             if fzZ0.v108[2] <> 0 then
@@ -14481,9 +14481,9 @@ var
             end
             else
             begin
-              { ���������� �� ������ ��� ������������ �� ������. ������ ���� ������
-                ������ ������: � ���� ���������� �������� � ��������, �
-                ������ ���� ��������������. }
+              { Приведение на чтении кэш подвыражений не ломает. Ломает ПОЛЕ ЗАПИСИ
+                против ЛОКАЛА: у поля записанное держится в регистре, у
+                локала слот перечитывается. }
               pWide := @fzZ0.v108[1];
               sMemStr := WideCharToString(pWide);
             end;
@@ -14502,21 +14502,21 @@ var
             ptC.Y := StrToInt(EvalScriptExpr(T, sC, 2));
             ClientToScreen(TScanThread(T).ClientWnd2, ptC);
             nPix := GetPixel(mDC, ptC.X, ptC.Y);
-            { ����� �� ���������: � ������ ������ `pixel not found` }
+            { точку не прочитали: в журнал уходит `pixel not found` }
             if nPix = CLR_INVALID then
               if fmSecondfj.miELclrinvalid.Checked then
                 if T.IsProc then
                 begin
-                  { ������ �������� `T` -- ��� ������ ����� �����. ���������� (�
-                    `absolute`-�������) ��������� ��������� ��������� �
-                    ���������� � ��������, � ����� ��� ����������
-                    �������������� ������ ���. ������ � `SyncLogMsg` ������
+                  { ЧЕТЫРЕ ЗАГРУЗКИ `T` -- это четыре ГОЛЫХ имени. Приведение (и
+                    `absolute`-двойник) считается временным значением и
+                    кэшируется в регистре, а голое имя переменной
+                    перечитывается каждый раз. Отсюда и `SyncLogMsg` вместо
                     `TScanThread(T).SyncLogMsg`. }
                   T.Msg := 'pixel not found'#0;
                   TScanThread(T).Synchronize(T.SyncLogMsg);
                 end;
-            { ������ ReleaseDC � ������� �����, ������ (� ����� `abs`) --
-              � ������� }
+            { первый ReleaseDC с нулевым окном, второй (в ветке `abs`) --
+              с рабочим }
             ReleaseDC(0, mDC);
             sOp := LowerCase(EvalScriptExpr(T, sC, 4));
             if (sOp = '') or (sOp = gOpsZ[0]) or (sOp = gOpsZ[1]) or
@@ -14527,8 +14527,8 @@ var
             end
             else
             begin
-              { `k := 4` ���� �� ��� �����: ������������ ����� ����� �����������
-                if..else, � �� � ������ �� ���. }
+              { `k := 4` ОДИН на обе ветки: присваивание стоит ПОСЛЕ внутреннего
+                if..else, а не в каждой из них. }
               if sOp = 'abs' then
               begin
                 mDC := GetDC(0);
@@ -14565,9 +14565,9 @@ var
           sOp := EvalScriptExpr(T, sC, m);
           while sOp <> '' do
           begin
-            { ������� `push` � LStrCatN ������: ������ ������ � ���� ������
-              ���������. ����� ��� `sRest + ' ' + sOp` -- ������� ������
-              ���������� ���Ш�, � �� ����� ������. }
+            { Порядок `push` у LStrCatN прямой: первый толчок и есть первое
+              слагаемое. Здесь это `sRest + ' ' + sOp` -- остаток строки
+              собирается ВПЕРЁД, а не задом наперёд. }
             sRest := sRest + ' ' + sOp;
             Inc(m);
             sOp := EvalScriptExpr(T, sC, m);
@@ -14697,10 +14697,10 @@ var
             i := 0;
             Break;
           end;
-        { ��������� � ��������, ���������� � `dec`: ��� �������� ������ �����
-          ������� ������ ����, � ������ ��������. `dec` �� ������� CF,
-          ������� ��� Cardinal ������ ��������� � `cmp` ������� -- �� �����
-          � ���� �� � �����, ��� `j` ��� ����. ����� `j - 1 < 0` ���� ��
+        { Сравнение С ЕДИНИЦЕЙ, схлопнутое в `dec`: так делается только когда
+          регистр дальше мёртв, а прыжок знаковый. `dec` не трогает CF,
+          поэтому для Cardinal замена запрещена и `cmp` остаётся -- на входе
+          в цикл он и стоит, там `j` ещё жива. Форма `j - 1 < 0` дала бы
           `dec/jns`, `Dec(j); if j < 0` -- `dec/test/jge`. }
         if j < 1 then
         begin
@@ -14708,7 +14708,7 @@ var
           if gLangOffsety > 0 then
             MsgBox(PChar(LoadStr(gLangOffsety + $1D1)), 'UOPilot Error Message', 0)
           else
-            MsgBox('�� ���� ����� ����������� ������.',
+            MsgBox('Не могу найти открывающую скобку.',
                    'UOPilot Error Message', 0);
           T.StopRequested := True;
           Exit;
@@ -14720,20 +14720,20 @@ var
     Result := S = '1';
   end;
 
-  { ����������� ���� 42 ������ ����. ��������� ��������� ����������: �����
-    � 42 ����� (`left`, `kwheel_up`, `double_pmiddle`, ...), � ���� ������
-    ���������, ������������� � ������� �������� ������� ����� �����, � �� �
-    ������. �� ������������ ������� ������ `T`, ������� ����������� ������
-    �������� ��������� �������.
+  { ИСПОЛНИТЕЛЬ ВСЕХ 42 КОМАНД МЫШИ. Вложенная процедура диспетчера: зовут
+    её 42 ветки (`left`, `kwheel_up`, `double_pmiddle`, ...), и весь разбор
+    координат, модификаторов и способа доставки события лежит здесь, а не в
+    ветках. Из охватывающей трогает ТОЛЬКО `T`, поэтому статическая ссылка
+    приходит последним доводом.
 
-    ����: ���� �������, ��� �����, ���� �����, ��� ShortString �� $100 �
-    ��� ������� ��������� ���������.
+    Кадр: дома доводов, две точки, семь целых, три ShortString по $100 и
+    два десятка строковых временных.
 
-    ��� ������� ��������, � ��� �� ��� ��������� ������:
-    ������� (left, middle, ...)   -- PostMessage;
-    `p`-��������� (pleft, ...)    -- ������ ��������� �����
+    ТРИ СПОСОБА ДОСТАВКИ, и они же три семейства команд:
+    обычные (left, middle, ...)   -- PostMessage;
+    `p`-семейство (pleft, ...)    -- прямой системный вызов
     NtUserPostMessage (NtPostMsgZ);
-    `k`-��������� (kleft, ...)    -- mouse_event, �� ���� ��������� ����. }
+    `k`-семейство (kleft, ...)    -- mouse_event, то есть настоящий ввод. }
   procedure MouseClick(AWnd: HWND; ABtn: Byte; sCmd: string; ptBack: TPoint;
     bAbsolute: Boolean; S2: string);
   var
@@ -14749,18 +14749,18 @@ var
     sKeys: ShortString;
     sKeysCopy: ShortString;
     sTail: ShortString;
-    nLParam: Integer;                      { �����������: esi }
-    nNoOff: Integer;                     { �����������: esi }
-    nAbsPos: Integer;                    { �����������: eax }
+    nLParam: Integer;                      { регистровая: esi }
+    nNoOff: Integer;                     { регистровая: esi }
+    nAbsPos: Integer;                    { регистровая: eax }
 
-    { ���� ��������� � ���������: ��� nDue
-      �����������, ����� ����� ��������� �������� ����������, ����� ��
-      ������ (T.PerfFreq > 0), � GetTickCount �����. `T` ������ ����� ���
-      ������: [ebp+8] -> ���� MouseClick, +$14 -> ���� ����������, -$10C. }
-    { ����� �� ����� ����� `Exit`, � �� `Break`: � `Break` �����������
-      ��������� ������� ���, � ��� -- ���. `nTime` ���� ������ �� `until`,
-      � ��� ������������ ������ � ������ �� �������� ���� ���������� ��
-      EBX/ESI/EDI � ������� � EAX. }
+    { Своя вложенная у вложенной: ждёт nDue
+      миллисекунд, меряя время счётчиком высокого разрешения, когда он
+      заведён (T.PerfFreq > 0), и GetTickCount иначе. `T` берётся ЧЕРЕЗ ДВА
+      уровня: [ebp+8] -> кадр MouseClick, +$14 -> кадр диспетчера, -$10C. }
+    { ВЫХОД ИЗ ЦИКЛА ЧЕРЕЗ `Exit`, А НЕ `Break`: с `Break` сохраняемых
+      регистров выходит три, а так -- два. `nTime` живёт только до `until`,
+      и при единственном выходе в эпилог он перестаёт быть кандидатом на
+      EBX/ESI/EDI и остаётся в EAX. }
     procedure Delay(nDue: Cardinal);
     var
       qTick: Int64;
@@ -14785,10 +14785,10 @@ var
     begin
       SplitCmdLine(T, sCmd);
       nLParam := MakeLong(StrToInt(T.CmdParts[1]), StrToInt(T.CmdParts[2]));
-      { ���������� � `Word` ��� �� ������ ������, ��� ������ ���: � ��� `and`
-        ��������� � Word, ���������� $FFFF ����������� � �� ������� � ���� --
-        ������ ������� �����. ��� ���� ����� ������ ��� `SmallInt`,
-        ���������� �������� � ����� ��������. }
+      { Приведение к `Word` тут не просто лишнее, оно меняет код: с ним `and`
+        считается в Word, постоянная $FFFF беззнаковая и не влезает в байт --
+        берётся длинная форма. Без него маску сужает сам `SmallInt`,
+        постоянная знаковая и форма короткая. }
       ptClick.Y := SmallInt((nLParam shr 16) and $FFFF);
       ptClick.X := SmallInt(nLParam and $FFFF);
       S2 := AnsiLowerCase(S2);
@@ -15198,12 +15198,12 @@ var
           end;
     end;
   end;
-  { ������ ������� �� ������ ����� ������� N. ����� ������ ��������� ��
-    ����������: C(N,k) = N! / (k! * (N-k)!), ������ ��� ��� ����������
-    ��������� ������� ����� �����. ��� �� ��������� �������� ������� (Double
-    �� �����), ����� ������ -- Sleep �� ��������� ��������, ����� ��������
-    ��������� ������������. � ����� ������ �������� ����� � AX[3]/AY[3] --
-    ������ 3, � �� N. }
+  { ПРОХОД КУРСОРА ПО КРИВОЙ БЕЗЬЕ степени N. Точка кривой считается по
+    Бернштейну: C(N,k) = N! / (k! * (N-k)!), причём все три факториала
+    считаются циклами прямо здесь. Шаг по параметру приходит доводом (Double
+    на стеке), между шагами -- Sleep со случайной добавкой, чтобы движение
+    выглядело человеческим. В конце курсор ставится ровно в AX[3]/AY[3] --
+    зашито 3, а не N. }
   procedure BezierMove(AX, AY: TCurveArr; N: Integer; AStep: Double);
   var
     nF: Integer;                         { -8 }
@@ -15211,7 +15211,7 @@ var
     dB, dC: Double;
     t: Double;
     k: Integer;
-    i, nA, nB: Integer;                  { �������� }
+    i, nA, nB: Integer;                  { регистры }
   begin
     SetCursorPos(AX[0], AY[0]);
     SysUtils.Sleep(Random(15) + 10);
@@ -15242,12 +15242,12 @@ var
     end;
     SetCursorPos(AX[3], AY[3]);
   end;
-  { ������� ������� ������� �� A � B. ��� ������� �����
-    ������ �������� �� ����� ����, �� �� ��������� ���������: �����������
-    �������� �������� `Random(4)`, �������� -- ��� `Random(5)`. ��� �� ���������
-    ������� �������������� ����� �������, ��� ��� ������� ������� ��� ��
-    ������ ��������. ��� ����� ������ ��������� (aX[1] = aX[2]), �� ���� ������
-    �� ���� ������������, ���������� ��� ����������. }
+  { ПЛАВНЫЙ ПЕРЕЕЗД КУРСОРА ИЗ A В B. Две опорные точки
+    кривой ставятся на треть пути, но со случайным перекосом: направление
+    перекоса выбирает `Random(4)`, величину -- два `Random(5)`. Шаг по параметру
+    обратно пропорционален длине отрезка, так что дальний переезд идёт не
+    дольше ближнего. Обе точки кривой одинаковы (aX[1] = aX[2]), то есть кривая
+    на деле квадратичная, записанная как кубическая. }
   {$W+}
   function SmoothMove(A, B: TPoint): Boolean;
   var
@@ -15301,28 +15301,28 @@ var
   end;
   {$W-}
 
-  { ������� ������� `restart_script`. ������������ �� ���� �����, ���
-    ���������� ��������: `True` ������ �������������� ����� �����, � ��
-    ����� ������ ��������� �������� ������ ������.
-    ������ � ��� ������� �� ������ � ���� �� ���������, � ����� ���� --
-    �����, ���� �� ��� ����� ���������� ��� �����:
-    ������ ����� ��������� ������� (��� `StopCmd`) � ���������� � �����,
-    �� ����� �� ������, ���� ����� ���������;
-    ������ ���, ���� ����� ������� ����������������, � ��������� ���
-    ������ (��� `StartCmd`).
-    ������ � ����������� ������ � �����: ������� � ��������� �� ���� ����
-    �����.
-    ��� ������:
-    * ��������� ������ -- `stop_script `, � �� `restart_script `: ������
-    ������, �� ������� � �� �����;
-    * `allex` ����� �� `if`, � ������ ������������ -- �� ��� �������
-    ������, ��� � `StopCmd`;
-    * �������� ����� �� ��� ����� � ������ ������� ����� ������, � ������
-    ������ ������ �������������. }
+  { Команда скрипта `restart_script`. Единственная во всей семье, что
+    ВОЗВРАЩАЕТ значение: `True` значит «перезапустили самих себя», и по
+    этому ответу диспетчер начинает скрипт заново.
+    Работа в ДВА прохода по одному и тому же диапазону, а между ними --
+    выход, если за это время остановили нас самих:
+    первый гасит выбранные скрипты (как `StopCmd`) и запоминает в кадре,
+    по БАЙТУ НА СКРИПТ, кого потом поднимать;
+    второй ждёт, пока поток встанет приостановленным, и поднимает его
+    заново (как `StartCmd`).
+    Отсюда и стобайтовый массив в кадре: счётчик и указатель по нему идут
+    парой.
+    Три мелочи:
+    * приставка строки -- `stop_script `, а не `restart_script `: описка
+    старая, но трогать её не будем;
+    * `allex` здесь не `if`, а ПРЯМОЕ присваивание -- на две команды
+    короче, чем в `StopCmd`;
+    * проверка «свой ли это поток» в первом проходе стоит ДВАЖДЫ, и вторая
+    делает первую бессмысленной. }
   function RestartCmd: Boolean;
   var
-    { ������� ���������� ����� ��������: `Result` -- -$1, ������ -$8, -$9 �
-      ��� ���� �� -$6D. }
+    { Порядок объявления задаёт смещения: `Result` -- -$1, дальше -$8, -$9 и
+      сто байт до -$6D. }
     n: Integer;
     b: Boolean;
     bUp: array[0..99] of Boolean;
@@ -15441,34 +15441,34 @@ var
         end;
       end;
     except
-      T.Msg := '������ �����������' + #0;
+      T.Msg := 'Ошибка перезапуска' + #0;
       T.Synchronize(T.ShowScriptHint);
     end;
   end;
 
-  { ������� ������� `pause_script`. �����: ����� -- ����� ������ ����;
-    `all` -- ����; `allex` -- ����, ����� ���� (������� ����� � ����� �����
-    `bOk`, �� �� � ������ ������ �����); ����� -- ������; ����� ��� �����
-    �������.
+  { Команда скрипта `pause_script`. Довод: пусто -- пауза САМОМУ СЕБЕ;
+    `all` -- всем; `allex` -- всем, кроме себя (отличие ровно в одном флаге
+    `bOk`, он же и значит «кроме себя»); число -- номеру; иначе имя файла
+    вкладки.
 
-    ��� ������ ������ `for` � ����� ����, � ������ �� ������: ��
-    ����������� �������� (0..99) ������� ���� � �����, � �� ����������� --
-    ��������� ��������� ������� ���� � ��������, ������� ���������
-    ����������� �� �����, � ��� ��� �� ������ ��������.
+    ДВА РАЗНЫХ ИДИОМА `for` в одном теле, и путать их нельзя: по
+    КОНСТАНТНЫМ границам (0..99) счётчик живёт в кадре, а по ВЫЧИСЛЯЕМЫМ --
+    заводится отдельный счётчик вниз в регистре, пустота диапазона
+    проверяется до входа, и ход идёт по АДРЕСУ элемента.
 
-    `gScriptso3[n]` -- ������ ��������� � ���������� ������ �����, � ��
-    ����� ���������. ������������� `P^[n]` ������������ ������� �� �����,
-    ������� ���������� �� ������� ���������� ����� ������, � �� �����
-    �������. ��������� ����� �� ��� ����� ��� �� `Handle` TThread. }
+    `gScriptso3[n]` -- ПРЯМОЕ обращение к переменной ЧУЖОГО ЮНИТА, а не
+    через указатель. Разыменование `P^[n]` собственного символа не имеет,
+    поэтому кандидатом на регистр становится адрес ячейки, а не адрес
+    массива. Сравнение «свой ли это поток» идёт по `Handle` TThread. }
   procedure PauseCmd;
   var
     n: Integer;
-    { ���� ������, � �� ������� �����: ������� ����� � ���� ���������
-      ��������� ������ ������� ��������� � �������� ��������� ���� ��
-      ����������. ������� `for` ����� ������ ���� �� ����� -- ������� `n`
-      ������� �������, � � ������ ���� ������ `b`. }
+    { ПОЛЕ ЗАПИСИ, а не плоский локал: плоские имена в этой вложенной
+      процедуре меняют раздачу регистров у СОСЕДНИХ вложенных того же
+      диспетчера. Счётчик `for` полем записи быть не может -- поэтому `n`
+      остаётся локалом, а в запись ушёл только `b`. }
     fzB: packed record
-      b: Boolean;                      { ������ � ����� }
+      b: Boolean;                      { держим в кадре }
     end;
   begin
     S := 'pause_script ' + EvalScriptExpr(T, S, -1);
@@ -15527,13 +15527,13 @@ var
     end;
   end;
 
-  { ������� ������� `resume_script`. ����� �������� �� ������: ����� `all`
-    (����� AnsiLowerCase) ������� � ����� ����, ����� ��� ����� ������� ���
-    ��� � �����. ������� �� `PauseCmd` � ������: � `sC` ������� ��������
-    ���� `EvalScriptExpr`, � ������ ������� ������ ��������� ����� �
-    ��������� -- ������� `LStrAsg` ����� �� `AnsiLowerCase`, � �� �����.
-    ���� �������� �� ����� ����� ������� �����, � �� ���� ������: �� ����
-    � ��������, � ������ � ����� �����, � �� ����, ��� � `PauseCmd`. }
+  { Команда скрипта `resume_script`. Самая короткая из звезды: довод `all`
+    (после AnsiLowerCase) снимает с паузы всех, иначе это номер вкладки или
+    имя её файла. Отличие от `PauseCmd` в голове: в `sC` кладётся ИСХОДНЫЙ
+    итог `EvalScriptExpr`, а нижний регистр берётся временным прямо в
+    сравнении -- поэтому `LStrAsg` стоит ДО `AnsiLowerCase`, а не после.
+    Флаг «нашлось по имени» здесь ПЛОСКИЙ локал, а не поле записи: он живёт
+    в регистре, и слотов в кадре шесть, а не семь, как у `PauseCmd`. }
   procedure ResumeCmd;
   var
     n: Integer;
@@ -15579,22 +15579,22 @@ var
         end;
   end;
 
-  { ������� ������� `stop_script`. ������, ������ ������ � ��� ������ `for`
-    -- �������� �� `PauseCmd`. ������� ���:
-    * �� ���� ������� � `try..except` -- ������ ������ ���� SEH �
-    �������, � � ����������� ����������� ������ ������� � `T.Msg`
-    ������ ������������, � �� ����� LStrToString;
-    * ���� ������ ����������, ��� �������� ������ �� ��� �� �����;
-    * ������ ������ ����� ����� ��������� ���������, � ������� �� �����
-    ������ ���� ���������� -- ����� �� ��������� �� ������. �������
-    ������� -- ��� �� ���� ������: ����� ����� ���������������� ���
-    ��������� ��������� � �� ����������, �� �� �����, ���� � ����
-    ������ ������ �����. }
+  { Команда скрипта `stop_script`. Голова, разбор довода и оба идиома `for`
+    -- дословно от `PauseCmd`. Отличий три:
+    * всё тело обёрнуто в `try..except` -- отсюда ВТОРОЙ кадр SEH в
+    прологе, а в обработчике литеральная строка ложится в `T.Msg`
+    прямым копированием, а не через LStrToString;
+    * звук играет БЕЗУСЛОВНО, без проверки «стоит ли уже на паузе»;
+    * вместо одного флага паузы взводится остановка, а спящему на паузе
+    потоку дают проснуться -- иначе он остановки не увидит. Условие
+    побудки -- ИЛИ из двух частей: поток висит приостановленным при
+    взведённом «запущен» и не остановлен, но на паузе, ЛИБО у него
+    открыт диалог ввода. }
   procedure StopCmd;
   var
     n: Integer;
-    { ���� ������, � �� ������� �����: ���� ������ ������ � �����, �����
-      �� �������� ����� `push ecx`. }
+    { ПОЛЕ ЗАПИСИ, а не плоский локал: флаг должен лежать в кадре, иначе
+      не сходится число `push ecx`. }
     fzB: packed record
       b: Boolean;
     end;
@@ -15646,10 +15646,10 @@ var
             gScriptso3[n].StopRequested := True;
             gScriptso3[n].Flag91 := False;
             gScriptso3[n].Paused := False;
-            { ���������� ������ ������� ������ � ������, � ��� �� ����������� EDX.
-              ����� `fzB.b` ������� �� �� ��������, ���� ������ ��� ��������,
-              � ���� ������ ��������������. ������ ������� DL �������
-              ������� ������� ����� SEH. }
+            { Приведение ломает проброс записи в чтение, и это же освобождает EDX.
+              Голое `fzB.b` взялось бы из регистра, куда только что положено,
+              а флаг должен ПЕРЕЧИТЫВАТЬСЯ. Заодно занятый DL сдвигал
+              регистр второго кадра SEH. }
             if Byte(fzB.b) <> 0 then
               gScriptso3[n].Resume;
             if gScriptso3[n].AutoStart then
@@ -15665,29 +15665,29 @@ var
           T.Synchronize(T.StopScriptThread);
       end;
     except
-      T.Msg := '������ ���������' + #0;
+      T.Msg := 'Ошибка остановки' + #0;
       T.Synchronize(T.ShowScriptHint);
     end;
   end;
 
-  { ������� ������� `start_script`. �� ������ �������� ������� ������:
-    `all` �� �������� �����, ����� ����� ���, � ������ ��� � ����� ��
-    ��������� -- ������ ��� � ����� ��������. ���� ���� ������ ����� ������
-    `wait`: � ��� ������� ���, ���� ���������� ������ �� ��������.
-    ��������� �� ������ �������� �������� � �������� ��� ������� --
-    ��������� � ���� ������ ���� ��������.
-    ������� �����: ����� � ����� (���������� ������ ����� �� ���������),
-    ����� ���������, ���� ����� ������� ����������������, � ������ �����
-    ��������� ���� ������� � ������� ���������. �������� -- ��� `while` �
-    `Sleep`, � ��� �����������, ���� ���������� ��� �����. }
+  { Команда скрипта `start_script`. Из звезды выпадает сильнее прочих:
+    `all` не понимает вовсе, ветки «всем» нет, а значит нет и цикла по
+    диапазону -- работа идёт с ОДНОЙ вкладкой. Зато есть второе слово довода
+    `wait`: с ним команда ждёт, пока запущенный скрипт не кончится.
+    Указатель на массив скриптов держится в регистре всю функцию --
+    обращений к нему больше двух десятков.
+    Порядок такой: снять с паузы (проснуться потоку нужно ДО остановки),
+    затем дождаться, пока поток встанет приостановленным, и только потом
+    привязать окно клиента и взвести «запущен». Ожидание -- два `while` с
+    `Sleep`, и оба прерываются, если остановили НАС самих. }
   procedure StartCmd;
   var
     n: Integer;
-    { ��� � `StopCmd`: � �����, ������ ������ }
+    { как в `StopCmd`: в кадре, слотов восемь }
     fzB: packed record
       b: Boolean;
     end;
-    { � ���� -- � BL: ���� ������������ � ���� ������. }
+    { А этот -- в BL: одно присваивание и одно чтение. }
     bWait: Boolean;
   begin
     S := 'start_script ' + EvalScriptExpr(T, S, -1);
@@ -15763,25 +15763,25 @@ var
       end;
   end;
 
-  { ������� ������� `load_script <�����> <����>`:
-    ��������� ���� � ������� � �������� �������. ����� ������ ����� ��������
-    ������� (`tScript.Tabs` -- ��� � ���� ������), ������� -- �������������;
-    �� ������� -- ������� ��������� ���������: ������� ��������� ��������
-    ����������� �� `<�����>-1`, ����� `bAdd` (�� ���� ����� �� ��������� �
-    ���������� �������), ����� ���� ������� ������������ �� �����. ����������
-    ���������� �� ��� ����� �����������, ������� ��������� -- � `b`.
-    ������� `99` -- ���� ��������, �� ������ ���������, ������� ��� �������
-    `99` ������ �������������.
-    ��� ����� ��� `\`, `/` � `:` ��������� ������� � `Scripts\` ������� �����
-    -- �������� ��� �� �����, ��� � ������ `load_array`/`save_array`.
-    ������ ��� ������: ������� �������� � ��� ����� ����� -- �� ������� �����
-    `stop_script`, ���� �������� � ��������� ������ ����� `start_script`;
-    ������� �������� � ��� �� ���� -- ������ ������� ����� �� ���������
-    (����������� ���, ����� ����� ���� �� ����), ����� ������ � -1; �������
-    �� �������� -- ������ ������ ����.
-    ����: ������ ������, �� ��� ����������� ���� (`b` �� -$1), ��� ���� --
-    ������� ������� `for`, ��������� ������ ��������� ���������. `n` �����
-    �� ������� ����� -- �� � ESI, ��� `b` � `ResumeCmd`. }
+  { Команда скрипта `load_script <номер> <файл>`:
+    загрузить файл в вкладку с заданным НОМЕРОМ. Номер ищется среди подписей
+    вкладок (`tScript.Tabs` -- это и есть номера), нашлась -- переключаемся;
+    не нашлась -- вкладка ЗАВОДИТСЯ хитростью: подпись последней временно
+    подменяется на `<номер>-1`, жмётся `bAdd` (он берёт номер от последней и
+    прибавляет единицу), после чего подпись возвращается на место. Обновление
+    заголовков на это время выключается, прежнее состояние -- в `b`.
+    Вкладка `99` -- файл процедур, он всегда последний, поэтому при подписи
+    `99` берётся ПРЕДпоследняя.
+    Имя файла без `\`, `/` и `:` считается лежащим в `Scripts\` рабочей папки
+    -- дословно тот же идиом, что в ветках `load_array`/`save_array`.
+    Дальше три случая: вкладка запущена и это ЧУЖОЙ поток -- он гасится через
+    `stop_script`, файл грузится и пускается заново через `start_script`;
+    вкладка запущена и это МЫ САМИ -- строки берутся прямо из редактора
+    (перезапуска нет, иначе поток убил бы себя), номер строки в -1; вкладка
+    не запущена -- просто грузим файл.
+    Кадр: десять слотов, из них объявленный ОДИН (`b` по -$1), ещё один --
+    скрытый счётчик `for`, остальные восемь строковые временные. `n` слота
+    не получил вовсе -- он в ESI, как `b` у `ResumeCmd`. }
   procedure LoadScriptCmd;
   var
     fzL: packed record b: Boolean; end;
@@ -15857,43 +15857,43 @@ var
     end;
     gScriptso3[nD].AutoStart := True;
   end;
-  { ���������� �����: ���� `CutComment` ����� ��������� ����� ���������,
-    ����� ����� ����� �������, � ����� � ������, �� `CallCmd`. }
+  { Объявление вперёд: тело `CutComment` лежит последним среди вложенных,
+    прямо перед телом хозяина, а зовут её отсюда, из `CallCmd`. }
   function CutComment(S: string): string; forward;
 
 
-  { ������� ������� `call <���> <�����> ...`: ����� ��������� ������� �
-    ��������� ������-��������. ����� ������� ��������� ����������.
-    ������� ������:
-    1. ��������� �����-������� `T.SubScript`, ��� ��������� ��� ������� �
-    ���������� `^`, ���� � ������� �������, ������ ������� � ��� �������
-    � ������ �� �������� ������� (��� ������ ������� -- ������ �� ����);
-    2. � ������ ������� ������������ ������� ��������: ������
-    `%���[���������]` ��������� ������������ � ���������� �� `"��������"`;
-    3. ������ �� ������� � ������ ������������ � `SubScript.Arr43F0`;
-    4. ���� ��������� ������ ������� � ������� ��������� �������, � ���� ��
-    ������� ��� ���� ������ -- � ������� ������� 99, ����� ��������;
-    5. ������� ���������, ������ ��� ��� ������ `Sleep(1)` � �� ������
-    ��������� �� ���� ����������� �����;
-    6. � ����� ������� ���������������, ���������� � �������������.
-    ����� ������ �������� ������ ����� ��������; ������� ����� ��� -- ��������
-    ����� � ��, ��� ������ ��������� � ������ ������ ������� �����
-    `CutComment`, � �� ������ ����� �������.
-    ����: 37 ������. ����������� ������, ��� ���� ����� (`nAt`) ���� �
-    ��������, ��������� -- ��������� ���������. }
+  { Команда скрипта `call <имя> <довод> ...`: вызов процедуры скрипта в
+    ОТДЕЛЬНОМ потоке-спутнике. Самая большая вложенная диспетчера.
+    ПОРЯДОК РАБОТЫ:
+    1. заводится поток-спутник `T.SubScript`, ему достаются имя хозяина с
+    приставкой `^`, окно и процесс клиента, флажок «писать в лог хозяина»
+    и ссылка на КОРНЕВУЮ вкладку (нет своего хозяина -- корень мы сами);
+    2. в строке команды раскрываются индексы массивов: каждое
+    `%имя[выражение]` считается вычислителем и заменяется на `"значение"`;
+    3. доводы со второго и дальше складываются в `SubScript.Arr43F0`;
+    4. тело процедуры ищется СНАЧАЛА в строках хозяйской вкладки, а если не
+    нашлось или тело пустое -- в строках вкладки 99, файла процедур;
+    5. спутник пускается, хозяин ждёт его циклом `Sleep(1)` и по дороге
+    переносит на него собственную паузу;
+    6. в конце спутник останавливается, дожидается и освобождается.
+    Ветвь поиска написана ДВАЖДЫ почти дословно; отличий ровно два -- источник
+    строк и то, что доводы процедуры в первом случае берутся через
+    `CutComment`, а во втором сырой строкой.
+    Кадр: 37 слотов. Объявленных четыре, ещё один локал (`nAt`) живёт в
+    регистре, остальные -- строковые временные. }
   procedure CallCmd;
   var
     nOpen: Integer;
     nClose: Integer;
     sPart: string;
     sIdx: string;
-    nAt: Integer;                        { � EDI, ����� ��� }
+    nAt: Integer;                        { в EDI, слота нет }
   begin
     sC := LowerCase(EvalScriptExpr(T, S, 1));
     T.SubScript := TScanThread.NewScriptTab(True);
-    { ���������� ������ ������ ������� ������ � ������: �����
-      `T.SubScript` ������� �� �� ��������, ���� ������ ��� ��������, �
-      ���� ������ ��������������. }
+    { Приведение справа ломает проброс записи в чтение: голое
+      `T.SubScript` взялось бы из регистра, куда только что записано, а
+      поле должно ПЕРЕЧИТЫВАТЬСЯ. }
     T.SubScript.SelfRef := Pointer(T.SubScript);
     T.SubScript.Str43E0 := '^' + T.Str43E0;
     T.SubScript.Name := T.Name;
@@ -15902,8 +15902,8 @@ var
     T.SubScript.ClientWnd := T.ClientWnd;
     T.SubScript.ProcessHandle := T.ProcessHandle;
     T.SubScript.LogToParent := True;
-    { ��������� ����� ���������� ��� `mov`+`test`, ����� ���� -- ��������
-      `cmp [mem],0`; ����� ����� �������� }
+    { сравнение ЧЕРЕЗ ПРИВЕДЕНИЕ даёт `mov`+`test`, голое поле -- короткое
+      `cmp [mem],0`; здесь нужна загрузка }
     if Integer(T.Owner43D0) = 0 then
       a := Integer(T.SelfRef)
     else
@@ -15971,8 +15971,8 @@ var
               T.Msg := LoadStr(gLangOffsety + $1BC) + sC +
                        LoadStr(gLangOffsety + $1BD) + #0
             else
-              T.Msg := '����� ��������� ' + sC +
-                       ' �� ������ � ������� �������.' + #0;
+              T.Msg := 'Конец процедуры ' + sC +
+                       ' не найден в текущем скрипте.' + #0;
             ShowScriptMsg(T);
           end;
           SetLength(T.SubScript.Lines, nD - nI);
@@ -16014,8 +16014,8 @@ var
                   T.Msg := LoadStr(gLangOffsety + $1BC) + sC +
                            LoadStr(gLangOffsety + $1BE) + #0
                 else
-                  T.Msg := '����� ��������� ' + sC +
-                           ' �� ������ � ����� ��������.' + #0;
+                  T.Msg := 'Конец процедуры ' + sC +
+                           ' не найден в файле процедур.' + #0;
                 ShowScriptMsg(T);
               end;
               SetLength(T.SubScript.Lines, nD - nI);
@@ -16039,8 +16039,8 @@ var
         T.Msg := LoadStr(gLangOffsety + $1E9) + ' ''' + sC +
                  LoadStr(gLangOffsety + $1C7) + #0
       else
-        T.Msg := '��������� ''' + sC +
-                 ''' �� �������, ��������� ������' + #0;
+        T.Msg := 'Процедура ''' + sC +
+                 ''' не найдена, проверьте скрипт' + #0;
       ShowScriptMsg(T);
     end
     else
@@ -16051,7 +16051,7 @@ var
           T.Msg := LoadStr(gLangOffsety + $1BC) + sC +
                    LoadStr(gLangOffsety + $1BF) + #0
         else
-          T.Msg := '����� ��������� ' + sC + ' �� ������' + #0;
+          T.Msg := 'Конец процедуры ' + sC + ' не найден' + #0;
         ShowScriptMsg(T);
       end;
     T.SubScript.Flag91 := True;
@@ -16086,12 +16086,12 @@ var
     end;
   end;
 
-  { ������� `proc <���>`: ���� ����������� ��������� � ������ �������
-    ��������� �� ����, ���� ������������ ��� �� `end_proc`. ���� ����� ��
-    ������� ������ ������, � ������� ������ ����� -- `end_proc`, � ������ ��
-    �� `CurLine`. �� ������� -- ���� ������� � ���������.
-    ����� ������� ��� �����, ��� ����� ��������� ������ -- ���������. ��
-    ����� �������� ������������� `T`, `S`, `sC`, `sH` � ������ � `nJ`. }
+  { Команда `proc <имя>`: САМО ОПРЕДЕЛЕНИЕ процедуры в тексте скрипта
+    исполнять не надо, надо ПЕРЕПРЫГНУТЬ его до `end_proc`. Ищет вперёд от
+    текущей строки первую, у которой ПЕРВОЕ СЛОВО -- `end_proc`, и ставит на
+    неё `CurLine`. Не нашлось -- стоп скрипта и сообщение.
+    Своих локалов нет вовсе, все шесть строковых слотов -- временные. Из
+    кадра родителя захватываются `T`, `S`, `sC`, `sH` и запись в `nJ`. }
   procedure ProcCmd;
   begin
     nJ := T.CurLine;
@@ -16114,33 +16114,33 @@ var
         T.Msg := LoadStr(PWord(@gLangOffsety)^ + $1BC) + sC +
                  LoadStr(gLangOffsety + $1BF) + #0
       else
-        T.Msg := '����� ��������� ' +
-                 EvalScriptExpr(T, S, 1) + ' �� ������' + #0;
+        T.Msg := 'Конец процедуры ' +
+                 EvalScriptExpr(T, S, 1) + ' не найден' + #0;
       ShowScriptMsg(T);
     end;
   end;
 
-  { ������� ������� `end_proc`: ��������� ���������,
-    ���� ������� �������� ������� � ���������� �����-�������.
-    ������� ��� ����� ��������� ���������� ('$'): ������ `$result` �����
-    ������� � ������� � ���������� � ������ ��������� � �������� �������
-    (`Root43D4`, ���� +$43D4, ������� `CallCmd` � ���������). ��� �����
-    ���������� -- ������ ���������� �� ������� � ��� ������������.
-    ���� � �������� ������� ������ ��� ����������, ���� �� ������ ������
-    `$<��� ���������>` � ������� �����������.
-    ����: ��� �����, �� ��� ����������� ���� (`V` �� -$4), ��������� ��� --
-    ��������� ���������; `idx`, `cnt` � ���� �������� ������� ����� �
-    ��������� (EBX, EDI, ESI) � ������ �� ��������. }
+  { Команда скрипта `end_proc`: процедура кончилась,
+    надо ВЕРНУТЬ ЗНАЧЕНИЕ хозяину и остановить поток-спутник.
+    Возврат идёт через строковые переменные ('$'): берётся `$result` СВОЕЙ
+    вкладки и кладётся в переменную с ИМЕНЕМ ПРОЦЕДУРЫ у КОРНЕВОЙ вкладки
+    (`Root43D4`, поле +$43D4, которое `CallCmd` и заполняет). Нет такой
+    переменной -- массив удлиняется на единицу и имя записывается.
+    Если у корневой вкладки открыт вид переменных, туда же уходит строка
+    `$<имя процедуры>` и таблица обновляется.
+    Кадр: три слота, из них объявленный ОДИН (`V` по -$4), остальные два --
+    строковые временные; `idx`, `cnt` и сама корневая вкладка живут в
+    регистрах (EBX, EDI, ESI) и слотов не получают. }
   procedure EndProcCmd;
   var
     V: string;
     idx: Integer;
     cnt: Integer;
     W: TScanThread;
-    { ��� ������� ������ `FindScriptVar` -- ��� ����������, � �� ��������:
-      ����������� ���� ���� �� ��� `push 0`, � ��� ����� `xor reg,reg` --
-      ���� ������������ ���� ����������, ������� �������� �������. ��������
-      �����������, ������ ��� ������ ��� ���������� ������. }
+    { ДВА НУЛЕВЫХ ДОВОДА `FindScriptVar` -- это ПЕРЕМЕННЫЕ, а не литералы:
+      литеральный ноль ушёл бы как `push 0`, а тут нужно `xor reg,reg` --
+      само присваивание нуля переменной, которой достался регистр. Регистры
+      волатильные, потому что дальше обе переменные мертвы. }
     nX: Integer;
     nY: Integer;
   begin
@@ -16151,8 +16151,8 @@ var
     V := TScanThread(T.SelfRef).Timers[idx].Value;
     idx := 0;
     cnt := Length(W.Timers);
-    { ��������� �������� �� `idx`, � �� �� `cnt`: �������� `cmp` ��������
-      ������� -- ������ ��� ������ ������� ���������. }
+    { СРАВНЕНИЯ ЗАПИСАНЫ ОТ `idx`, А НЕ ОТ `cnt`: операнды `cmp` меняются
+      местами -- первым идёт ПРАВЫЙ операнд исходника. }
     if idx < cnt then
       repeat
         if W.Timers[idx].Name = T.ProcName then
@@ -16161,9 +16161,9 @@ var
       until idx >= cnt;
     if idx >= cnt then
     begin
-      { ���������� �� ������ ������������ `W` ����� �����: ��������� ��
-        ���������� ��������� ������ � ������ ������� �����, � ������ ��
-        ��� ����� ���� �������. ����� ������ ����� �� ���� ��. }
+      { ПРИВЕДЕНИЕ НА КАЖДОМ УПОТРЕБЛЕНИИ `W` ПОСЛЕ ЦИКЛА: временное от
+        приведения заводится заново в КАЖДОМ базовом блоке, и дальше всё
+        идёт через свой регистр. Голым именем копии не было бы. }
       SetLength(TScanThread(W).Timers, Length(TScanThread(W).Timers) + 1);
       TScanThread(W).Timers[idx].Name := T.ProcName;
     end;
@@ -16178,24 +16178,24 @@ var
     T.StopRequested := True;
   end;
 
-  { ����� `wait <�����>` ����� �������� �������. ������ ������
-    `TScanThread.DoWait` �� Unit1: �� �� ��� ������ ������ ('', '0', '1'),
-    ��� �� ������ �������� �� ��������� ����� ('S'/'M'/'H' � 'C'/'N'/'R' ��
-    sec/min/hour), ��� �� ����� ������� � ������ ��������� � �� �� ������
-    ������ �� ������.
-    ���� �������, � ��� ��� -- �� ����, ��� ����� ����� ����� ������
-    ����������, � �� GetTickCount:
-    * �������� �������� `TryStrToInt64` (� ������ `TryStrToInt`), �������
-    ����� ���� � ��������� Int64 � ���� ����� ����������� � `nMs`;
-    * `nMs` -- Cardinal, � �� Integer, ������ � `IntToStr64`;
-    * ������ ������� ������� � ����� ������������, � �� � ���� ���� --
-    ��� ������������ ������ ����� `T`;
-    * �������� ����� ���������� `timer` � ������� ����������;
-    * �� �������� ������� �� ������ `StopRequested`, �� � �����.
-    ��� ������ ��������� � ������� ����� -- ��������� �������� ��� ���,
-    ��� ��� ������� ���������� � ���� ������� ������. `bBig` ���� �
-    �������� � ���������������� � `T.AutoStart and bBig` -- �������������
-    ���� `and` �� ��������� `if` ������. }
+  { Пауза `wait <время>` между строками скрипта. Родная сестра
+    `TScanThread.DoWait` из Unit1: те же три ранних выхода ('', '0', '1'),
+    тот же разбор суффикса по ПОСЛЕДНЕЙ букве ('S'/'M'/'H' и 'C'/'N'/'R' от
+    sec/min/hour), тот же показ остатка в строке состояния и то же снятие
+    показа на выходе.
+    Пять отличий, и все они -- от того, что здесь время берут ЧАСАМИ
+    ПРОЦЕССОРА, а не GetTickCount:
+    * задержка читается `TryStrToInt64` (у сестры `TryStrToInt`), поэтому
+    число живёт в отдельном Int64 и лишь потом переносится в `nMs`;
+    * `nMs` -- Cardinal, а не Integer, отсюда и `IntToStr64`;
+    * начало отсчёта кладётся в локал ОХВАТЫВАЮЩЕЙ, а не в свой кадр --
+    это единственный захват сверх `T`;
+    * добавлен показ переменной `timer` в таблице переменных;
+    * из ожидания выводит не только `StopRequested`, но и пауза.
+    Три булевы объявлены В ПОРЯДКЕ КАДРА -- вложенных процедур тут нет,
+    так что порядок объявления и есть порядок слотов. `bBig` живёт в
+    регистре и переиспользуется в `T.AutoStart and bBig` -- разворачивать
+    этот `and` во вложенный `if` нельзя. }
   procedure WaitDelay(S: string);
   var
     bBigShow: Boolean;
@@ -16204,10 +16204,10 @@ var
     qTick: Int64;
     qNow: Int64;
     qVal: Int64;
-    nMul: Integer;                        { �������: esi }
-    nMs: Cardinal;                        { �������: esi }
-    nCnt: Cardinal;                       { �������: edi }
-    bBig: Boolean;                        { �������: bl }
+    nMul: Integer;                        { реально: esi }
+    nMs: Cardinal;                        { реально: esi }
+    nCnt: Cardinal;                       { реально: edi }
+    bBig: Boolean;                        { реально: bl }
   begin
     bShown := False;
     if S = '' then
@@ -16228,7 +16228,7 @@ var
       if gLangOffsety > 0 then
         T.Msg := LoadStr(PWord(@gLangOffsety)^ + $1A9)
       else
-        T.Msg := '����������� ������� �������� ����� �����.';
+        T.Msg := 'Неправильно указана задержка между строк.';
       case UpCase(S[Length(S)]) of
         'S':
           begin
@@ -16308,9 +16308,9 @@ var
             T.VarGridBusy := False;
             T.VarName := 'timer';
             T.VarValue := IntToStr(qNow - T.StartTick);
-            { ��� ���������� ������ ���������� � ����� ������ ��������� �����
-              ���������, � ������ �������� `T` ���������. �������
-              `SyncUpdateVarGrid` ������ � `T` ��� ����������. }
+            { Два одинаковых жёстких приведения в одном вызове считаются ОДНИМ
+              значением, и вторая загрузка `T` пропадает. Поэтому
+              `SyncUpdateVarGrid` берётся у `T` без приведения. }
             TScanThread(T).Synchronize(T.SyncUpdateVarGrid);
             bUpd := True;
           end;
@@ -16342,15 +16342,15 @@ var
     end;
   end;
 
-  { ��������� ��������� ����������, � �� ��������� �������: ����� � ��
-    ����� `scan_dir` � ���������� �� �� �����, � ���� ������ ���� ��������.
-    ��� ��������� ������ -- �� ��������, � �� `const`.
-    �� ����� �������� ��������� `a`, `wr`, `nD`, `nI`, `nK3`, `nL3`, `nM` �
-    `T`; ����� ����� `T` ���������� ����� �������������, � ��������� ����
-    ���.
-    `nAt` � `nCur` ������ �� �������� -- ����� � ���������. `nAt` -- ����
-    ���������� �� ��� ����: ����� ���������, ����� `Pos` � ������� �����
-    ������. }
+  { ВЛОЖЕННАЯ процедура диспетчера, а не отдельная функция: зовут её из
+    ветки `scan_dir` и рекурсивно из неё самой, а тело читает кадр родителя.
+    Оба строковых довода -- ПО ЗНАЧЕНИЮ, а не `const`.
+    Из кадра родителя захвачены `a`, `wr`, `nD`, `nI`, `nK3`, `nL3`, `nM` и
+    `T`; адрес слота `T` кэшируется общим подвыражением, у остальных кэша
+    нет.
+    `nAt` и `nCur` слотов не получают -- живут в регистрах. `nAt` -- одна
+    переменная на три дела: маска атрибутов, ответ `Pos` и счётчик обоих
+    циклов. }
   procedure ScanDirTree(APath, AMask: string; ANoRec: Boolean);
   var
     sFull: string;
@@ -16359,9 +16359,9 @@ var
     nPrev: Integer;
     nAt: Integer;                      { EBX }
     nCur: Integer;                     { EDI }
-    SR: TSearchRec;                    { ������� ����� ��������� �����:
-                                         ������� ������ ���� � �� ���������
-                                         �� �������� }
+    SR: TSearchRec;                    { кладётся ПОСЛЕ временной цикла:
+                                         крупнее восьми байт и во вложенной
+                                         не упомянут }
   begin
     if FindFirst(APath + '\' + '*.*', $3F, SR) = 0 then
     begin
@@ -16373,9 +16373,9 @@ var
           sFull := APath + '\' + SR.Name;
           if (AMask = '') or TScanThread(T).Masks.Matches(SR.Name) then
           begin
-            { ���� �������. `nM` -- ������� ������� �� ���; ������ ����� ��
-              ������ ����� �����. `wr + 1 + 7` ��� `inc eax`/`add eax,7`:
-              ��������� �� ��������������, � `wr + 8` ���� �� ���� �������. }
+            { РОСТ МАТРИЦЫ. `nM` -- признак «размер не тот»; растим сразу на
+              тысячу строк вперёд. `wr + 1 + 7` даёт `inc eax`/`add eax,7`:
+              слагаемые не переставляются, а `wr + 8` дало бы одну команду. }
             nK3 := a;
             nL3 := wr + 1 + 7;
             nM := 0;
@@ -16398,8 +16398,8 @@ var
             TScanThread(T).Arr48[nI].Data[a - 1][0] := sFull;
             TScanThread(T).Arr48[nI].Data[a - 1][1] := ExtractFilePath(sFull);
             sName := ExtractFileName(sFull);
-            { ������ �������� �������� -- `<> 0` (��������), ������ (�����
-              ���������) -- `> 0`. ��� ������ �������, � �� ���� � �� ��. }
+            { ПЕРВАЯ проверка каталога -- `<> 0` (байтовая), ВТОРАЯ (перед
+              рекурсией) -- `> 0`. Это разные команды, а не одна и та же. }
             if SR.Attr and $10 <> 0 then
             begin
               TScanThread(T).Arr48[nI].Data[a - 1][3] := '';
@@ -16434,10 +16434,10 @@ var
             TScanThread(T).Arr48[nI].Data[a - 1][8] := IntToStr(wr - 1);
             if AMask = '' then
             begin
-              { ��� ����� ���� ������ �� ���������� ������. `a` -- Cardinal,
-                ������� �������� `a > 0` ��� ����������; �� `a = 1`
-                �������� ������ -1 -- ������ ������, �� ������� � ��
-                �����. }
+              { БЕЗ МАСКИ путь берётся из предыдущей строки. `a` -- Cardinal,
+                поэтому проверка `a > 0` идёт беззнаково; на `a = 1`
+                читается строка -1 -- старая ошибка, но трогать её не
+                будем. }
               if a > 0 then
                 for nAt := 9 to wr + 8 - 1 do
                   TScanThread(T).Arr48[nI].Data[a - 1][nAt] :=
@@ -16485,8 +16485,8 @@ var
           end;
     Dec(wr);
   end;
-  { ��������� ����� .lnk ����� IShellLink. �� ����� ������:
-    � ������ ����� ���� � ������, ������ ��� ���� ��� ������. }
+  { Прочитать ярлык .lnk через IShellLink. На входе запись:
+    в начале лежит путь к ярлыку, дальше три поля под ответы. }
   procedure ReadShortcut(var R);
   var
     SL: IShellLinkA;
@@ -16504,8 +16504,8 @@ var
     SL.GetWorkingDirectory(TZzLnk(R).Dir, $105);
     CoUninitialize;
   end;
-  { ���������� ������� ���������. hWnd � PeekMessage -- ���������
-    GetCurrentProcess; ����� ��� �������� �� ��������, �� ��� ��� � ����. }
+  { Прокрутить очередь сообщений. hWnd у PeekMessage -- результат
+    GetCurrentProcess; окном это значение не является, но так оно и есть. }
   {$W+}
   procedure ScriptIdle;
   var
@@ -16519,22 +16519,22 @@ var
   end;
   {$W-}
 
-  { ��������� ��������� ���������� (����� ����� ����� ��� �����):
-    �������� ��������� ����������� `//`, �� ������ ���� �� �� ������
-    �������. �����-������ -- �� ��������. }
+  { ПОСЛЕДНЯЯ вложенная диспетчера (стоит прямо перед его телом):
+    отрезать хвостовой комментарий `//`, но только если он не внутри
+    кавычек. Довод-строка -- ПО ЗНАЧЕНИЮ. }
   function CutComment(S: string): string;
   var
-    { ������� `StripComment` ����� � �����, ���������� ����� ����� `L`:
-      ����� �� �����������, ������� ������� ����� ��������� � Int64 --
-      ������ � ������ �������. }
+    { БЛИЗНЕЦ `StripComment` слово в слово, отличается РОВНО ТИПОМ `L`:
+      здесь он БЕЗЗНАКОВЫЙ, поэтому условие цикла считается в Int64 --
+      отсюда и лишние команды. }
     L: Cardinal;
     P, N, I: Integer;
     J: Integer;
 
-    { ����� �� ������. ����� ���� ������: ��-�� ���������� ������ ����
-      `CutComment` �������� ��������� � ����������� ������, � ����� ������
-      � `CallCmd` �������� ������ �����. ���� ��� ���� � ������ �� ��� --
-      ��� ����� �� ����. }
+    { Никем не зовётся. Нужна ради одного: из-за упоминания локала деда
+      `CutComment` начинает нуждаться в статической ссылке, и место вызова
+      в `CallCmd` получает нужную форму. Само это тело в сборку не идёт --
+      его никто не зовёт. }
     procedure ZzLink;
     begin
       if nD < 0 then
@@ -16573,10 +16573,10 @@ var
   end;
 
 begin
-  { ����������� ����������� ��������� � ������ �������: ����
-    `supvaronly <������>` ��� ��������� �����, ��� ��������� � ������������
-    � ������� ����� ������ �����. `[...]` ������ ����� -- ������ �������, ��
-    ��������� ��������� �������� `calc`. }
+  { Подстановка вычисленных выражений в строку журнала: пока
+    `supvaronly <строка>` даёт очередное слово, оно считается и дописывается
+    в скобках после самого слова. `[...]` внутри слова -- индекс массива, он
+    считается отдельной командой `calc`. }
   if T.LoggingCommands and not T.RepeatCmd then
   begin
     nSaveLine := T.CmdLine;
@@ -16642,10 +16642,10 @@ begin
       sV274 := EvalScriptPoint(T, sG, nPos);
     end;
     T.LogPrefix := '';
-    { ����� ��� ����� �������. ���������� ������ �� ���������� ���������, �
-      ������ ������ ���� ������� ��. ����� ��� ������� ����� ���������,
-      ����� ���������� �� ����, � `E` ��������� ��� ������� � �������� EBX.
-      �������� � ���� � ������ ����� `nSat6 := nSat6;` ����. }
+    { ГОЛОЕ ИМЯ ЗДЕСЬ НАРОЧНО. Приведение завело бы кэшируемую временную, и
+      второе чтение поля пропало бы. Голое имя убирает этого кандидата,
+      ранги сдвигаются на один, и `E` пролезает под отсечку и получает EBX.
+      Работает в паре с шестой гирей `nSat6 := nSat6;` выше. }
     T.Synchronize(TScanThread(T).SyncLogMsg);
     T.LogPrefix := sE;
     T.CmdLine := nSaveLine;
@@ -16749,8 +16749,8 @@ begin
       try
     {$I-}
       Reset(fArr);
-      { �� `if IOResult <> 0 then Msg`, � ����-�����: ���� ������ ����� --
-        ����� THEN, � ������ -- ELSE � ����� ����� try. }
+      { Не `if IOResult <> 0 then Msg`, а ЕСЛИ-ИНАЧЕ: весь разбор файла --
+        ветка THEN, а ругань -- ELSE в самом конце try. }
       if IOResult = 0 then
       begin
         while not Eof(fArr) and (fzZ8.vD > 1) do
@@ -16759,8 +16759,8 @@ begin
           Dec(fzZ8.vD);
         end;
         a := fzZ8.vF - 1;
-        { ������� �������� ����� -- Eof � fzZ8.vB, � StopRequested -- ������
-          �������� ����. }
+        { Условие внешнего цикла -- Eof и fzZ8.vB, а StopRequested -- ПЕРВЫЙ
+          оператор тела. }
         while not Eof(fArr) and (fzZ8.vB <> 0) do
         begin
           if TScanThread(T).StopRequested then
@@ -16781,8 +16781,8 @@ begin
           end;
           wr := fzZ8.vE - 1;
           nRest := fzZ8.vA;
-          { ��� `for ... downto 1`, � �� `while >= 1`. ��� ��Ψ, �� �����
-            `nLenQ`: �� ����� � ����� � ���������� �� ������� �� ������. }
+          { Это `for ... downto 1`, а не `while >= 1`. Имя СВОЁ, не общее
+            `nLenQ`: то лежит в кадре и кандидатом на регистр не бывает. }
           for nOfs := Length(sE) downto 1 do
             if sE[nOfs] = #9 then
             begin
@@ -16813,8 +16813,8 @@ begin
           nRest := fzZ8.vA;
           nD := Pos(#9, sE);
           bDone := False;
-          { ��� WHILE, � �� repeat: ������� `((nD > 0) or bDone) and (nRest <> 0)`
-            ������� ����� �����. }
+          { Это WHILE, а не repeat: условие `((nD > 0) or bDone) and (nRest <> 0)`
+            целиком стоит ВНИЗУ. }
           while ((Byte(nD > 0) or Byte(bDone)) <> 0) and (nRest <> 0) do
           begin
             Inc(wr);
@@ -16823,10 +16823,10 @@ begin
             Delete(sE, 1, nD);
             T.Arr48[nI].Data[a - 1][wr - 1] := T.CmdArg;
             nD := Pos(#9, sE);
-            { ����������� `and`, � ������������ ����� True/False -- ������ ������
-              ����� � ����, � �� ����� �������, � ��� ��� ��� �������� �
-              ���� �����. ��������� ��� ����� Int64: `wr` Cardinal,
-              Length Integer, ���������� ���. }
+            { Сокращённое `and`, и присваивание ЯВНОЕ True/False -- отсюда запись
+              прямо в слот, а не через регистр, и все три лжи сходятся в
+              одно место. Сравнение идёт через Int64: `wr` Cardinal,
+              Length Integer, приведения НЕТ. }
             if (nD = 0)
                and (Cardinal(wr)
                     < Length(TScanThread(T).Arr48[nI].Data[a - 1])) then
@@ -16835,9 +16835,9 @@ begin
               bDone := False;
           end;
         end;
-        { nEdi -- Integer, a -- Cardinal, ������ ����� Int64. }
-        { `a` ������� �� ���� ������, ������ ����� ����� ��: ������������
-          ��������� �������� ��� �� ������, � ������� ���������� -- ������. }
+        { nEdi -- Integer, a -- Cardinal, отсюда снова Int64. }
+        { `a` ложится на стек первым, значит слева стоит он: перестановка
+          операндов машинный код не меняет, а порядок вычисления -- меняет. }
         if Cardinal(a) < nEdi then
           a := nEdi;
         SetLength(TScanThread(T).Arr48[nI].Data, a);
@@ -16846,25 +16846,25 @@ begin
       else
         TScanThread(T).Msg := 'Cannot open file ' + sG + #0;
       except
-        { ��������� �� ����� ������ ����� LStrCatN, � �� ����
-          E.Message: ��� ������ (ClassName -> LStrFromString), '. ', �����
-          ����������, '. ', SysErrorMessage(GetLastError) � ����������� #0. }
+        { Сообщение из ШЕСТИ частей через LStrCatN, а не одно
+          E.Message: имя класса (ClassName -> LStrFromString), '. ', текст
+          исключения, '. ', SysErrorMessage(GetLastError) и завершающий #0. }
         on E: Exception do
         begin
-          { ���� `E := E;` ����� ��� �������: ���� ������ ��� � ��������, ��� ��
-            ������ �� ����� ������� � ������ ������� ��� ���, � ������
-            ������ ����� � �����, � �� �� ������ ������ �� ���� ������. }
+          { Гири `E := E;` здесь нет нарочно: пока объект жил в регистре, она не
+            давала ни одной команды и только держала ему вес, а теперь
+            объект лежит в кадре, и та же строка стоила бы двух команд. }
           TScanThread(T).Msg := E.ClassName + '. ' + E.Message + '. ' +
                            SysErrorMessage(GetLastError) + #0;
         end;
       else
-        { � except ���� � ����� `else` -- �� ��� ������: 'Unknown',
-          SysErrorMessage(GetLastError) � #0 }
+        { у except есть и ветка `else` -- из трёх частей: 'Unknown',
+          SysErrorMessage(GetLastError) и #0 }
         TScanThread(T).Msg := 'Unknown' + SysErrorMessage(GetLastError) + #0;
       end;
       FileMode := 2;
       finally
-        { ReleaseMutex � CloseHandle ����� � ����� finally, � �� ����� ���. }
+        { ReleaseMutex и CloseHandle лежат В САМОМ finally, а не перед ним. }
         ReleaseMutex(hMtx);
         CloseHandle(hMtx);
       end;
@@ -16878,7 +16878,7 @@ begin
     fzZ12.bAppend := False;
       sE := '';
       TScanThread(T).ParenPos := 8;
-      { ��� WHILE � �������� �����, � �� repeat -- �� �� ������, ��� �
+      { Это WHILE с условием ВНИЗУ, а не repeat -- та же голова, что у
         load_array. }
       while (sE = '') and (TScanThread(T).ParenPos >= 0) do
       begin
@@ -16968,8 +16968,8 @@ begin
               if bBinz then
               begin
                 SetLength(sBin, 2);
-                { ������� #0 �� ������: � �������� ����� ���� ���� ���
-                  ������� �����, ������� ����� ����� ��� -- #0 � #9. }
+                { Ведущий #0 не описка: в двоичный поток пара байт идёт
+                  старшим вперёд, поэтому знака здесь два -- #0 и #9. }
                 sBin := #0#9;
                 TScanThread(T).CmdArg := TScanThread(T).CmdArg +
                   TScanThread(T).Arr48[nI].Data[a][wr];
@@ -16986,19 +16986,19 @@ begin
             if bBinz then
             begin
               SetLength(sBin, 4);
-              { �� �� �����: ������ ����� -- #0 #13 #0 #10. }
+              { То же самое: четыре знака -- #0 #13 #0 #10. }
               sBin := #0#13#0#10;
               BlockWrite(fBin, sBin, Length(sBin));
             end
             else
-              { ���� WriteLn � �������, � �� Write ���� ������ WriteLn. }
+              { Один WriteLn с доводом, а не Write плюс пустой WriteLn. }
               WriteLn(fArr, TScanThread(T).CmdArg);
             Dec(fzZ8.vB);
             if fzZ8.vB = 0 then
               Break;
           end;
       except
-        { ���������� �� ������: ��� IsProc � Msg ������� 'Ops...' � ������
+        { Обработчик НЕ пустой: при IsProc в Msg кладётся 'Ops...' и зовётся
           Synchronize(SyncLogMsg). }
         if TScanThread(T).IsProc then
         begin
@@ -17006,8 +17006,8 @@ begin
           TScanThread(T).Synchronize(T.SyncLogMsg);
         end;
       end;
-      { �������� ����� ���� �������� �� bBinz, ������ � �������� ����� �����
-        CloseFile ����� Finalize(sBin). FileMode ��� �� ���������. }
+      { Закрытие файла тоже развилка по bBinz, причём в двоичной ветви перед
+        CloseFile стоит Finalize(sBin). FileMode тут НЕ трогается. }
       if bBinz then
       begin
         Finalize(sBin);
@@ -17016,8 +17016,8 @@ begin
       else
         CloseFile(fArr);
       finally
-        { ReleaseMutex � CloseHandle -- ���� finally; ����� �� ���� ���������,
-          ��������� �������� IsProc/Msg ��� ���. }
+        { ReleaseMutex и CloseHandle -- тело finally; ветка на этом КОНЧАЕТСЯ,
+          хвостовой проверки IsProc/Msg тут нет. }
         ReleaseMutex(hMtx);
         CloseHandle(hMtx);
       end;
@@ -17056,7 +17056,7 @@ begin
       end;
       if TScanThread(T).ParenPos > 0 then
         nP := T.ScriptStrToInt(TScanThread(T).CmdArg2);
-      { �� ���� ����� High ��� ������� nX, � ����� nF -- ������� �������
+      { на стек после High идёт СНАЧАЛА nX, а ПОТОМ nF -- порядок доводов
         H, D, I }
       if nX >= 0 then
         SortScriptArray(T, nI, 0,
@@ -17097,8 +17097,8 @@ begin
       else
       begin
         Dec(fzZ8.vF);
-        { ������� ��������: ��������� ������� -- ����� ELSE � ����� � �����,
-          � �� ������. }
+        { Условие ОБРАТНОЕ: обнуление массива -- ветка ELSE и лежит В КОНЦЕ,
+          а не первой. }
         if Length(TScanThread(T).Arr48[nI].Data[0]) <> fzZ8.vB then
         begin
           if Length(TScanThread(T).Arr48[nI].Data[0]) < fzZ8.vF + fzZ8.vB then
@@ -17136,7 +17136,7 @@ begin
       if gLangOffsety > 0 then
       T.Msg := LoadStr(gLangOffsety + $1C1) + #0
     else
-      T.Msg := '�� ���� ����� ����� �����, ��������� ������'#0;
+      T.Msg := 'Не могу найти конец цикла, проверьте скрипт'#0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -17196,7 +17196,7 @@ begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1C1) + #0
         else
-          TScanThread(T).Msg := '�� ���� ����� ����� �����, ��������� ������' + #0;
+          TScanThread(T).Msg := 'Не могу найти конец цикла, проверьте скрипт' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -17216,7 +17216,7 @@ begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1C2) + #0
         else
-          TScanThread(T).Msg := '������ ���������, ��������� ������' + #0;
+          TScanThread(T).Msg := 'Нечего прерывать, проверьте скрипт' + #0;
         ShowScriptMsg(TScanThread(T));
       end;
       if TScanThread(T).StopRequested then
@@ -17423,9 +17423,9 @@ begin
         if fmSecondfj.miFileOpError.Checked then
         begin
           TScanThread(T).LogPrefix := gCmdList2jj[N];
-          { ��������� ���������� �� ���� ������, � �� SysErrorMessage: ������
-            'Array Size = ' + ����� �����, � ���� ����� ������ ���� --
-            ������������ '  x  ' + ����� ������ ������. }
+          { Сообщение собирается ИЗ ДВУХ ЧАСТЕЙ, а не SysErrorMessage: сперва
+            'Array Size = ' + число строк, и если строк больше нуля --
+            дописывается '  x  ' + длина ПЕРВОЙ строки. }
           TScanThread(T).Msg := 'Array Size = ' + IntToStr(TScanThread(T).ClipLen);
           if TScanThread(T).ClipLen > 0 then
             TScanThread(T).Msg := TScanThread(T).Msg + '  x  ' +
@@ -17449,7 +17449,7 @@ begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1CB) + #0
         else
-          TScanThread(T).Msg := '������ ������������� ������� (for).' + #0;
+          TScanThread(T).Msg := 'Ошибка интерпретации скрипта (for).' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -17505,7 +17505,7 @@ begin
             LoadStr(gLangOffsety + $1CC) + #0
         else
           TScanThread(T).Msg := '(' + IntToStr(TScanThread(T).CurLine) +
-            '): ������ ���������� ��� ����������' + #0;
+            '): Немогу определить имя переменной' + #0;
         ShowScriptMsg(TScanThread(T));
       end;
       if not TryStrToInt(EvalScriptExpr(T, S, 4), nI) then
@@ -17533,7 +17533,7 @@ begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1CD) + #0
         else
-          TScanThread(T).Msg := '�� ���� ����� ����� �����: "End_for", ��������� ������' + #0;
+          TScanThread(T).Msg := 'Не могу найти конец цикла: "End_for", проверьте скрипт' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -17594,7 +17594,7 @@ begin
             LoadStr(gLangOffsety + $1CE) + #0
         else
           TScanThread(T).Msg := '(' + IntToStr(TScanThread(T).CurLine) +
-            '): ������ ����� ��� ���������� for' + #0;
+            '): Немогу найти имя переменной for' + #0;
         ShowScriptMsg(TScanThread(T));
       end;
 
@@ -17942,8 +17942,8 @@ begin
         Delete(sE, 1, 1);
         TScanThread(T).Synchronize(T.SyncGetTabCount);
         T.TabList := TStringList.Create;
-        { ����� ������ �����, � �� ��������� SyncGetTabCount: �� ��������
-          ����� ������� � ������ ��� ��������� TabList. }
+        { Здесь ДРУГОЙ метод, а не повторный SyncGetTabCount: он копирует
+          имена вкладок в только что созданный TabList. }
         TScanThread(T).Synchronize(T.SyncGetTabNames);
         a := T.TabCount;
         wr := 3;
@@ -18076,7 +18076,7 @@ begin
       if gLangOffsety > 0 then
           T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $151) + #0
         else
-          T.Msg := '(' + IntToStr(T.CurLine) + '): �� ���� ���������� ��������' + #0;
+          T.Msg := '(' + IntToStr(T.CurLine) + '): Не могу определить операцию' + #0;
         ShowScriptMsg(T);
         if T.ToMsgBox then
         begin
@@ -18091,7 +18091,7 @@ begin
         if gLangOffsety > 0 then
           T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $1BA) + #0
         else
-          T.Msg := '(' + IntToStr(T.CurLine) + '): �� ���� ���������� ��� ����������' + #0;
+          T.Msg := '(' + IntToStr(T.CurLine) + '): Не могу определить имя переменной' + #0;
         ShowScriptMsg(T);
         if T.ToMsgBox then
         begin
@@ -18122,8 +18122,8 @@ begin
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1C6) +
             EvalScriptExpr(T, S, 1) + LoadStr(gLangOffsety + $1C7) + #0
         else
-          TScanThread(T).Msg := '����� ''' + EvalScriptExpr(T, S, 1) +
-            ''' �� �������, ��������� ������' + #0;
+          TScanThread(T).Msg := 'Метка ''' + EvalScriptExpr(T, S, 1) +
+            ''' не найдена, проверьте скрипт' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -18199,8 +18199,8 @@ begin
         TScanThread(T).Msg := LoadStr(gLangOffsety + $1C6) +
           EvalScriptExpr(T, S, 1) + LoadStr(gLangOffsety + $1C7) + #0
       else
-        TScanThread(T).Msg := '����� ''' + EvalScriptExpr(T, S, 1) +
-          ''' �� �������, ��������� ������' + #0;
+        TScanThread(T).Msg := 'Метка ''' + EvalScriptExpr(T, S, 1) +
+          ''' не найдена, проверьте скрипт' + #0;
       ShowScriptMsg(TScanThread(T));
       if TScanThread(T).ToMsgBox then
       begin
@@ -18243,7 +18243,7 @@ begin
       if gLangOffsety > 0 then
         T.Msg := LoadStr(gLangOffsety + $1C5) + #0
       else
-        T.Msg := '�� ���� ����� ����� �������: "End_IF", ��������� ������'#0;
+        T.Msg := 'Не могу найти конец условия: "End_IF", проверьте скрипт'#0;
       ShowScriptMsg(T);
       if T.ToMsgBox then
       begin
@@ -18281,7 +18281,7 @@ begin
       if gLangOffsety > 0 then
       T.Msg := LoadStr(gLangOffsety + $1C5) + #0
     else
-      T.Msg := '�� ���� ����� ����� �������: "End_IF", ��������� ������'#0;
+      T.Msg := 'Не могу найти конец условия: "End_IF", проверьте скрипт'#0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -18863,7 +18863,7 @@ begin
           T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $1BA) + #0
         else
           T.Msg := '(' + IntToStr(T.CurLine) +
-            '): �� ���� ���������� ��� ����������' + #0;
+            '): Не могу определить имя переменной' + #0;
         ShowScriptMsg(T);
         if T.ToMsgBox then
         begin
@@ -19036,7 +19036,7 @@ begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1D2) + #0
         else
-          TScanThread(T).Msg := '������ ������������� ������� (repeat).' + #0;
+          TScanThread(T).Msg := 'Ошибка интерпретации скрипта (repeat).' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -19084,7 +19084,7 @@ begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1D3) + #0
         else
-          TScanThread(T).Msg := '�� ���� ����� ����� �����: "End_Repeat", ��������� ������' + #0;
+          TScanThread(T).Msg := 'Не могу найти конец цикла: "End_Repeat", проверьте скрипт' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -19111,7 +19111,7 @@ begin
       if gLangOffsety > 0 then
       T.Msg := LoadStr(gLangOffsety + $1D4) + #0
     else
-      T.Msg := '������ ������������� ������� (end_repeat).'#0;
+      T.Msg := 'Ошибка интерпретации скрипта (end_repeat).'#0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -19948,9 +19948,9 @@ begin
       begin
         sV274 := T.LogPrefix;
         T.LogPrefix := '';
-        { �������� ����������� ����������, �� ���� ������� Cardinal � ������
-          64-������ ���������� IntToStr64. ���������� ����� ���� �������
-          ����. }
+        { Значение расширяется БЕЗЗНАКОВО, то есть операнд Cardinal и берётся
+          64-битная перегрузка IntToStr64. Приведение здесь надо ставить
+          ЯВНО. }
         T.Msg := '%' + sW278 + ' [ ' + IntToStr(Cardinal(a)) + ' ' +
           IntToStr(Cardinal(wr)) + ' ]' + ' = ' + sE + #0;
         TScanThread(T).Synchronize(T.SyncLogMsg);
@@ -20161,7 +20161,7 @@ begin
     end;
     $28:
     begin
-    { ����� ������ EvalScriptPoint, � �� GetWord. }
+    { Здесь именно EvalScriptPoint, а не GetWord. }
       T.Str1048B8 := EvalScriptPoint(T, S, -2);
       while (Length(T.Str1048B8) > 0) and not (T.Str1048B8[1] in [''''] + gWordCharsadq) do
         Delete(T.Str1048B8, 1, 1);
@@ -20259,8 +20259,8 @@ begin
     begin
     a := gClT590908cx[T.ClVerIdx];
       fzZ8.wv := StrToInt(sQ);
-      { ��������� � �� �����, � ����� -- ��� `if ... then repeat ... until`,
-        � �� `while`: � `while` ��������� ���� �� ����. }
+      { Сравнение и на входе, и внизу -- это `if ... then repeat ... until`,
+        а не `while`: у `while` сравнение было бы одно. }
       if fzZ8.wv > $421 then
         repeat
           fzZ8.wv := fzZ8.wv - $421;
@@ -20667,8 +20667,8 @@ begin
       end;
     sE := sQ;
       sQ := gCmdListah7[nJ];
-      { ��� �� Exit, � ����� �� �����: ��������� ����� `set/else_P4` ���
-        �����. }
+      { Это НЕ Exit, а выход из блока: следующий кусок `set/else_P4` идёт
+        встык. }
       if (Pos('.', sQ) <= 0) and (gCmdListah7.Objects[nJ] is TMyStr) then
       begin
         sQ := PValDescZ(gCmdListah7.Objects[nJ])^.TxtZ;
@@ -20725,10 +20725,10 @@ begin
                 end;
               'd':
                 begin
-                  { ������, ��� ��, ��� N34 � `writemem`: ����� ������ Double
-                    ��� ������, � ������ �� �� ������ ������� ��� Cardinal }
-                  { ��������� � ��������, � �� ���������: `Length(X) > 1` ��� ���
-                    �������, `Length(X) - 1 > 0` -- ��� }
+                  { ДЕФЕКТ, тот же, что N34 в `writemem`: после записи Double
+                    НЕТ выхода, и следом та же ячейка пишется как Cardinal }
+                  { сравнение С ЕДИНИЦЕЙ, а не вычитание: `Length(X) > 1` даёт две
+                    команды, `Length(X) - 1 > 0` -- три }
                   if Length(TScanThread(T).CmdArg) > 1 then
                     if TScanThread(T).CmdArg[2] = 'o' then
                     begin
@@ -20782,7 +20782,7 @@ begin
     if gLangOffsety > 0 then
         T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $1BA) + #0
       else
-        T.Msg := '(' + IntToStr(T.CurLine) + '): �� ���� ���������� ��� ����������' + #0;
+        T.Msg := '(' + IntToStr(T.CurLine) + '): Не могу определить имя переменной' + #0;
       ShowScriptMsg(T);
       if T.ToMsgBox then
       begin
@@ -20823,13 +20823,13 @@ begin
         if gLangOffsety > 0 then
         begin
           TScanThread(T).Msg := LoadStr(gLangOffsety + $1F2) + #0;
-          { ���� -- �������� ������ �� ��� ������ (' ' ,); � ��� �������
-            ������������� gCmdList2jj[N] }
+          { игла -- КОРОТКАЯ строка из трёх знаков (' ' ,); в имя команды
+            подставляется gCmdList2jj[N] }
           nX := Pos(''''',', TScanThread(T).Msg);
           Insert(gCmdNames2b1[N + 2], TScanThread(T).Msg, nX + 1);
         end
         else
-          TScanThread(T).Msg := '�� ���� ����� ''end_switch'', ��������� ������' + #0;
+          TScanThread(T).Msg := 'Не могу найти ''end_switch'', проверьте скрипт' + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -20898,7 +20898,7 @@ begin
       if gLangOffsety > 0 then
       T.Msg := LoadStr(gLangOffsety + $1B8) + #0
     else
-      T.Msg := '�� ���� ����� ����� �����: "End_While", ��������� ������'#0;
+      T.Msg := 'Не могу найти конец цикла: "End_While", проверьте скрипт'#0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -20933,7 +20933,7 @@ begin
       if gLangOffsety > 0 then
       T.Msg := LoadStr(gLangOffsety + $1B9) + #0
     else
-      T.Msg := '�� ���� ����� ������ �����: "While", ��������� ������'#0;
+      T.Msg := 'Не могу найти начало цикла: "While", проверьте скрипт'#0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -20996,8 +20996,8 @@ begin
           sQ := Copy(sQ, 1, fzZ10.nPos2 - 1);
         fzZ10.nPos2 := Pos('.', sQ);
         fzZ10.nRows := fzZ10.nPos2;
-        { �������� ����� ������ -- ����� ����� � ����� ����: `while` ��� �� ����
-          �������� � ������� �� ��, � ����� `if` ������ `repeat` }
+        { проверка стоит ДВАЖДЫ -- перед телом и после него: `while` дал бы одну
+          проверку и переход на неё, а здесь `if` вокруг `repeat` }
         if fzZ10.nPos2 > 0 then
           repeat
             fzZ10.nRows := fzZ10.nPos2;
@@ -21077,8 +21077,8 @@ begin
           sQ := Copy(sQ, 1, fzZ10.nPos2 - 1);
         fzZ10.nPos2 := Pos('.', sQ);
         fzZ10.nRows := fzZ10.nPos2;
-        { �������� ����� ������ -- ����� ����� � ����� ����: `while` ��� �� ����
-          �������� � ������� �� ��, � ����� `if` ������ `repeat` }
+        { проверка стоит ДВАЖДЫ -- перед телом и после него: `while` дал бы одну
+          проверку и переход на неё, а здесь `if` вокруг `repeat` }
         if fzZ10.nPos2 > 0 then
           repeat
             fzZ10.nRows := fzZ10.nPos2;
@@ -21323,7 +21323,7 @@ begin
       if gLangOffsety > 0 then
         T.Msg := LoadStr(gLangOffsety + $1C0) + #0
       else
-        T.Msg := 'Injection v309.05+ �� ������.'#0;
+        T.Msg := 'Injection v309.05+ не найден.'#0;
       ShowScriptMsg(T);
     end
     else
@@ -21406,10 +21406,10 @@ begin
       nX := Pos('%', S) + Length(TScanThread(T).CmdArg);
       nF := Length(S);
       fzZ12.bOwn := False;
-      { ��������� ����� `['[', ']']`, � �� `[' ']` -- �� �� ����������, ��� �
-        � ���� ������ ����, ������� ��� � ���� �����������. ����� ��������
-        � ���������� �� ������ ����� �������� ����:
-        �'[',']' must be '(',')'�. }
+      { Множество здесь `['[', ']']`, а не `[' ']` -- та же постоянная, что и
+        в двух местах выше, поэтому она с ними склеивается. Смысл сходится
+        с сообщением об ошибке двумя строками ниже:
+        «'[',']' must be '(',')'». }
       while (nX <= nF) and not (S[nX] in (gWordCharsadq - ['[', ']'])) do
       begin
         if S[nX] = '[' then
@@ -21435,7 +21435,7 @@ begin
       nF := Length(TScanThread(T).CmdArg);
       fzZ12.bOwn := False;
       while (nX <= nF) and
-            { � ��� � ��������� ��� ����� -- `(` � `)`. }
+            { И тут в множестве ДВА знака -- `(` и `)`. }
             not (TScanThread(T).CmdArg[nX] in (gWordCharsadq - ['(', ')'])) do
       begin
         if TScanThread(T).CmdArg[nX] = '(' then
@@ -21447,9 +21447,9 @@ begin
       end;
       if fzZ12.bOwn then
       begin
-        { ������� �������: ������ ��� `nX`, ����� ��� � ��������� 34 ������
-          ������ -- ����� `Delete(CmdArg, nX, nF - nX + 1)` ���� ��������
-          ����������� �������. }
+        { Порядок доводов: первым идёт `nX`, ровно как в остальных 34 местах
+          вызова -- тогда `Delete(CmdArg, nX, nF - nX + 1)` ниже получает
+          осмысленные границы. }
         sV274 := FindParenGroup(T, TScanThread(T).CmdArg, 1, nX, nF);
         Delete(TScanThread(T).CmdArg, nX, nF - nX + 1);
       end
@@ -21618,8 +21618,8 @@ begin
         'e': TScanThread(T).Synchronize(TScanThread(T).SyncMouseOn);
         'd': TScanThread(T).Synchronize(TScanThread(T).SyncMouseOff);
         'h': begin
-               { ������������� ������ � ����� �������� Integer: `R: TRect` ����� ��
-                 � ��������� ���������� }
+               { прямоугольник держим В КАДРЕ четырьмя Integer: `R: TRect` уехал бы
+                 в модульные переменные }
                fzZ14.rcLeft := GetSystemMetrics(SM_CXSCREEN);
                fzZ14.rcRight := fzZ14.rcLeft;
                fzZ14.rcTop := 0;
@@ -21629,7 +21629,7 @@ begin
         's': ClipCursor(nil);
       end;
     end;
-  43, 116, 120, 124: ;    { ���� ���: ������ ���� ����� � ����� }
+  43, 116, 120, 124: ;    { тела нет: запись ведёт прямо в хвост }
   else
     if Copy(T.LogPrefix, 1, 1) <> ':' then
       if fmSecondfj.miStopSUncC.Checked then
@@ -21639,7 +21639,7 @@ begin
         if gLangOffsety > 0 then
           T.Msg := LoadStr(gLangOffsety + $1DE) + T.LogPrefix + #0
         else
-          T.Msg := '������������ �������: ' + T.LogPrefix + #0;
+          T.Msg := 'Неопознанная команда: ' + T.LogPrefix + #0;
         ShowScriptMsg(T);
       end;
   end;
@@ -21672,11 +21672,11 @@ var
   N: Integer;
   P: PByteArray;
 begin
-  { Point ����������� �����������������: ������������������� �����������
-    � Classes.Point -- ��� ����������, � ����� Types.Point. }
-  { ������� ���� H � ����� ������� � ��������, ���� �� � ������ ���� ����
-    ��������� �������. ������ 24-������ � ���� ����� �����, ������� ������
-    ������ ��������� ��� ShotH - 1 - Y, � ��� ������ -- ShotW * 3 + �������. }
+  { Point ОБЯЗАТЕЛЬНО квалифицированный: неквалифицированный разрешается
+    в Classes.Point -- это переходник, а нужен Types.Point. }
+  { Снимает окно H в буфер скрипта и отвечает, есть ли в снимке хоть один
+    ненулевой пиксель. Строки 24-битные и идут снизу вверх, поэтому индекс
+    строки считается как ShotH - 1 - Y, а шаг строки -- ShotW * 3 + добивка. }
   if not GetWindowRect(H, R) then
   begin
     R.Right := 500;
@@ -21710,9 +21710,9 @@ begin
       X := 0;
       while (X < T.CapTo.X) and not Result do
       begin
-        { �������� ������ ������ ��������� ��������� ����������: �����
-          ���������� ���������� ������ ������ �� ������������ (���
-          �������), � ������� ��������� ������������ }
+        { смещение внутри строки считается ОТДЕЛЬНЫМ оператором: одним
+          выражением компилятор берётся сперва за произведение (оно
+          тяжелее), и порядок слагаемых разъезжается }
         N := X * 3;
         N := N + ((T.ShotH - 1 - Y) * (T.ShotW * 3 + Pad) +
           Integer(T.ShotBits));
