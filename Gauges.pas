@@ -347,6 +347,8 @@ end;
 
 initialization
   RegisterClass(TGauge);
+{$IFnDEF FPC}
   RegisterComponents('Samples', [TGauge]);
+{$ENDIF}
 
 end.
