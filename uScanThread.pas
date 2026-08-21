@@ -19,7 +19,7 @@ unit uScanThread;
 
 interface
 
-uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} jpeg, Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, TlHelp32, PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
+uses LangClipboard, Types, geScale, SynMemo, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynHighlighterPas, SynEditCodeFolding, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, TlHelp32, PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows;
 type
   { Пользовательская переменная: одна строка. Создаётся в
     Unit1.AfterOptionsLoaded по секции CustomVariables. }
@@ -1902,7 +1902,7 @@ begin
       Jpg := TJPEGImage.Create;
       Jpg.Assign(Bmp);
       Jpg.CompressionQuality := fmSecondfj.SpinEdit1.Value;
-      Jpg.Compress;
+      {$IFnDEF FPC}Jpg.Compress;{$ENDIF}
       Jpg.SaveToFile(Msg);
       Jpg.Free;
     end

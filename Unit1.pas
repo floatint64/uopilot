@@ -5265,7 +5265,7 @@ begin
         J := TJPEGImage.Create;
         J.Assign(B);
         J.CompressionQuality := SpinEdit1.Value;
-        J.Compress;
+        {$IFnDEF FPC}J.Compress;{$ENDIF}
         J.SaveToFile(S + '.jpg');
         J.Free;
       end;
