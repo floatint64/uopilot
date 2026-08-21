@@ -4675,7 +4675,7 @@ procedure TCustomSynEdit.SetFont(const Value: TFont);
 var
   DC: HDC;
   Save: THandle;
-  Metrics: TTextMetric;
+  Metrics: Windows.TTextMetric;
   AveCW, MaxCW: Integer;
 {$ENDIF}
 begin
@@ -5268,7 +5268,7 @@ procedure TCustomSynEdit.UpdateScrollBars;
 var
   nMaxScroll: integer;
 {$IFNDEF SYN_CLX}
-  ScrollInfo: TScrollInfo;
+  ScrollInfo: Windows.TScrollInfo;
   iRightChar: Integer;
 {$ELSE}
   iClientRect: TRect;
@@ -5580,7 +5580,7 @@ begin
       try
         iNumberDropped := DragQueryFile(THandle(Msg.wParam), Cardinal(-1),
           nil, 0);
-        DragQueryPoint(THandle(Msg.wParam), Point);
+        DragQueryPoint(THandle(Msg.wParam), @Point);
 
         for i := 0 to iNumberDropped - 1 do
         begin
@@ -5747,7 +5747,7 @@ var
   pt: TPoint;
   ScrollHint: THintWindow;
   ButtonH: Integer;
-  ScrollInfo: TScrollInfo;
+  ScrollInfo: Windows.TScrollInfo;
 begin
   Msg.Result := 0;
   case Msg.ScrollCode of
