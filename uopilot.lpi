@@ -32,7 +32,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="26">
       <Unit0>
         <Filename Value="uopilot.dpr"/>
         <IsPartOfProject Value="True"/>
@@ -138,6 +138,10 @@
         <Filename Value="uCircleForm.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="Gauges.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -155,6 +159,10 @@
         <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
+    <CodeGeneration>
+      <TargetCPU Value="i386"/>
+      <TargetOS Value="win32"/>
+    </CodeGeneration>
     <Linking>
       <Options>
         <Win32>
@@ -164,6 +172,7 @@
     </Linking>
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+      <CompilerPath Value="D:\Lazarus\fpc\3.2.0\bin\x86_64-win64\fpc.exe"/>
     </Other>
   </CompilerOptions>
   <Debugging>

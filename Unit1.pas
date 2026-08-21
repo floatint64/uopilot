@@ -11,9 +11,10 @@ interface
 
 uses
 {$IFnDEF FPC}
-  jpeg, Gauges, TlHelp32, SHDocVw,
+  jpeg, TlHelp32, SHDocVw,
 {$ELSE}
 {$ENDIF}
+  Gauges,
   Types, HotKeyMgr, Keydefs, Recorder, Spin, Grids, mySys,
   MyIniFiles, geScale, SynMemo, SynHighlighterPas, SynEdit,
   SynEditCodeFolding, SynEditHighlighter, SynEditTypes, awMachMask,
