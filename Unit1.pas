@@ -23,7 +23,7 @@ uses
   LangClipboard, ActiveX, Buttons, Classes, Clipbrd, ComCtrls,
   Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, Menus, Messages,
   Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet,
-  Windows{$IFDEF FPC}, LCLType{$ENDIF};
+  Windows{$IFDEF FPC}, LCLType, RichMemo{$ENDIF};
 
 type
 
@@ -5302,7 +5302,11 @@ procedure TfmSecond.LoadScriptFile(FileName: string);
 var
   S, S2: string;
   N, L, Cnt, P, I: Integer;
+  {$IFDEF FPC}
+  R: TRichMemo;
+  {$ELSE}
   R: TRichEdit;
+  {$ENDIF}
 begin
   { Загрузка файла скрипта в текущую вкладку: относительный путь
     достраивается каталогом программы, RTF распознаётся по началу первой
@@ -5319,6 +5323,18 @@ begin
     edScript.Lines.LoadFromFile(FileName);
     if Copy(edScript.Lines[0], 1, 5) = '{\rtf' then
     begin
+      {$IFDEF FPC}
+      R := TRichMemo.Create(fmSecondfj);
+      try
+        R.Parent := fmSecondfj;
+        R.Visible := False;
+        R.HandleNeeded;
+        R.Rtf := edScript.Lines.Text;
+        edScript.Lines.Text := R.Text;
+      finally
+        R.Free;
+      end;
+      {$ELSE}
       R := TRichEdit.Create(fmSecondfj);
       R.Visible := False;
       R.Parent := fmSecondfj;
@@ -5327,6 +5343,7 @@ begin
       R.PlainText := True;
       edScript.Lines.Text := R.Lines.Text;
       R.Free;
+      {$ENDIF}
     end;
   except
     SetForegroundWindow(Application.Handle);
@@ -7767,15 +7784,15 @@ end;
 
 function HotKeyCaption(Nm: ShortString): ShortString;
 var
-  M: Byte;
+  I: THotKeyItem;
 begin
   Result := '';
   try
-    Result := gHotKeyMgr.HotKeyByName(Nm).HotKey;
-    M := Byte(gHotKeyMgr.HotKeyByName(Nm).ShiftState);
-    if (M and 1) <> 0 then Result := 'Shift + ' + Result;
-    if (M and 2) <> 0 then Result := 'Alt + ' + Result;
-    if (M and 4) <> 0 then Result := 'Ctrl + ' + Result;
+    I := gHotKeyMgr.HotKeyByName(Nm);
+    Result := I.HotKey;
+    if HotKeyMgr.ssShift in I.ShiftState then Result := 'Shift + ' + Result;
+    if HotKeyMgr.ssAlt in I.ShiftState then Result := 'Alt + ' + Result;
+    if HotKeyMgr.ssCtrl in I.ShiftState then Result := 'Ctrl + ' + Result;
   except
     Result := '';
   end;
@@ -7783,6 +7800,8 @@ end;
 
 function TryRegisterHotKey(Nm: ShortString; M: Byte;
   Key: ShortString; var Idx: Integer): Boolean;
+var
+  St: TShiftState;
 begin
   { Заводит горячую клавишу в коллекции THotKeyManager. Обе строки --
     короткие и по значению. Уже заведённая клавиша не трогается:
@@ -7795,7 +7814,11 @@ begin
         Add;
         Idx := Count - 1;
         Items[Idx].Name := Nm;
-        Items[Idx].ShiftState := HotKeyMgr.TShiftState(M);
+        St := [];
+        if (M and 1) <> 0 then Include(St, HotKeyMgr.ssShift);
+        if (M and 2) <> 0 then Include(St, HotKeyMgr.ssAlt);
+        if (M and 4) <> 0 then Include(St, HotKeyMgr.ssCtrl);
+        Items[Idx].ShiftState := St;
         Items[Idx].HotKey := Key;
       end
     else
@@ -7817,6 +7840,7 @@ var
   N: Integer;
   Checked: Boolean;
   T: TScanThread;
+  St: TShiftState;
 begin
   { Включение/выключение горячей клавиши. Имя элемента складывается из имени
     компонента и номера скрипта, по нему клавиша ищется в коллекции
@@ -7919,8 +7943,11 @@ begin
     Exit;
   end;
   { Клавиша принята: переносим её в добавленный элемент коллекции. }
-  gHotKeyMgr.HotKeys[Idx].ShiftState :=
-    HotKeyMgr.TShiftState(gHKEntrieslw[N - 1].Mods);
+  St := [];
+  if hkShift in gHKEntrieslw[N - 1].Mods then Include(St, HotKeyMgr.ssShift);
+  if hkAlt in gHKEntrieslw[N - 1].Mods then Include(St, HotKeyMgr.ssAlt);
+  if hkCtrl in gHKEntrieslw[N - 1].Mods then Include(St, HotKeyMgr.ssCtrl);
+  gHotKeyMgr.HotKeys[Idx].ShiftState := St;
   gHotKeyMgr.HotKeys[Idx].HotKey := gHKEntrieslw[N - 1].Text;
   gHotKeyMgr.HotKeys[Idx].OnHotKeyActivation := gHKEntrieslw[N - 1].Handler;
   THKItemFull(gHotKeyMgr.HotKeys[Idx]).Sound := gHKEntrieslw[N - 1].Sound;
