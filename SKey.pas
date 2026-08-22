@@ -37,7 +37,6 @@ var
   Итог: состояние службы, либо отрицательный код, на чём споткнулись. }
 function SvcInstall(Name, Plugin: string): Integer;
 var
-  n: PChar;
   s: string;
 begin
   gSvcMgr := OpenSCManagerA(nil, nil, 3);
@@ -66,8 +65,7 @@ begin
     end;
     if gSvcHandle > 0 then
     begin
-      n := nil;
-      StartServiceA(gSvcHandle, 0, n);
+      StartServiceA(gSvcHandle, 0, nil);
       if QueryServiceStatus(gSvcHandle, gSvcStatus) then
       begin
         Result := gSvcStatus.dwCurrentState;
