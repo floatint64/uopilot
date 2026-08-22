@@ -16628,7 +16628,7 @@ var
   {$W+}
   procedure ScriptIdle;
   var
-    M: TMsg;
+    M: MSG;
   begin
     while PeekMessage(M, GetCurrentProcess, 0, 0, PM_REMOVE) do
     begin
@@ -18429,11 +18429,15 @@ begin
       nD := fmSecondfj.miSpeed.Tag;
     TheRecorder.SpeedFactor := nD;
     TheRecorder.DoStop;
+    {$IFnDEF FPC}
     Application.OnMessage := TfmSecond(fmSecondfj).AppMessage;
+    {$ENDIF}
     TheRecorder.DoPlay;
     while TheRecorder.State = rsPlaying do
       Application.ProcessMessages;
+    {$IFnDEF FPC}
     Application.OnMessage := nil;
+    {$ENDIF}
     end;
   20:
     begin
@@ -19472,12 +19476,12 @@ begin
         begin
           if Boolean(Ord(fzZ12.bOwn) xor 1) then
           begin
-            pr0 := ActivateKeyboardLayout(0, 0);
+            pr0 := Integer(ActivateKeyboardLayout(0, 0));
             fzZ12.bOwn := not fzZ12.bOwn;
           end
           else
           begin
-            pr0 := ActivateKeyboardLayout(0, 0);
+            pr0 := Integer(ActivateKeyboardLayout(0, 0));
             fzZ12.bOwn := not fzZ12.bOwn;
           end;
           if pr0 > 0 then ;
@@ -19604,11 +19608,15 @@ begin
     nD := MacroFileLoad(sE);
     TheRecorder.FRepeatCount := 1;
     TheRecorder.SpeedFactor := 100;
+    {$IFnDEF FPC}
     Application.OnMessage := TfmSecond(fmSecondfj).AppMessage;
+    {$ENDIF}
     TheRecorder.DoPlay;
     while TheRecorder.State = rsPlaying do
       Application.ProcessMessages;
+    {$IFnDEF FPC}
     Application.OnMessage := nil;
+    {$ENDIF}
     end;
   40:
     begin
