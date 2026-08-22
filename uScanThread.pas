@@ -118,6 +118,9 @@ type
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure FillRegion(Rgn: HRgn);
     procedure HookWndProc(var Message: TMessage);
+    {$IFDEF FPC}
+    function DrawTextBiDiModeFlagsReadingOnly: Longint;
+    {$ENDIF}
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
@@ -574,6 +577,75 @@ var
 implementation
 
 uses Math, ShlObj, SKey, MathEx, Unit1, HotKeyMgr, CRCunit, uCircleForm, Keydefs, sendR, ComObj, DateUtils, Grids,{$IFnDEF FPC} ScktComp, SHDocVw,{$ENDIF} Masks,{$IFnDEF FPC} WebConst, HTTPApp,{$ENDIF} ProcessAPI, ReadMem{$IFnDEF FPC}, WinSvc{$ENDIF};
+
+{$IFDEF FPC}
+const
+  MaxComp = 9.223372036854775807e+18;
+{$ENDIF}
+
+{$IFDEF FPC}
+{ Real48 -> Double: в FPC Real48 это array[0..5] of byte. }
+function Real48ToDouble(const R: Real48): Double;
+begin
+  Result := Real2Double(R);
+end;
+
+{ Double -> Real48 (6-байтовый вещественный формат Turbo Pascal/Delphi):
+  r[0]=экспонента (смещение 129), r[1..4]=мантисса биты 0..31,
+  r[5]=мантисса биты 32..38 + знак в бите 7. Нулевой экспонентный байт = 0. }
+function DoubleToReal48(const D: Double): Real48;
+var
+  Raw: QWord;
+  Sign: Byte;
+  ExpBits: Integer;
+  Mant: QWord;
+  Exp: Integer;
+  S40: QWord;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+  if D = 0 then
+    Exit;
+  Move(D, Raw, SizeOf(Raw));
+  Sign := (Raw shr 63) and 1;
+  ExpBits := (Raw shr 52) and $7FF;
+  if ExpBits = 0 then
+    Exit;                              // субнормальное -> 0 (real48 не представимо)
+  Mant := Raw and $FFFFFFFFFFFFF;
+  Exp := ExpBits - 1023;
+  S40 := (Mant or (QWord(1) shl 52) + (QWord(1) shl 12)) shr 13; // округление до 40 бит
+  if S40 >= (QWord(1) shl 40) then
+  begin
+    S40 := S40 shr 1;                  // округлилось до 2.0
+    Inc(Exp);
+  end;
+  if (Exp > 126) or (Exp < -128) then
+    Exit;                              // переполнение/исчерпание -> 0
+  Result[0] := Exp + 129;
+  Result[1] := S40 and $FF;
+  Result[2] := (S40 shr 8) and $FF;
+  Result[3] := (S40 shr 16) and $FF;
+  Result[4] := (S40 shr 24) and $FF;
+  Result[5] := ((S40 shr 32) and $7F) or (Sign shl 7);
+end;
+
+function Real48Equal(const A, B: Real48): Boolean;
+begin
+  Result := CompareMem(@A, @B, SizeOf(Real48));
+end;
+{$ELSE}
+function Real48ToDouble(const R: Real48): Double;
+begin
+  Result := R;
+end;
+function DoubleToReal48(const D: Double): Real48;
+begin
+  Result := D;
+end;
+function Real48Equal(const A, B: Real48): Boolean;
+begin
+  Result := A = B;
+end;
+{$ENDIF}
 
 
 
@@ -3212,7 +3284,11 @@ begin
             Write(gLogFilejr, S);
           Flush(gLogFilejr);
           if Trimmed and (gLogMaxSizehk > 0) then
+            {$IFDEF FPC}
+            if (FileSeek(TextRec(gLogFilejr).Handle, 0, fsFromEnd) div 128) > gLogMaxSizehk then
+            {$ELSE}
             if FileSize(gLogFilejr) > gLogMaxSizehk then
+            {$ENDIF}
             begin
               CloseFile(gLogFilejr);
               S := gLogFileNamejr + '.bak';
@@ -3986,6 +4062,16 @@ begin
   inherited CreateParams(Params);
   Params.Style := Params.Style and not WS_BORDER;
 end;
+
+{$IFDEF FPC}
+function TRxHintWindow.DrawTextBiDiModeFlagsReadingOnly: Longint;
+begin
+  if UseRightToLeftReading then
+    Result := DT_RTLREADING
+  else
+    Result := 0;
+end;
+{$ENDIF}
 
 procedure TRxHintWindow.WMNCPaint(var Message: TMessage);
 begin
@@ -9726,7 +9812,7 @@ begin
           nDW := 0;
           i64 := 0;
           sngF := 0;
-          rl48 := 0;
+          rl48 := DoubleToReal48(0);
           cF := #0;
           sFind := '';
           bFlag := False;
@@ -9750,7 +9836,7 @@ begin
                 nDW := StrToIntDef(sAcc, $11111111);
             'l': i64 := StrToIntDef(sAcc, $63);
             'f': sngF := StrToFloatDef(sAcc, 1);
-            'r': rl48 := StrToFloatDef(sAcc, 1);
+            'r': rl48 := DoubleToReal48(StrToFloatDef(sAcc, 1));
             'c':
               if Length(sAcc) > 0 then
                 cF := sAcc[1]
@@ -9878,8 +9964,8 @@ begin
                               begin
                                 if TScanThread(T).StopRequested then
                                   Break;
-                                if PReal48(@PByteArray(pc)^[nn])^ =
-                                   rl48 then
+                                if Real48Equal(PReal48(@PByteArray(pc)^[nn])^,
+                                   rl48) then
                                 begin
                                   StoreScriptVar(T, cK, nAdd, '', -1,
                                     IntToHex(Integer(Cardinal(mbi.BaseAddress) +
@@ -12804,7 +12890,7 @@ begin
               ReadMemByName(TScanThread(T).ProcessHandle2, rl48, nVal,
                            nP1, 6, TScanThread(T).MemTarget,
                            TScanThread(T).ProcessId);
-              s1 := FloatToStr(rl48);
+              s1 := FloatToStr(Real48ToDouble(rl48));
             end;
           'c':
             begin
@@ -18797,7 +18883,7 @@ begin
         fzZ11.mB := 0;
         fzZ12.qC := 0;
         sF220 := 0;
-        rF228 := 0;
+        rF228 := DoubleToReal48(0);
         bG := False;
         bufStr := '';
         if fzZ12.qErr >= 0 then
@@ -18853,7 +18939,7 @@ begin
         ReadMemByName(fzZ13.hProc, rF228, fzZ12.qErr, fzZ12.qAddr,
         6, TScanThread(T).MemTarget, fzZ13.nPid);
         TScanThread(T).ClipLen := gMemLastErrorao;
-        sE := FloatToStr(rF228);
+        sE := FloatToStr(Real48ToDouble(rF228));
       end;
     'c':
       begin
@@ -19017,7 +19103,7 @@ begin
       end;
     'r':
       begin
-        rF228 := StrToFloat(sE);
+        rF228 := DoubleToReal48(StrToFloat(sE));
         WriteMemByName(TScanThread(T).ProcessHandle2, rF228, fzZ12.qErr, fzZ12.qAddr,
         6, TScanThread(T).MemTarget, TScanThread(T).ProcessId);
         TScanThread(T).ClipLen := gMemLastErrorao;
@@ -20787,7 +20873,7 @@ begin
                 end;
               'r':
                 begin
-                  rF228 := StrToFloat(sE);
+                  rF228 := DoubleToReal48(StrToFloat(sE));
                   WriteMemByName(TScanThread(T).ProcessHandle2, rF228, fzZ12.qErr, fzZ12.qAddr,
         6, TScanThread(T).MemTarget, TScanThread(T).ProcessId);
                 end;
