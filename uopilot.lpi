@@ -154,7 +154,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="synedit;$(ProjOutDir)"/>
-      <Libraries Value="synedit"/>
+      <Libraries Value="synedit;lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
       <OtherUnitFiles Value="synedit"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       <ObjectPath Value="synedit"/>

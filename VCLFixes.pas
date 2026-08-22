@@ -177,7 +177,9 @@ end;
 
 initialization
   {$IFDEF VER150} // Delphi7
-  PatchWinControl; 
+  {$IFnDEF FPC}
+  PatchWinControl;
+  {$ENDIF}
   {$ENDIF}
 
 end.

@@ -591,6 +591,28 @@ uses
   {$ENDIF UNIX}
 
 {$IFDEF PCRE_STATICLINK}
+{$IFDEF FPC}
+{$LINK pcre\coff\pcre_compile.obj}
+{$LINK pcre\coff\pcre_config.obj}
+{$LINK pcre\coff\pcre_dfa_exec.obj}
+{$LINK pcre\coff\pcre_exec.obj}
+{$LINK pcre\coff\pcre_fullinfo.obj}
+{$LINK pcre\coff\pcre_get.obj}
+{$LINK pcre\coff\pcre_globals.obj}
+{$LINK pcre\coff\pcre_info.obj}
+{$LINK pcre\coff\pcre_maketables.obj}
+{$LINK pcre\coff\pcre_newline.obj}
+{$LINK pcre\coff\pcre_ord2utf8.obj}
+{$LINK pcre\coff\pcre_refcount.obj}
+{$LINK pcre\coff\pcre_study.obj}
+{$LINK pcre\coff\pcre_tables.obj}
+{$LINK pcre\coff\pcre_try_flipped.obj}
+{$LINK pcre\coff\pcre_ucd.obj}
+{$LINK pcre\coff\pcre_valid_utf8.obj}
+{$LINK pcre\coff\pcre_version.obj}
+{$LINK pcre\coff\pcre_xclass.obj}
+{$LINK pcre\coff\pcre_default_tables.obj}
+{$ELSE}
 {$LINK pcre\pcre_compile.obj}
 {$LINK pcre\pcre_config.obj}
 {$LINK pcre\pcre_dfa_exec.obj}
@@ -611,6 +633,7 @@ uses
 {$LINK pcre\pcre_version.obj}
 {$LINK pcre\pcre_xclass.obj}
 {$LINK pcre\pcre_default_tables.obj}
+{$ENDIF}
 
 // user's defined callbacks
 var
@@ -721,6 +744,122 @@ begin
   else
     Result := 0;
 end;
+
+{$IFDEF FPC}
+// Public C-symbol bridges: the objconv-converted COFF objects reference the
+// Borland CRT symbols (with leading underscore) by their raw names, while FPC
+// names DLL imports as _$dll$lib$name. Expose the plain names via wrappers.
+
+function _memcpy_bridge(dest, src: Pointer; count: size_t): Pointer; cdecl; public name '_memcpy';
+begin
+  Result := _memcpy(dest, src, count);
+end;
+
+function _memmove_bridge(dest, src: Pointer; count: size_t): Pointer; cdecl; public name '_memmove';
+begin
+  Result := _memmove(dest, src, count);
+end;
+
+function _memset_bridge(dest: Pointer; val: Integer; count: size_t): Pointer; cdecl; public name '_memset';
+begin
+  Result := _memset(dest, val, count);
+end;
+
+function _memcmp_bridge(s1: Pointer; s2: Pointer; n: size_t): Integer; cdecl; public name '_memcmp';
+begin
+  Result := _memcmp(s1, s2, n);
+end;
+
+function _strncmp_bridge(s1: PAnsiChar; s2: PAnsiChar; n: size_t): Integer; cdecl; public name '_strncmp';
+begin
+  Result := _strncmp(s1, s2, n);
+end;
+
+function _strlen_bridge(s: PAnsiChar): size_t; cdecl; public name '_strlen';
+begin
+  Result := _strlen(s);
+end;
+
+function _strchr_bridge(__s: PAnsiChar; __c: Integer): PAnsiChar; cdecl; public name '_strchr';
+begin
+  Result := _strchr(__s, __c);
+end;
+
+function _isalnum_bridge(__ch: Integer): Integer; cdecl; public name '_isalnum';
+begin
+  Result := _isalnum(__ch);
+end;
+
+function _isalpha_bridge(__ch: Integer): Integer; cdecl; public name '_isalpha';
+begin
+  Result := _isalpha(__ch);
+end;
+
+function _iscntrl_bridge(__ch: Integer): Integer; cdecl; public name '_iscntrl';
+begin
+  Result := _iscntrl(__ch);
+end;
+
+function _isdigit_bridge(__ch: Integer): Integer; cdecl; public name '_isdigit';
+begin
+  Result := _isdigit(__ch);
+end;
+
+function _isgraph_bridge(__ch: Integer): Integer; cdecl; public name '_isgraph';
+begin
+  Result := _isgraph(__ch);
+end;
+
+function _islower_bridge(__ch: Integer): Integer; cdecl; public name '_islower';
+begin
+  Result := _islower(__ch);
+end;
+
+function _isprint_bridge(__ch: Integer): Integer; cdecl; public name '_isprint';
+begin
+  Result := _isprint(__ch);
+end;
+
+function _ispunct_bridge(__ch: Integer): Integer; cdecl; public name '_ispunct';
+begin
+  Result := _ispunct(__ch);
+end;
+
+function _isspace_bridge(__ch: Integer): Integer; cdecl; public name '_isspace';
+begin
+  Result := _isspace(__ch);
+end;
+
+function _isupper_bridge(__ch: Integer): Integer; cdecl; public name '_isupper';
+begin
+  Result := _isupper(__ch);
+end;
+
+function _isxdigit_bridge(__ch: Integer): Integer; cdecl; public name '_isxdigit';
+begin
+  Result := _isxdigit(__ch);
+end;
+
+function __ltolower_bridge(__ch: Integer): Integer; cdecl; public name '__ltolower';
+begin
+  Result := __ltolower(__ch);
+end;
+
+function __ltoupper_bridge(__ch: Integer): Integer; cdecl; public name '__ltoupper';
+begin
+  Result := __ltoupper(__ch);
+end;
+
+function _malloc_bridge(size: size_t): Pointer; public name '_malloc';
+begin
+  Result := _malloc(size);
+end;
+
+procedure _free_bridge(pBlock: Pointer); public name '_free';
+begin
+  _free(pBlock);
+end;
+{$ENDIF}
 
 {$ELSE ~PCRE_STATICLINK}
 
