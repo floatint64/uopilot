@@ -757,6 +757,9 @@ const
   cHKShift = [hkShiftZ];
   cHKAlt = [hkAltZ];
   cHKCtrl = [hkCtrlZ];
+{$IFDEF FPC}
+  HGDI_ERROR = HGDIOBJ($FFFFFFFF);
+{$ENDIF}
 
 var
   gHKNoneZ: Byte;
@@ -1530,7 +1533,7 @@ var
   Stride: Integer;
   nMode: Integer;
   Stm: IStream;
-  NewPos: Int64;
+  NewPos: {$IFDEF FPC}QWord{$ELSE}Int64{$ENDIF};
   SI: TGdiplusStartupInput;
   BD: TGpBitmapData;
   R: TGpRect;
@@ -1705,7 +1708,7 @@ var
   Img: Pointer;
   MS: TMemoryStream;
   Stm: IStream;
-  NewPos: Int64;
+  NewPos: {$IFDEF FPC}QWord{$ELSE}Int64{$ENDIF};
   SI: TGdiplusStartupInput;
   Cid: TGUID;
   BD: TGpBitmapData;
@@ -1879,7 +1882,7 @@ begin
       0:
         begin
           DC := GetDC(0);
-          R := Rect(0, 0, Screen.Width, Screen.Height);
+          R := Types.Rect(0, 0, Screen.Width, Screen.Height);
         end;
       1:
         begin

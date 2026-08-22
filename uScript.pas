@@ -71,6 +71,11 @@ var
 
 implementation
 
+{$IFDEF FPC}
+const
+  HGDI_ERROR = HGDIOBJ($FFFFFFFF);
+{$ENDIF}
+
 { Привести кнопки и редактор в соответствие с состоянием скрипта на
   ТЕКУЩЕЙ вкладке и вернуть фокус в редактор.
 
