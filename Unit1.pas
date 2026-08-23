@@ -12447,6 +12447,7 @@ end;
 procedure TfmSecond.bFindNextClick(Sender: TObject);
 var
   Text: string;
+  WText: WideString;
   Dir: Integer;
   Flags: Integer;
   V: OleVariant;
@@ -12460,9 +12461,10 @@ begin
         Text := eFindText.Text;
         if Text <> '' then
         begin
+          WText := Text;
           case rbFindDown.Checked of
-            True: Dir := 1;
-            False: Dir := -1;
+            True: Dir := 1000000000;
+            False: Dir := -1000000000;
           end;
           case cbCaseSens.Checked of
             True: Flags := 4;
@@ -12474,11 +12476,12 @@ begin
             gTextRange := V.body.CreateTextRange;
             eFindText.Modified := False;
           end;
-          if not gTextRange.FindText(Text, Dir, Flags) then
+          if not gTextRange.FindText(WText, Dir, Flags) then
           begin
             V := wbWiki.Document;
             gTextRange := V.body.CreateTextRange;
-            gTextRange.FindText(Text, Dir, Flags);
+            if not gTextRange.FindText(WText, Dir, Flags) then
+              Exit;
           end;
           gTextRange.execCommand('BackColor', '', 'yellow');
           gTextRange.execCommand('ForeColor', '', 'red');
