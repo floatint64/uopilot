@@ -1548,7 +1548,7 @@ begin
   if FEffectiveItemHeight <> 0 then
     FLinesInWindow := (Height - FHeightBuffer) div FEffectiveItemHeight;
 
-  if not( csCreating in ControlState ) then
+  if not( csCreating in ControlState ) and Assigned(FScrollbar) then
     AdjustMetrics;
 
   AdjustScrollBarPosition;
@@ -2090,7 +2090,7 @@ begin
     else
       FHeightBuffer := 0;
 
-    if (ClientWidth >= FScrollbar.Width) and (ClientHeight >= FHeightBuffer) then
+    if Assigned(FScrollbar) and (ClientWidth >= FScrollbar.Width) and (ClientHeight >= FHeightBuffer) then
     begin
       Bitmap.Width := ClientWidth - FScrollbar.Width;
       Bitmap.Height := ClientHeight - FHeightBuffer;
