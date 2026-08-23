@@ -8,9 +8,9 @@ unit AttriFont;
   своей формы в DFM: набор строк в нём зависит от таблицы атрибутов
   подсветчика, а она правится по ходу дела.
 
-  Unit1 подключён в описаниях (нужны TfmSecond, fmSecondfj, TUoPAttri,
-  TUoPHighlighter), а он подключает нас в реализации -- по-другому
-  взаимную ссылку не развести. }
+  Unit1 подключён в описаниях (нужны TfmSecond, fmSecondfj и TSynPasSyn),
+  а он подключает нас в реализации -- по-другому взаимную ссылку не
+  развести. }
 
 interface
 
@@ -113,7 +113,7 @@ begin
   for Pass := 0 to 1 do
     for I := 0 to Cnt do
     begin
-      K := TUoPAttri(fmSecondfj.fld_1428.Attribute[I]).Kind;
+      K := fmSecondfj.fld_1428.Attribute[I].Kind;
       if (K + Pass = 0) or ((K > 0) and (Pass > 0)) then
       begin
         with TLabel.Create(fmSecondfj) do
@@ -146,7 +146,7 @@ begin
   for Pass2 := 0 to 1 do
     for I := 0 to Cnt do
     begin
-      K2 := TUoPAttri(fmSecondfj.fld_1428.Attribute[I]).Kind;
+      K2 := fmSecondfj.fld_1428.Attribute[I].Kind;
       if (K2 + Pass2 = 0) or ((K2 > 0) and (Pass2 > 0)) then
       begin
         X := W;
@@ -161,10 +161,10 @@ begin
             Name := 'cbAttri' + IntToStr(K2);
             for Pass := 0 to 255 do
               for K := 0 to Length(
-                  TUoPHighlighter(fmSecondfj.fld_1428).Table[Pass].Names) - 1 do
-                if TUoPHighlighter(fmSecondfj.fld_1428).Table[Pass].Kinds[K] = Tag then
+                  TSynPasSyn(fmSecondfj.fld_1428).KeywordTablePtr^[Pass].Names) - 1 do
+                if TSynPasSyn(fmSecondfj.fld_1428).KeywordTablePtr^[Pass].Kinds[K] = Tag then
                   Items.Add(LowerCase(
-                    TUoPHighlighter(fmSecondfj.fld_1428).Table[Pass].Names[K]));
+                    TSynPasSyn(fmSecondfj.fld_1428).KeywordTablePtr^[Pass].Names[K]));
             if Items.Count > 0 then
               ItemIndex := 0;
           end;
@@ -335,7 +335,7 @@ begin
     for I := 0 to fmSecondfj.fld_1428.AttrCount - 1 do
       if S = fmSecondfj.fld_1428.Attribute[I].Name then
       begin
-        K := TUoPAttri(fmSecondfj.fld_1428.Attribute[I]).Kind;
+        K := fmSecondfj.fld_1428.Attribute[I].Kind;
         Found := True;
         Break;
       end;

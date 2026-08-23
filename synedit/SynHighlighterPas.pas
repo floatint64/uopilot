@@ -92,6 +92,9 @@ type
     Mine: array of Boolean;
   end;
 
+  TRWTable = array[0..255] of TlistRW;
+  PRWTable = ^TRWTable;
+
   TDelphiVersion = (dvDelphi1, dvDelphi2, dvDelphi3, dvDelphi4, dvDelphi5,
     dvDelphi6, dvDelphi7, dvDelphi8, dvDelphi2005);
 
@@ -203,6 +206,11 @@ type
     procedure SetLine(NewValue: string; LineNumber:Integer); override;
     procedure SetRange(Value: Pointer); override;
     property IdentChars;
+    { Local change: typed accessors to the private keyword state, used by the
+      unit routines below and by the dialogs in AttriFont.pas / uAttri.pas. }
+    property KeywordStringLen: Integer read fStringLen write fStringLen;
+    property KeywordToIdent: PChar read fToIdent write fToIdent;
+    function KeywordTablePtr: PRWTable;
   published
     property AsmAttri: TSynHighlighterAttributes read fAsmAttri write fAsmAttri;
     property CommentAttri: TSynHighlighterAttributes read fCommentAttri
@@ -230,28 +238,8 @@ type
 
 { Local change: the keyword and attribute helpers used by this project are
   declared here as unit routines. They reach the fields of the highlighter
-  through the overlay types below rather than through its properties. }
-type
-  { Overlay for TSynHighlighterAttributes: gives access to the kind of token
-    the attribute stands for, used when loading and saving keyword lists. }
-  TUoPAttriRec = record
-    Pad00: array[$00..$27] of Byte;
-    Kind: Integer;                     // $28  token kind
-  end;
-  TUoPAttri = ^TUoPAttriRec;
-
-  TRWTable = array[0..255] of TlistRW;
-
-  TUoPHighlighter = class(TComponent)
-  public
-    Pad30: array[$30..$5F] of Byte;
-    Attrs: TStringList;                // $60  fAttributes
-    Pad64: array[$64..$883] of Byte;
-    StringLen: Integer;                // $884  fStringLen
-    ToIdent: PChar;                    // $888  fToIdent
-    Pad88C: array[$88C..$1123] of Byte;
-    Table: TRWTable;                  // $1124
-  end;
+  through the typed accessors on TSynPasSyn (see KeywordStringLen,
+  KeywordToIdent, KeywordTablePtr) rather than through raw byte overlays. }
 
 function KeywordHash(H: TSynCustomHighlighter; P: PChar): Integer;
 function LoadHighlighterAttri(H: TSynCustomHighlighter; A: TSynHighlighterAttributes; Ini: TMyMemIniFile; Index: Integer): Boolean;
@@ -417,21 +405,23 @@ begin
     is kept in place }
 end;
 
+function TSynPasSyn.KeywordTablePtr: PRWTable;
+begin
+  Result := @fKeywords;
+end;
+
 function KeywordHash(H: TSynCustomHighlighter; P: PChar): Integer;
-var
-  HL: TUoPHighlighter;
 begin
   { hash of a keyword: the sum of mHashTable over the letters, digits and
     '_' of the word, truncated to a byte; the length of the word is stored
     in fStringLen along the way }
-  HL := TUoPHighlighter(H);
   Result := 0;
   while P^ in ['0'..'9', 'A'..'Z', '_', 'a'..'z'] do
   begin
     Inc(Result, mHashTable[P^]);
     Inc(P);
   end;
-  HL.StringLen := P - HL.ToIdent;
+  TSynPasSyn(H).KeywordStringLen := P - TSynPasSyn(H).KeywordToIdent;
   Result := Result and $FF;
 end;
 
@@ -1232,7 +1222,7 @@ begin
       while P > 0 do
       begin
         Sub := Copy(S, Fg, P - Fg);
-        AddKeyword(H, UpperCase(Sub), TUoPAttri(A).Kind);
+        AddKeyword(H, UpperCase(Sub), A.Kind);
         Inc(P);
         Fg := P;
         P := PosEx(',', S, Fg);
@@ -1240,7 +1230,7 @@ begin
       if P < Length(S) then
       begin
         Sub := Copy(S, Fg, Length(S) - Fg + 1);
-        AddKeyword(H, UpperCase(Sub), TUoPAttri(A).Kind);
+        AddKeyword(H, UpperCase(Sub), A.Kind);
       end;
     end;
   except
@@ -1265,7 +1255,8 @@ var
   Def, Val, Sect, Ident: string;
   L: array of string;
   I, K: Integer;
-  HA: TSynCustomHighlighter absolute H;
+  T: PRWTable;
+  A: TSynHighlighterAttributes;
 begin
   { inverse of LoadHighlighter, called from miSaveOptionsClick. Three passes:
       1) the colours of every attribute -- SaveHighlighterAttri;
@@ -1275,27 +1266,27 @@ begin
          collected string goes into the key '<name> List' -- but only if
          that key was already present in the ini. }
   Sect := 'Highlighter';
-  for I := 0 to TUoPHighlighter(H).Attrs.Count - 1 do
-    SaveHighlighterAttri(H, TSynHighlighterAttributes(
-      TUoPHighlighter(H).Attrs.Objects[I]), Ini, Sect);
-  SetLength(L, TUoPHighlighter(H).Attrs.Count + 1);
+  for I := 0 to H.AttrCount - 1 do
+    SaveHighlighterAttri(H, H.Attribute[I], Ini, Sect);
+  SetLength(L, H.AttrCount + 1);
+  T := TSynPasSyn(H).KeywordTablePtr;
   for K := 0 to 255 do
-    for N := 0 to Length(TUoPHighlighter(H).Table[K].Names) - 1 do
-      if TUoPHighlighter(H).Table[K].Mine[N] then
+    for N := 0 to Length(T^[K].Names) - 1 do
+      if T^[K].Mine[N] then
       begin
-        I := TUoPHighlighter(H).Table[K].Kinds[N];
+        I := T^[K].Kinds[N];
         if L[I] <> '' then
           L[I] := L[I] + ',';
-        L[I] := L[I] + LowerCase(TUoPHighlighter(H).Table[K].Names[N]);
+        L[I] := L[I] + LowerCase(T^[K].Names[N]);
       end;
   Def := 'not found';
-  for I := 0 to TUoPHighlighter(H).Attrs.Count - 1 do
+  for I := 0 to H.AttrCount - 1 do
   begin
-    N := TUoPAttri(TUoPHighlighter(H).Attrs.Objects[I]).Kind;
+    A := H.Attribute[I];
+    N := A.Kind;
     if N > 0 then
     begin
-      Ident := TSynHighlighterAttributes(
-        TUoPHighlighter(HA).Attrs.Objects[I]).Name + ' List';
+      Ident := A.Name + ' List';
       if Ini.ReadString(Sect, Ident, Def) = Def then
         Val := ''
       else
@@ -1660,14 +1651,14 @@ begin
   AddKeyword(H, UpperCase(gScriptCmdNames[128]), $F);
   AddKeyword(H, UpperCase(gScriptCmdNames[129]), $8);
   gNoFocusStealfq := False;
-  for I := 0 to TUoPHighlighter(H).Attrs.Count - 1 do
-    LoadHighlighterAttri(H, TSynHighlighterAttributes(TUoPHighlighter(H).Attrs.Objects[I * 1]), Ini, I);
+  for I := 0 to H.AttrCount - 1 do
+    LoadHighlighterAttri(H, H.Attribute[I], Ini, I);
   Result := True;
 end;
 
 function AddKeyword(H: TSynCustomHighlighter; S: string; Kind: Integer): Boolean;
 var
-  HL: TUoPHighlighter;
+  T: PRWTable;
   N: Integer;
   Found: Boolean;
   I, K: Integer;
@@ -1678,11 +1669,11 @@ begin
     is set, so the built-in words are marked False and the ones added by
     the user True, and SaveHighlighter writes only the latter into the ini. }
   K := KeywordHash(H, PChar(S));
-  HL := TUoPHighlighter(H);
-  N := Length(HL.Table[K].Names);
+  T := TSynPasSyn(H).KeywordTablePtr;
+  N := Length(T^[K].Names);
   Found := False;
   for I := 0 to N - 1 do
-    if HL.Table[K].Names[I] = S then
+    if T^[K].Names[I] = S then
     begin
       N := I;
       Found := True;
@@ -1690,30 +1681,32 @@ begin
     end;
   if not Found then
   begin
-    SetLength(HL.Table[K].Names, N + 1);
-    SetLength(HL.Table[K].Kinds, N + 1);
-    SetLength(HL.Table[K].Mine, N + 1);
-    HL.Table[K].Names[N] := S;
+    SetLength(T^[K].Names, N + 1);
+    SetLength(T^[K].Kinds, N + 1);
+    SetLength(T^[K].Mine, N + 1);
+    T^[K].Names[N] := S;
   end;
-  HL.Table[K].Kinds[N] := Kind;
-  HL.Table[K].Mine[N] := not gNoFocusStealfq;
+  T^[K].Kinds[N] := Kind;
+  T^[K].Mine[N] := not gNoFocusStealfq;
   Result := not Found;
 end;
 
 procedure DeleteKeyword(H: TSynCustomHighlighter; S: string);
 var
+  T: PRWTable;
   I, K: Integer;
 begin
   { inverse of AddKeyword: the word is found in its bucket and cleared in
     place (the name to '', the kind to 0, the Mine flag to False); the
     arrays are not shortened }
   K := KeywordHash(H, PChar(S));
-  for I := 0 to Length(TUoPHighlighter(H).Table[K].Names) - 1 do
-    if TUoPHighlighter(H).Table[K].Names[I] = S then
+  T := TSynPasSyn(H).KeywordTablePtr;
+  for I := 0 to Length(T^[K].Names) - 1 do
+    if T^[K].Names[I] = S then
     begin
-      TUoPHighlighter(H).Table[K].Names[I] := '';
-      TUoPHighlighter(H).Table[K].Kinds[I] := 0;
-      TUoPHighlighter(H).Table[K].Mine[I] := False;
+      T^[K].Names[I] := '';
+      T^[K].Kinds[I] := 0;
+      T^[K].Mine[I] := False;
       Break;
     end;
 end;
