@@ -1810,6 +1810,10 @@ function OleInitialize(pvReserved: Pointer): HResult;
 procedure OleUninitialize;
   stdcall; external 'ole32.dll';
 
+{$IFDEF FPC}
+function LoadStr(Ident: Integer): string;
+{$ENDIF}
+
 var
   gStartUOThread: TStartUOThread;
   fmSecondfj: TfmSecond;
@@ -11488,6 +11492,25 @@ begin
   Params.WndParent := GetDesktopWindow;
   Params.ExStyle := Params.ExStyle or $10;
 end;
+
+{$IFDEF FPC}
+function LoadStr(Ident: Integer): string;
+var
+  Buf: array[0..4095] of WideChar;
+  Len: Integer;
+  WS: WideString;
+begin
+  Result := '';
+  if Ident <= 0 then
+    Exit;
+  Len := LoadStringW(HInstance, Ident, Buf, Length(Buf));
+  if Len > 0 then
+  begin
+    SetString(WS, Buf, Len);
+    Result := UTF8Encode(WS);
+  end;
+end;
+{$ENDIF}
 
 procedure TfmSecond.ApplyLanguage(Code: Integer);
 begin
