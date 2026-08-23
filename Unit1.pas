@@ -4305,6 +4305,9 @@ begin
   if gDlg59671Ct7 = nil then
   begin
     gDlg59671Ct7 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg59671Ct7.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg59671Ct7.Parent := nil;
     gDlg59671Ct7.BorderStyle := bsSizeToolWin;
     gProcImageer := TImage.Create(gDlg59671Ct7);
@@ -6382,6 +6385,9 @@ begin
   if gDlg5966DC = nil then
   begin
     gDlg5966DC := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966DC.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966DC.Parent := nil;
     gDlg5966DC.BorderStyle := bsSizeToolWin;
     gDlg5966DC.Height := $202;
@@ -6449,6 +6455,9 @@ begin
   begin
     cbWikiList.DropDownCount := $14;
     gHelpForm := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gHelpForm.PopupParent := fmSecondfj;
+    {$ENDIF}
     gHelpForm.Parent := nil;
     gHelpForm.BorderStyle := bsSizeable;
     V := gHelpRect.Top;
@@ -6605,6 +6614,9 @@ begin
   if gDlg5966FC = nil then
   begin
     gDlg5966FC := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966FC.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966FC.Parent := nil;
     gDlg5966FC.BorderStyle := bsSizeToolWin;
     gDlg5966FC.Height := $248;
@@ -6840,6 +6852,9 @@ begin
   if gDlg5966E4 = nil then
   begin
     gDlg5966E4 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966E4.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966E4.Parent := nil;
     gDlg5966E4.Font := fmSecondfj.Font;
     gDlg5966E4.BorderStyle := bsToolWindow;
@@ -8006,6 +8021,9 @@ begin
     if gDlg596718 = nil then
     begin
       gDlg596718 := TForm.Create(fmSecondfj);
+      {$IFDEF FPC}
+      gDlg596718.PopupParent := fmSecondfj;
+      {$ENDIF}
       gDlg596718.BorderStyle := bsNone;
       gDlg596718.Caption := 'Macros';
       gDlg596718.ClientHeight := $16;
@@ -8643,6 +8661,9 @@ begin
   if gDlg59670C = nil then
   begin
     gDlg59670C := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg59670C.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg59670C.Parent := nil;
     gDlg59670C.BorderStyle := bsSizeToolWin;
     gDlg59670C.ClientHeight := pSelectUOserver.Height;
@@ -8687,6 +8708,9 @@ begin
   if gDlg5966E8 = nil then
   begin
     gDlg5966E8 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966E8.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966E8.Parent := nil;
     gDlg5966E8.Font := fmSecondfj.Font;
     gDlg5966E8.BorderStyle := bsToolWindow;
@@ -8752,6 +8776,9 @@ begin
   if gDlg596714 = nil then
   begin
     gDlg596714 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg596714.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg596714.BorderStyle := bsToolWindow;
     gDlg596714.Caption := pEditHouse.Hint;
     gDlg596714.ClientHeight := pEditHouse.Height;
@@ -9040,6 +9067,9 @@ begin
   if gDlg596700 = nil then
   begin
     gDlg596700 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg596700.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg596700.BorderStyle := bsToolWindow;
     gDlg596700.Caption := 'Edit HotKeys';
     gDlg596700.ClientHeight := $153;
@@ -9661,6 +9691,9 @@ begin
   if gDlg5966F0 = nil then
   begin
     gDlg5966F0 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966F0.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966F0.Parent := nil;
     gDlg5966F0.Font := fmSecondfj.Font;
     gDlg5966F0.BorderStyle := bsToolWindow;
@@ -10386,6 +10419,9 @@ begin
   if gAboutForm = nil then
   begin
     gAboutForm := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gAboutForm.PopupParent := fmSecondfj;
+    {$ENDIF}
     gAboutForm.BorderStyle := bsDialog;
     if gLangOffsety > 0 then
       gAboutForm.Caption := LoadStr(gLangOffsety + $1B5)
@@ -11293,6 +11329,9 @@ begin
   if gDlg5966F4 = nil then
   begin
     gDlg5966F4 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966F4.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966F4.Parent := nil;
     gDlg5966F4.Font := fmSecondfj.Font;
     gDlg5966F4.BorderStyle := bsToolWindow;
@@ -12690,6 +12729,9 @@ begin
   if gDlg5966F8c6 = nil then
   begin
     gDlg5966F8c6 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg5966F8c6.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg5966F8c6.Parent := nil;
     gDlg5966F8c6.BorderStyle := bsSizeable;
     if miSOTLogWindow.Checked then
@@ -12903,6 +12945,9 @@ begin
     if gDlg596708 = nil then
     begin
       gDlg596708 := TForm.Create(fmSecondfj);
+      {$IFDEF FPC}
+      gDlg596708.PopupParent := fmSecondfj;
+      {$ENDIF}
       gDlg596708.Parent := nil;
       gDlg596708.BorderStyle := bsSizeToolWin;
       gDlg596708.ClientHeight := pCustomClient.Height;
@@ -13683,6 +13728,9 @@ begin
   if gDlg596704 = nil then
   begin
     gDlg596704 := TForm.Create(fmSecondfj);
+    {$IFDEF FPC}
+    gDlg596704.PopupParent := fmSecondfj;
+    {$ENDIF}
     gDlg596704.Parent := nil;
     gDlg596704.BorderStyle := bsToolWindow;
     gDlg596704.FormStyle := fsStayOnTop;
@@ -14250,6 +14298,9 @@ begin
     if gDlg596710 = nil then
     begin
       gDlg596710 := TForm.Create(fmSecondfj);
+      {$IFDEF FPC}
+      gDlg596710.PopupParent := fmSecondfj;
+      {$ENDIF}
       gDlg596710.Parent := nil;
       gDlg596710.BorderStyle := bsSizeToolWin;
       gDlg596710.ClientHeight := fmSecondfj.pMakroOptions.Height;
@@ -15533,6 +15584,9 @@ begin
     if gDlg596720 = nil then
     begin
       gDlg596720 := TForm.Create(fmSecondfj);
+      {$IFDEF FPC}
+      gDlg596720.PopupParent := fmSecondfj;
+      {$ENDIF}
       gDlg596720.Caption := 'Scripts';
       gDlg596720.ClientHeight := $16;
       gDlg596720.ClientWidth := $2E1;

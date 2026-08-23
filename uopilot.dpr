@@ -39,7 +39,10 @@ begin
   Application.ProcessMessages;
   Application.CreateForm(TfmFirst, fmFirstfj);
   Application.CreateForm(TfmSecond, fmSecondfj);
+  fmSecondfj.ShowInTaskBar := stAlways;
   ShowWindow(Application.Handle, SW_HIDE);
+  SetWindowLong(Application.Handle, GWL_EXSTYLE,
+    GetWindowLong(Application.Handle, GWL_EXSTYLE) or WS_EX_TOOLWINDOW);
   if fmSecondfj.miMinToTray.Checked and fmSecondfj.FFlag14E6 then
     ShowWindow(fmSecondfj.Handle, SW_HIDE);
   if (fmSecondfj.edScript <> nil) and fmSecondfj.Visible and
