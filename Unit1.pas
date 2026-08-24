@@ -12116,6 +12116,8 @@ begin
     end;
     fmSecondfj.Constraints.MaxHeight := fmSecondfj.Constraints.MinHeight;
     fmSecondfj.Constraints.MaxWidth := fmSecondfj.Constraints.MinWidth;
+    fmSecondfj.Width := fmSecondfj.Constraints.MinWidth;
+    fmSecondfj.Height := fmSecondfj.Constraints.MinHeight;
     gFlag5969EE := Saved;
     gInScriptTab := False;
   end;
