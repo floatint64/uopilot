@@ -1499,6 +1499,9 @@ begin
   fMaxScrollWidth := 1024;
   fScrollBars := ssBoth;
   fBorderStyle := bsSingle;
+{$IFDEF FPC}
+  inherited SetBorderStyle(bsSingle);
+{$ENDIF}
   fInsertCaret := ctVerticalLine;
   fOverwriteCaret := ctBlock;
   FSelectionMode := smNormal;
@@ -7288,7 +7291,11 @@ begin
     Resize;
     Invalidate;
 {$ELSE}
-    {$IFDEF FPC}RecreateWnd(Self){$ELSE}RecreateWnd{$ENDIF};
+    {$IFDEF FPC}
+    inherited SetBorderStyle(Value);
+    {$ELSE}
+    RecreateWnd;
+    {$ENDIF}
 {$ENDIF}
   end;
 end;
