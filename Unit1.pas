@@ -1666,6 +1666,12 @@ type
     procedure GutterClick(Sender: TObject; Button: TMouseButton;
       X, Y, Line: Integer; Mark: TSynEditMark);
     procedure RedrawAllTabs;
+    procedure DrawScriptTabBody(Canvas: TCanvas; IsDesc: Boolean;
+      TabIndex: Integer; R: TRect; Active: Boolean);
+    {$IFDEF FPC}
+    procedure tScriptDrawTabFPC(Sender: TFixedTabControl; Canvas: TCanvas;
+      TabIndex: Integer; const Rect: TRect; Active: Boolean);
+    {$ENDIF}
     procedure LastScriptItemClick(Sender: TObject);
     procedure ScriptTabWndProc(var Message: TMessage);
     procedure WndProc(var Message: TMessage); override;
@@ -4383,6 +4389,10 @@ begin
   Panel4.ParentFont := False;
   tScript.ParentFont := False;
   tScript.Font.Style := [fsBold];
+  {$IFDEF FPC}
+  tScript.OnDrawTab := tScriptDrawTabFPC;
+  tScriptDesc.OnDrawTab := tScriptDrawTabFPC;
+  {$ENDIF}
   FormResize(Sender);
   { ширины столбцов сеток считаются от невидимых панелей-линеек }
   sgVar.ColWidths[1] := $53;
@@ -10834,37 +10844,40 @@ end;
 
 procedure TfmSecond.tScriptDrawTab(Control: TCustomTabControl; TabIndex: Integer; const Rect: TRect; Active: Boolean);
 var
+  R: TRect;
+begin
+  {$IFnDEF FPC}
+  if Control.Tag = 1 then R := tScriptDesc.TabRect(TabIndex)
+                     else R := tScript.TabRect(TabIndex);
+  DrawScriptTabBody(Control.Canvas, Control.Tag = 1, TabIndex, R, Active);
+  {$ENDIF}
+end;
+
+procedure TfmSecond.DrawScriptTabBody(Canvas: TCanvas; IsDesc: Boolean; TabIndex: Integer; R: TRect; Active: Boolean);
+var
   N: Integer;
   OldColor: TColor;
-  IsDesc: Boolean;
-  R: TRect;
   R2: TRect;
   R3: TRect;
   W: Integer;
   C: Integer;
   Lx: Integer;
 begin
-  {$IFnDEF FPC}
   { Отрисовка вкладки скрипта: цвет надписи показывает состояние потока
     (красный -- пауза, зелёный -- работает), справа рисуется красный квадрат
     для несохранённых, слева-снизу -- полоски кнопок «пуск» и «стоп». }
-  IsDesc := Control.Tag = 1;
-  OldColor := Control.Canvas.Brush.Color;
-  if IsDesc then
-    R := tScriptDesc.TabRect(TabIndex)
-  else
-    R := tScript.TabRect(TabIndex);
+  OldColor := Canvas.Brush.Color;
   if Active then
   begin
     Inc(R.Bottom);
     if IsDesc then
-      Control.Canvas.Font.Style := [];
+      Canvas.Font.Style := [];
   end;
   R2 := R;
   R2.Right := R2.Right - 2;
   R2.Left := R2.Left + 2;
   R2.Top := R2.Top + 2;
-  Control.Canvas.FillRect(R2);
+  Canvas.FillRect(R2);
   R2 := R;
   R3 := R;
   N := StrToInt(tScript.Tabs[TabIndex]);
@@ -10872,22 +10885,22 @@ begin
   begin
     try
       if gScriptso3[N].Paused then
-        Control.Canvas.Font.Color := $FF
+        Canvas.Font.Color := $FF
       else if gScriptso3[N].Flag91 then
-        Control.Canvas.Font.Color := $D629
+        Canvas.Font.Color := $D629
       else
-        Control.Canvas.Font.Color := $FF000008;
+        Canvas.Font.Color := $FF000008;
     except
-      Control.Canvas.Font.Color := $FF000008;
+      Canvas.Font.Color := $FF000008;
     end;
   end
   else
-    Control.Canvas.Font.Color := $FF000008;
-  Control.Canvas.Brush.Color := $FF00000F;
+    Canvas.Font.Color := $FF000008;
+  Canvas.Brush.Color := $FF00000F;
   if IsDesc then
-    W := Control.Canvas.TextWidth(tScriptDesc.Tabs[TabIndex])
+    W := Canvas.TextWidth(tScriptDesc.Tabs[TabIndex])
   else
-    W := Control.Canvas.TextWidth(tScript.Tabs[TabIndex]);
+    W := Canvas.TextWidth(tScript.Tabs[TabIndex]);
   C := (R.Right - R.Left) div 2 + R.Left - W div 2 - 1;
   if C > R.Left then
   begin
@@ -10899,11 +10912,11 @@ begin
     if R.Top >= 2 then
       R.Top := R.Top - 2;
   if IsDesc then
-    Control.Canvas.TextRect(R, R.Left, R.Top, tScriptDesc.Tabs[TabIndex])
+    Canvas.TextRect(R, R.Left, R.Top, tScriptDesc.Tabs[TabIndex])
   else
-    Control.Canvas.TextRect(R, R.Left, R.Top, tScript.Tabs[TabIndex]);
+    Canvas.TextRect(R, R.Left, R.Top, tScript.Tabs[TabIndex]);
   if Active and IsDesc then
-    Control.Canvas.Font.Style := [fsBold];
+    Canvas.Font.Style := [fsBold];
   if cbShowUnsavedScripts.Checked then
     if gScriptso3[N].Modified then
     begin
@@ -10913,16 +10926,16 @@ begin
       R2.Top := R2.Top + 2;
       if Active then
         Dec(R2.Bottom);
-      Control.Canvas.Brush.Color := $FF;
-      Control.Canvas.FillRect(R2);
+      Canvas.Brush.Color := $FF;
+      Canvas.FillRect(R2);
       R2 := R3;
     end;
   if IsDesc then
   begin
     R2 := R3;
     R2.Top := R2.Bottom - 2;
-    Control.Canvas.Brush.Color := 0;
-    Control.Canvas.FillRect(R2);
+    Canvas.Brush.Color := 0;
+    Canvas.FillRect(R2);
     R2 := R3;
   end;
   if FFlag1464 then
@@ -10935,17 +10948,24 @@ begin
     R3.Top := R3.Bottom - 6;
     R3.Left := R3.Left + 2;
     R3.Right := R3.Left + 8;
-    Control.Canvas.Brush.Color := $D629;
-    Control.Canvas.FillRect(R3);
+    Canvas.Brush.Color := $D629;
+    Canvas.FillRect(R3);
     R2.Top := R3.Top;
     R2.Right := R2.Right - 2;
     R2.Left := R2.Right - 8;
-    Control.Canvas.Brush.Color := $D7;
-    Control.Canvas.FillRect(R2);
+    Canvas.Brush.Color := $D7;
+    Canvas.FillRect(R2);
   end;
-  Control.Canvas.Brush.Color := OldColor;
-  {$ENDIF}
+  Canvas.Brush.Color := OldColor;
 end;
+
+{$IFDEF FPC}
+procedure TfmSecond.tScriptDrawTabFPC(Sender: TFixedTabControl; Canvas: TCanvas;
+  TabIndex: Integer; const Rect: TRect; Active: Boolean);
+begin
+  DrawScriptTabBody(Canvas, Sender.Tag = 1, TabIndex, Rect, Active);
+end;
+{$ENDIF}
 
 procedure TfmSecond.miShowRuningScriptOnTaskbarClick(Sender: TObject);
 begin
@@ -11007,19 +11027,29 @@ begin
         if gScriptso3[N].Paused <> gPausedCache[N] then
         begin
           gPausedCache[N] := gScriptso3[N].Paused;
+          {$IFDEF FPC}
+          tScript.InvalidateTabs;
+          tScriptDesc.InvalidateTabs;
+          {$ELSE}
           if tScriptDesc.Visible then
             tScriptDrawTab(tScriptDesc, I, R, tScript.TabIndex = I)
           else
             tScriptDrawTab(tScript, I, R, tScript.TabIndex = I);
+          {$ENDIF}
           Redraw := True;
         end
         else if gScriptso3[N].Flag91 <> gRunCache[N] then
         begin
           gRunCache[N] := gScriptso3[N].Flag91;
+          {$IFDEF FPC}
+          tScript.InvalidateTabs;
+          tScriptDesc.InvalidateTabs;
+          {$ELSE}
           if tScriptDesc.Visible then
             tScriptDrawTab(tScriptDesc, I, R, tScript.TabIndex = I)
           else
             tScriptDrawTab(tScript, I, R, tScript.TabIndex = I);
+          {$ENDIF}
           Redraw := True;
         end;
       end;
@@ -12925,6 +12955,10 @@ var
   I: Integer;
   R: TRect;
 begin
+  {$IFDEF FPC}
+  tScript.InvalidateTabs;
+  tScriptDesc.InvalidateTabs;
+  {$ELSE}
   for I := 0 to tScript.Tabs.Count - 1 do
   begin
     R.Left := 0;
@@ -12936,6 +12970,7 @@ begin
     else
       tScriptDrawTab(tScript, I, R, I = tScript.TabIndex);
   end;
+  {$ENDIF}
 end;
 
 procedure TfmSecond.cbClVerChange(Sender: TObject);

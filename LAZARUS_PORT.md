@@ -48,25 +48,57 @@
 открывается всегда, отдельная опция не требуется.
 
 
-## Цветные вкладки скриптов (TTabControl) не работают в LCL
+## Цветные вкладки скриптов (TTabControl) — оверлей поверх NoteBook
 
 В Delphi вкладки `tScript`/`tScriptDesc` рисуются вручную: `OwnerDraw := True`,
 событие `OnDrawTab` и `Control.Canvas`. В LCL этот механизм отсутствует:
 
-- у `TCustomTabControl` нет свойства `Canvas`;
 - события `OnDrawTab` нет (в `comctrls.pp` оно закомментировано и исключено
   из стриминга через `RegisterPropertyToSkip`);
 - `OwnerDraw` ничего не делает (стиль `TCS_OWNERDRAWFIXED` LCL не выставляет);
-- `TTabControl.TabRect` возвращает нулевой прямоугольник;
+- `TTabControl.TabRect` возвращает нулевой прямоугольник (для `TTabControl`
+  Win32-виджет `GetTabRect` явно отдаёт `(0,0,0,0)`);
 - вкладки рисует дочерний нативный `SysTabControl32` (внутренний `NoteBook`),
   поэтому рисовать на `GetDC(tScript.Handle)` бессмысленно — вкладки окажутся
   под дочерним окном.
 
-Поэтому процедура `TfmSecond.tScriptDrawTab` под `{$IFDEF FPC}` выключена
-(no-op), и вкладки под Lazarus отображаются стандартно, без индикации
-состояния скрипта (цвет, «не сохранено», кнопки пуск/стоп). Для восстановления
-фичи нужен кастомный таб-контрол (ATTabs или собственный `TCustomControl`),
-рисующий вкладки на своём `Canvas`.
+Решение — **пассивный оверлей поверх внутреннего `NoteBook`** в том же
+`TFixedTabControl` (юнит `FixedTabControl.pas`):
+
+1. В `CreateWnd`/`DestroyWnd` подклассируется `NoteBook` (тип
+   `TTabControlNoteBookStrings(Tabs).NoteBook` — нативный `TPageControl`):
+   его `WindowProc` перехватывается, штатный вызов сохраняется.
+2. Перехватывается `LM_PAINT` дочернего `NoteBook` (в LCL `WM_PAINT` нативного
+   окна превращается в `LM_PAINT`, значение совпадает с `WM_PAINT` = `$000F`).
+   После штатной отрисовки `SysTabControl32` (через `FNoteBookOldProc`) оверлей
+   дорисовывается на **том же paint DC**, что и нативный контрол — его берём из
+   сообщения (`TLMPaint(Msg).DC`), а не через `GetDC`. Рисование через
+   `GetDC(NoteBook.Handle)` на экран не попадает (поверхность рисует только
+   paint DC из `BeginPaint`). Цветной текст, красный квадрат «не сохранено» и
+   блоки «пуск/стоп» рисуются в координатах `NoteBook.TabRect` (LCL-координаты
+   клиентской области, совпадают с paint DC). Мышь оверлей не перехватывает —
+   клики по вкладкам работают как раньше.
+3. Рабочий прямоугольник вкладки берётся из `NoteBook.TabRect` (тот является
+   `TPageControl`, а не `TTabControl`, поэтому Win32-виджет шлёт
+   `TCM_GETITEMRECT`). Невиртуальное сокрытие `TFixedTabControl.TabRect`
+   возвращает `NoteBook.TabRect` (координаты клиентской области `NoteBook`) —
+   это неидентичная система координат с `tScript` (мышь в `tScriptMouseUp`
+   приходит в координатах `tScript`), поэтому hit-test по блокам
+   «пуск/стоп» требует дополнительной поправки на смещение клиентской области.
+4. Гейт включения — штатный `OwnerDraw` (выставляется в
+   `miShowRuningScriptClick`), как в Delphi. Событие `OnDrawTab` публикуется
+   в `TFixedTabControl` и присваивается в коде (`tScriptDrawTabFPC`), чтобы не
+   трогать `.lfm`.
+
+Общее тело отрисовки вынесено в `TfmSecond.DrawScriptTabBody`; Delphi-ветка
+(`{$IFnDEF FPC}`) продолжает использовать прежний `tScriptDrawTab` с
+`Control.Canvas` и `TabRect`, а FPC-ветка рисует по прямоугольнику из
+`NoteBook.TabRect` (единый источник прямоугольников для отрисовки).
+
+Ограничение: решение win32-специфично (подкласс `LM_PAINT`, paint DC,
+`TCM_GETITEMRECT`) — допустимо для target i386-win32. Оверлей рисует поверх
+нативного контрола, поэтому 3D-рамки вкладок остаются нативными; точный
+«плоский» вид Delphi не воспроизводится (это отдельная задача).
 
 
 ## Чёрная заливка области вкладок TTabControl
