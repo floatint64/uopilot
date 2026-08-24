@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="FixedTabControlPkg"/>
+    <Type Value="DesignTime"/>
+    <Author Value=""/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Other>
+        <CompilerMessages>
+          <UseMsgFile Value="True"/>
+        </CompilerMessages>
+      </Other>
+    </CompilerOptions>
+    <Files Count="2">
+      <Item1>
+        <Filename Value="FixedTabControl.pas"/>
+        <UnitName Value="FixedTabControl"/>
+      </Item1>
+      <Item2>
+        <Filename Value="FixedTabControlReg.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="FixedTabControlReg"/>
+      </Item2>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

@@ -107,6 +107,28 @@ teTab:
 `tScript`/`tScriptDesc` заменён на `TFixedTabControl` в `Unit1.pas` и `Unit1.lfm`,
 юнит подключён в `uopilot.dpr` и `uopilot.lpi`.
 
+### Регистрация в IDE (пакет FixedTabControlPkg)
+
+`RegisterClass(TFixedTabControl)` в `FixedTabControl.pas` работает только в
+скомпилированном приложении — среда Lazarus ищет классы компонентов в
+собственном реестре, который строится из установленных пакетов (аналогично
+`TGauge`). Поэтому при открытии `Unit1.lfm` без установленного пакета среда
+выдаёт ошибку «Невозможно найти класс компонента TFixedTabControl».
+
+В проект добавлен design-time пакет `FixedTabControlPkg.lpk` (юниты
+`FixedTabControl.pas` + `FixedTabControlReg.pas`, зависимость — `LCL`),
+регистрирующий `TFixedTabControl` на вкладке **Samples** через
+`RegisterComponents`.
+
+Установка — как для `GaugesPkg`:
+
+1. **Пакет → Открыть файл пакета (.lpk)…** → `FixedTabControlPkg.lpk`.
+2. **Компилировать**, затем **Использовать → Установить**.
+3. Пересобрать и перезапустить Lazarus.
+
+После установки `TFixedTabControl` появляется на вкладке **Samples**, а
+`Unit1.lfm` открывается без ошибки.
+
 ### Альтернативные варианты (запасные, не применяются)
 
 - **Правка LCL `themes.pas`** — заменить `clBackground` на `clBtnFace` в
