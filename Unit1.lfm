@@ -1357,6 +1357,7 @@ object fmSecond: TfmSecond
         Width = 257
         Align = alBottom
         Color = clBtnFace
+        ForeColor = clBlack
         MaxValue = 0
         ParentColor = False
         ShowText = False

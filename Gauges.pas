@@ -223,10 +223,6 @@ begin
     Pen.Color := FForeColor;
     Pen.Width := 1;
     Frame3D(PaintRect, clBtnShadow, clBtnHighlight, 1);
-    Inc(PaintRect.Left);
-    Inc(PaintRect.Top);
-    Dec(PaintRect.Right);
-    Dec(PaintRect.Bottom);
     if FKind = gkHorizontalBar then
     begin
       if FMaxValue = FMinValue then
