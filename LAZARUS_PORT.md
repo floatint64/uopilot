@@ -69,6 +69,56 @@
 рисующий вкладки на своём `Canvas`.
 
 
+## Чёрная заливка области вкладок TTabControl
+
+В Delphi `TTabControl` — нативный `SysTabControl32`, заливающий область под
+вкладками цветом `COLOR_3DFACE`/`COLOR_BTNFACE` (светло-серый). В Lazarus
+`TTabControl` — составной контрол: вкладки рисует внутренний `NoteBook`, а
+область под вкладками («pane») LCL рисует сам через `ThemeServices` (`ttPane`).
+Когда приложение работает **без визуальных стилей Windows** (в проекте нет
+comctl32 v6-манифеста), `ThemeServices.ThemesEnabled = False` и срабатывает
+fallback из `D:\Lazarus\lcl\themes.pas:2213`:
+
+```pascal
+teTab:
+  begin
+    if Details.Part in [TABP_PANE, TABP_BODY] then
+      FillWithColor(ARect, clBackground);   // <-- БАГ
+  end;
+```
+
+`clBackground` — это системный `COLOR_BACKGROUND` (цвет рабочего стола, на
+машине пользователя чёрный), поэтому фон `tScript`/`tScriptDesc` вокруг
+`Panel4` и под строкой вкладок был чёрным.
+
+### Решение: локальный подкласс `TFixedTabControl`
+
+Создан юнит `FixedTabControl.pas` с классом `TFixedTabControl = class(TTabControl)`,
+переопределяющим `PaintWindow(DC)`:
+
+1. `inherited PaintWindow(DC)` — штатная отрисовка (включая чёрный pane);
+2. `AdjustDisplayRectWithBorder(ARect)` — display area с учётом `TabPosition`
+   (работает и для `tpTop`, и для `tpBottom`);
+3. `Windows.FillRect(DC, ARect, GetSysColorBrush(COLOR_BTNFACE))` — перезаливка
+   display area светло-серым системным цветом (как в Delphi).
+
+Класс регистрируется через `RegisterClass(TFixedTabControl)` в `initialization`
+(иначе стример lfm не найдёт класс при `Application.CreateForm`). Тип
+`tScript`/`tScriptDesc` заменён на `TFixedTabControl` в `Unit1.pas` и `Unit1.lfm`,
+юнит подключён в `uopilot.dpr` и `uopilot.lpi`.
+
+### Альтернативные варианты (запасные, не применяются)
+
+- **Правка LCL `themes.pas`** — заменить `clBackground` на `clBtnFace` в
+  `D:\Lazarus\lcl\themes.pas:2213` и пересобрать LCL/IDE. Чинит все
+  `TTabControl` разом, но глобально меняет поведение и требует пересборки
+  Lazarus.
+- **Включить визуальные стили** — добавить в проект comctl32 v6-манифест
+  (`Application` → «Use manifest» / `XPManifest`). Тогда `TABP_PANE` рисуется
+  корректно, но меняется внешний вид всех контролов (темы), что для
+  классического Delphi-7-интерфейса нежелательно.
+
+
 ## Application.OnMessage отсутствует в LCL
 
 В Delphi VCL глобальный `Application` (`Forms.TApplication`) имеет событие

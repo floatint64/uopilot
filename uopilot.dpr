@@ -21,6 +21,7 @@ uses
     только в Delphi 7. Стоит сразу за Forms -- патчит именно его. }
   VCLFixes in 'VCLFixes.pas',
   Unit1 in 'Unit1.pas' {fmSecondfj},
+  FixedTabControl in 'FixedTabControl.pas',
   fmFirst_u in 'fmFirst_u.pas' {fmFirstfj},
   Unit2 in 'Unit2.pas';
 

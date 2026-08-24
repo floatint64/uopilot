@@ -20,7 +20,7 @@ uses
   MyIniFiles, geScale, SynMemo, SynHighlighterPas, SynEdit,
   SynEditCodeFolding, SynEditHighlighter, SynEditTypes, awMachMask,
   uScanThread, PerlRegEx, PngGDIP, GDIPAPI, GDIPOBJ, Unit2,
-  LangClipboard, ActiveX, Buttons, Classes, Clipbrd, ComCtrls,
+  LangClipboard, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, FixedTabControl,
   Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, Menus, Messages,
   Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet,
   Windows{$IFDEF FPC}, LCLType, RichMemo{$ENDIF};
@@ -298,8 +298,8 @@ type
     sbMacros: TSpeedButton;
     sbSControl: TSpeedButton;
     PanelTs: TPanel;
-    tScript: TTabControl;
-    tScriptDesc: TTabControl;
+    tScript: TFixedTabControl;
+    tScriptDesc: TFixedTabControl;
     btStart: TSpeedButton;
     bAdd: TSpeedButton;
     bRemove: TSpeedButton;
