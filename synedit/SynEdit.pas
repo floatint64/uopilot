@@ -669,6 +669,9 @@ type
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
+    {$IFDEF FPC}
+    procedure UTF8KeyPress(var UTF8Key: TUTF8Char); override;
+    {$ENDIF}
     procedure LinesChanged(Sender: TObject); virtual;
     procedure ListCleared(Sender: TObject);
     procedure ListDeleted(Sender: TObject; aIndex: integer; aCount: integer);
@@ -2266,6 +2269,30 @@ begin
     // don't ignore further keys
     Exclude(fStateFlags, sfIgnoreNextChar);
 end;
+
+{$IFDEF FPC}
+procedure TCustomSynEdit.UTF8KeyPress(var UTF8Key: TUTF8Char);
+var
+  WS: WideString;
+  AKey: Char;
+  Used: Integer;
+begin
+  { UTF-8 LCL -> internal cp1251 SynEdit: transcode a single character
+    UTF-8 -> cp1251 and insert via the normal KeyPress (undo/redo, highlighting). }
+  if UTF8Key = '' then
+    Exit;
+  WS := UTF8Decode(UTF8Key);
+  if Length(WS) = 1 then
+  begin
+    Used := WideCharToMultiByte(1251, 0, @WS[1], 1, @AKey, 1, nil, nil);
+    if Used = 1 then
+    begin
+      KeyPress(AKey);
+      UTF8Key := '';
+    end;
+  end;
+end;
+{$ENDIF}
 
 function TCustomSynEdit.LeftSpaces(const Line: string): Integer;
 begin

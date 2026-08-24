@@ -166,3 +166,27 @@ teTab:
 Примечание: сообщение `$4B` нигде в исходниках не отправляется
 (нет `PostMessage`/`SendMessage` с таким номером), поэтому отключение
 `OnMessage` под FPC ничего не ломает.
+
+
+## Кириллица в редакторе скрипта отображается как «????»
+
+Локальный SynEdit (`synedit/SynEdit.pas`, `SynMemo.pas`, `SynEditTypes.pas`) — это
+однобайтовый порт SynEdit 2.0.3, заточенный под cp1251: `TSynSpecialChars =
+[#$A8, #$B8, #$C0..#$FF]` (SynEditTypes.pas:50), `Font.Charset = RUSSIAN_CHARSET`
+(Unit1.pas:3950), файлы скриптов читаются/пишутся в cp1251 (LangClipboard.pas).
+Приложение собирается в UTF-8 LCL (без `-dDisableUTF8RTL`), поэтому ввод клавиатуры
+доставляется как UTF-8 через виртуальный метод `TWinControl.UTF8KeyPress`
+(`win32callback.inc` `HandleUnicodeChar` → `DoUTF8KeyPress`).
+
+`TCustomSynEdit` переопределяет только однобайтовый `KeyPress(var Key: Char)`
+(SynEdit.pas:671, :2244), а `UTF8KeyPress` — нет. Для не-ASCII символа LCL уходит
+в fallback-ветку `CN_CHAR` (`win32callback.inc:1243` `CharCode :=
+Word(Char(WideChar(WParam)))`), где Unicode-код сужается до одного байта, не
+совпадающего с cp1251, — кириллица искажалась и выводилась как «?».
+
+Решение: в `TCustomSynEdit` под `{$IFDEF FPC}` добавлено переопределение
+`UTF8KeyPress(var UTF8Key: TUTF8Char)` — символ UTF-8 перекодируется в cp1251 через
+`UTF8Decode` + `WideCharToMultiByte(1251, ...)` и вставляется штатным `KeyPress`
+(undo/redo и подсветка сохраняются); `UTF8Key := ''` помечает символ обработанным и
+отключает fallback-ветку, исключая двойную вставку. Delphi-ветка не затрагивается
+(обёрнута в `{$IFDEF FPC}`).
