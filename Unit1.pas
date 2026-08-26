@@ -3809,10 +3809,22 @@ begin
 end;
 
 procedure MsgBox(Text, Caption: PChar; Flags: Integer);
+{$IFDEF FPC}
+var
+  WText, WCaption: WideString;
+begin
+  { LCL хранит строки в UTF-8, а MessageBoxA трактует их как cp1251.
+    Конвертируем в UTF-16 и зовём широкую версию. }
+  WText := UTF8Decode(Text);
+  WCaption := UTF8Decode(Caption);
+  MessageBoxW(0, PWideChar(WText), PWideChar(WCaption), MB_SYSTEMMODAL);
+end;
+{$ELSE}
 begin
   // Flags не используется: сообщение всегда MB_SYSTEMMODAL.
   MessageBox(0, Text, Caption, MB_SYSTEMMODAL);
 end;
+{$ENDIF}
 
 procedure TfmSecond.TimerKeyAction(Kind: Byte; Value: Integer);
 begin
