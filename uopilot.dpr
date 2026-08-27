@@ -27,7 +27,7 @@ uses
 
 { Ресурсы: значки, курсор WEB_HAND, шесть языковых таблиц, справка,
   звук и lua51.dll. }
-{$R uopres.res}
+{$R res/uopres.rc}
 
 var
   S: string;

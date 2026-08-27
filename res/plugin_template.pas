@@ -5,22 +5,22 @@ uses  windows;
 type
   tInitStruct = packed record
     FunctionCount : Cardinal;
-    FunctionNames : Array of Pchar; // Должно быть именно динамическим массивом, иначе адресация съезжает
+    FunctionNames : Array of Pchar; // Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РёРјРµРЅРЅРѕ РґРёРЅР°РјРёС‡РµСЃРєРёРј РјР°СЃСЃРёРІРѕРј, РёРЅР°С‡Рµ Р°РґСЂРµСЃР°С†РёСЏ СЃСЉРµР·Р¶Р°РµС‚
   end;
 
-  tParamStruct = packed record // Структуру этого типа заполняет пилот, и передает на нее указатель плагину
+  tParamStruct = packed record // РЎС‚СЂСѓРєС‚СѓСЂСѓ СЌС‚РѕРіРѕ С‚РёРїР° Р·Р°РїРѕР»РЅСЏРµС‚ РїРёР»РѕС‚, Рё РїРµСЂРµРґР°РµС‚ РЅР° РЅРµРµ СѓРєР°Р·Р°С‚РµР»СЊ РїР»Р°РіРёРЅСѓ
     WindowHandle : Cardinal; // Handle of workWindow
     WindowPID    : Cardinal; // pid of process of workWindow
-    ResultStruct : Cardinal; // ранее Reserved. Тип не менял, так что можно не переименовывать в плагине.
+    ResultStruct : Cardinal; // СЂР°РЅРµРµ Reserved. РўРёРї РЅРµ РјРµРЅСЏР», С‚Р°Рє С‡С‚Рѕ РјРѕР¶РЅРѕ РЅРµ РїРµСЂРµРёРјРµРЅРѕРІС‹РІР°С‚СЊ РІ РїР»Р°РіРёРЅРµ.
     ParamString     : Pchar; // string of parameters with substituted variables
     ParamStringOrig : Pchar; // original string of parameters
     ResultArr    : array [0..1048576{0..32767}] of char // array for returned values
   end;
 
-  tResultStruct = packed record // Заполняется плагином. Память под строку выделяется и освобождается плагином.
-    used          : boolean;   // Используется ли эта структура при возврате значения. = false
-    RLength       : Cardinal;  // Размер данных.                                       = 0
-    RArray        : Pchar;     // Указатель на возвращаемую строку.                    = ''
+  tResultStruct = packed record // Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ РїР»Р°РіРёРЅРѕРј. РџР°РјСЏС‚СЊ РїРѕРґ СЃС‚СЂРѕРєСѓ РІС‹РґРµР»СЏРµС‚СЃСЏ Рё РѕСЃРІРѕР±РѕР¶РґР°РµС‚СЃСЏ РїР»Р°РіРёРЅРѕРј.
+    used          : boolean;   // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р»Рё СЌС‚Р° СЃС‚СЂСѓРєС‚СѓСЂР° РїСЂРё РІРѕР·РІСЂР°С‚Рµ Р·РЅР°С‡РµРЅРёСЏ. = false
+    RLength       : Cardinal;  // Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С….                                       = 0
+    RArray        : Pchar;     // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РІРѕР·РІСЂР°С‰Р°РµРјСѓСЋ СЃС‚СЂРѕРєСѓ.                    = ''
     Reserved1     : Cardinal;
     Reserved2     : Cardinal;
     Reserved3     : Int64;
@@ -43,21 +43,21 @@ begin
   if Version >= 2.37 then begin
     // exported function count, for UOPilot
     InitStruct.FunctionCount := 4;
-    // Задаем размер динамического массива для имен функций
+    // Р—Р°РґР°РµРј СЂР°Р·РјРµСЂ РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РјР°СЃСЃРёРІР° РґР»СЏ РёРјРµРЅ С„СѓРЅРєС†РёР№
     setlength (InitStruct.FunctionNames, InitStruct.FunctionCount);
     // exported function names
     InitStruct.FunctionNames[0]   := 'Function1';
-    InitStruct.FunctionNames[1]   := 'Function2 (много параметров)';
+    InitStruct.FunctionNames[1]   := 'Function2 (РјРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂРѕРІ)';
     InitStruct.FunctionNames[2]   := 'Function3|path\path2\path\name_in_UOPilot (a lot of parameters)';
     InitStruct.FunctionNames[3]   := 'Function4|path\path2\name_in_UOPilot2 (a lot of parameters)';
 
   end else begin
     InitStruct.FunctionCount := 0;
-    Version := 2.37;  // Вернем в UOPilot, для сообщения пользователю.
+    Version := 2.37;  // Р’РµСЂРЅРµРј РІ UOPilot, РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ.
   end;
 
   // if exported function count = 0, then plugin will be unloaded
-  Result := @InitStruct; // Возвращаем в пилот адрес структуры с именами функций и их колличеством
+  Result := @InitStruct; // Р’РѕР·РІСЂР°С‰Р°РµРј РІ РїРёР»РѕС‚ Р°РґСЂРµСЃ СЃС‚СЂСѓРєС‚СѓСЂС‹ СЃ РёРјРµРЅР°РјРё С„СѓРЅРєС†РёР№ Рё РёС… РєРѕР»Р»РёС‡РµСЃС‚РІРѕРј
 end;
 
 
@@ -113,9 +113,9 @@ begin
 end;
 
 
-// Имена экспортируемых функций.
-// При загрузке плагина пилот ищет функцию с именем "InitPlugin", если не нашел, то ищет "_InitPlugin" и выполняет ее.
-// При выгрузке плагина пилот ищет необязательную функцию с именем "DonePlugin", если не нашел, то ищет "_DonePlugin" и выполняет ее если нашел.
+// РРјРµРЅР° СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹С… С„СѓРЅРєС†РёР№.
+// РџСЂРё Р·Р°РіСЂСѓР·РєРµ РїР»Р°РіРёРЅР° РїРёР»РѕС‚ РёС‰РµС‚ С„СѓРЅРєС†РёСЋ СЃ РёРјРµРЅРµРј "InitPlugin", РµСЃР»Рё РЅРµ РЅР°С€РµР», С‚Рѕ РёС‰РµС‚ "_InitPlugin" Рё РІС‹РїРѕР»РЅСЏРµС‚ РµРµ.
+// РџСЂРё РІС‹РіСЂСѓР·РєРµ РїР»Р°РіРёРЅР° РїРёР»РѕС‚ РёС‰РµС‚ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅСѓСЋ С„СѓРЅРєС†РёСЋ СЃ РёРјРµРЅРµРј "DonePlugin", РµСЃР»Рё РЅРµ РЅР°С€РµР», С‚Рѕ РёС‰РµС‚ "_DonePlugin" Рё РІС‹РїРѕР»РЅСЏРµС‚ РµРµ РµСЃР»Рё РЅР°С€РµР».
 Exports
   InitPlugin,
   DonePlugin,

@@ -13,7 +13,7 @@ SYNTAX
 
 In one line there can be only one command. The first word in a line - command, other words - parameters. If the first word in a line not the command - the line is considered as the comment.
 
-The words consist of symbols 0-9, À-z, À-ÿ.
+The words consist of symbols 0-9, Ð-z, Ð-Ñ.
 
 Symbols *, $, %, +, -, *, /, >, <, =, :, ., (, ), [,] are service, other separators.
 # numeric variable
@@ -37,7 +37,7 @@ wait 1h // to wait 1 hour
 Variable
 ===========
 
-In a name variable the symbols - are allowable ['0'.. '9', 'A'.. 'z', 'À'..'ÿ'], register am not taken into account. Maximal length of a name variable 255 symbols.
+In a name variable the symbols - are allowable ['0'.. '9', 'A'.. 'z', 'Ð'..'Ñ'], register am not taken into account. Maximal length of a name variable 255 symbols.
 
 Variable can be numerical and line. Syntax numerical variable '#name', where name - name variable. Syntax line variable '$name', where name - name variable.
 For example:
@@ -46,7 +46,7 @@ set $s test string
 
 Also you can use arrays. The symbol of percent '%' is considered as the identifier of a array. The indexes of a array are specified after a name in square brackets '[' and ']'. The size of a array is equal to the maximal used index. The giving of values is carried out to each element individually by command set. The elements of a array can contain both line, and number. Is allowable to refer to arrays of the parallel scripts, having specified after a name of a array, through a point, number of the script. At the indication only of first index in two-dimension a array, result will be a line from all elements of the second dimension of a array appropriate to the specified index, and divided by a space.
 For example:
-set %ar [4] òåñò // an one-dimensional array on 4 elements
+set %ar [4] Ñ‚ÐµÑÑ‚ // an one-dimensional array on 4 elements
 set %arr [50 1] 544
 set %arr [50 2] 800 // an two-dimensional a array on 50 times till 2 elements
 set %ar.2 [5] // an one-dimensional array in parallel script

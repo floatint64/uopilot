@@ -1,0 +1,4002 @@
+#pragma code_page(65001)
+
+PIX BITMAP "pix.bmp"
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1001, 	"Animals && Vendors control"
+  1002, 	"Add prefix"
+  1003, 	"Add suffix"
+  1004, 	"Prefix (animal name or 'all')"
+  1005, 	"Suffix (usually target)"
+  1006, 	"General"
+  1007, 	"Put cursor on target and press (Ctrl+A)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1008, 	"Start"
+  1009, 	"Start"
+  1010, 	"Start"
+  1011, 	"Coordinates for click"
+  1012, 	"Interval"
+  1013, 	"Interval"
+  1014, 	"Interval"
+  1015, 	"Interval"
+  1017, 	"Send BackSpace after alphanumeric key"
+  1018, 	"Send BackSpace after alphanumeric key"
+  1019, 	"Send BackSpace after alphanumeric key"
+  1020, 	"Second window (Ctrl+B)"
+  1021, 	"Start"
+  1022, 	"Start"
+  1023, 	"Interval"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1024, 	"Interval"
+  1025, 	"Send BackSpace after alphanumeric key"
+  1026, 	"Send BackSpace after alphanumeric key"
+  1027, 	"ScreenShot (PrintScreen) :"
+  1028, 	"Add date and time to filename"
+  1029, 	"Date"
+  1030, 	"High quality (more disk space)"
+  1031, 	"Low quality (less disk space)"
+  1032, 	"Path to save"
+  1033, 	"JPG quality"
+  1034, 	"Script"
+  1035, 	"Add key to script"
+  1036, 	"Point (Ctrl+A):"
+  1037, 	"Relative point coordinates"
+  1038, 	"Point color"
+  1039, 	"Color:"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1040, 	"Get color from selected coordinates (Ctrl+B)"
+  1041, 	"Absolute point coordinates"
+  1042, 	"Key"
+  1043, 	"Automatically insert Relative point coordinates into script"
+  1044, 	"Automatically determine color"
+  1045, 	"Pause between lines, in miliseconds"
+  1046, 	"Step by step execution"
+  1047, 	"Automatically insert Absolute point coordinates into script"
+  1048, 	"Press right button for commands list"
+  1049, 	"Misc."
+  1050, 	"Alarm"
+  1051, 	"Minutes"
+  1052, 	"Hours"
+  1053, 	"Run current script instead of sound"
+  1054, 	"Script"
+  1055, 	"Transfer an item, thats below mouse pointer, into selected place (press button and define coordinates)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1056, 	"AutoMove"
+  1057, 	"Point selection"
+  1058, 	"Delay, after picking up an item"
+  1059, 	"Allows to move mouse pointer, into selected place (somewhat faster and more precise)"
+  1060, 	"Move mouse"
+  1061, 	"Quantity of dragging items (0 - all)"
+  1062, 	"Quantity of dragging items (0 - all)"
+  1063, 	"Quantity of dragging items (0 - all)"
+  1064, 	"Switch coordinates from/to in drag"
+  1065, 	"Switch coordinates from/to in drag"
+  1066, 	"Switch coordinates from/to in drag"
+  1067, 	"For GM`s"
+  1068, 	"Press button and select the window (Ctrl+A)"
+  1069, 	"UoPilot will be flashing when you will recive Page"
+  1070, 	"Flash when new page comes"
+  1071, 	"UoPilot will make a sound when you will recive a Page"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1072, 	"Beep"
+  1073, 	"Run and login"
+  1074, 	"Press button and select the window (Ctrl+A)"
+  1075, 	"Run minimized"
+  1076, 	"Add"
+  1077, 	"Macros panel"
+  1078, 	"Ship control panel"
+  1079, 	"House control panel"
+  1080, 	"Edit Hot Keys"
+  1081, 	"Character panel"
+  1082, 	"Tab size"
+  1083, 	"Delay between lines"
+  1084, 	"Clock alarm interval"
+  1085, 	"Animal control panel"
+  1086, 	"Delay between empty lines"
+  1087, 	"React on HotKeys"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1088, 	"Enable HotKeys"
+  1089, 	"Delay between lines for new scripts"
+  1090, 	"Pause between alarm singals (ms)"
+  1091, 	"Delay between empty or non comands lines"
+  1092, 	"Ship control"
+  1093, 	"Show\\hide main form"
+  1094, 	"House control"
+  1095, 	"Right click to edit"
+  1096, 	"Show\\hide main form"
+  1097, 	"Load"
+  1098, 	"Save"
+  1099, 	"Show in UO caption"
+  1100, 	"Current variable value"
+  1101, 	"Add"
+  1102, 	"Delete"
+  1103, 	"Last Object"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1104, 	"Delete"
+  1105, 	"Add"
+  1106, 	"Last Target"
+  1107, 	"Show\\hide main form"
+  1108, 	"Show in UO caption"
+  1109, 	"Drink Timer"
+  1110, 	"Drinking potion delay"
+  1111, 	"HotKeys list"
+  1112, 	"Save screenshot to file"
+  1113, 	"Print Screen"
+  1114, 	"Start\\stop current script"
+  1115, 	"Start Script"
+  1116, 	"Record key macros"
+  1117, 	"Record Macros"
+  1118, 	"Stop record or playing key macros"
+  1119, 	"Stop Record"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1120, 	"Plays recorded key macros"
+  1121, 	"Play Macros"
+  1122, 	"On\\Off show names of approaching players"
+  1123, 	"Show Names"
+  1124, 	"Drag object under mouse pointer into selected place"
+  1125, 	"Auto Move 1"
+  1126, 	"On\\off sending key from General tabs"
+  1127, 	"Button 1"
+  1128, 	"On\\off sending key from General tabs"
+  1129, 	"Button 2"
+  1130, 	"On\\off sending key from General tabs"
+  1131, 	"Button 3"
+  1132, 	"On\\off sending key from General tabs"
+  1133, 	"Button 4"
+  1134, 	"On\\off sending key from General tabs"
+  1135, 	"Button 5"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1136, 	"Show\\Hide macros panel"
+  1137, 	"Macros"
+  1138, 	"Switches between UoPilot and UO window"
+  1139, 	"UoPilot <-> UO"
+  1140, 	"Drag object under mouse pointer into selected place"
+  1141, 	"Auto Move 2"
+  1142, 	"Drag object under mouse pointer into selected place"
+  1143, 	"Auto Move 3"
+  1144, 	"Pause\\resume current script execution"
+  1145, 	"Pause Script"
+  1146, 	"Set coordinates for AutoMove function"
+  1147, 	"Set AutoMove 3"
+  1148, 	"Set coordinates for AutoMove function"
+  1149, 	"Set AutoMove 2"
+  1150, 	"Set coordinates for AutoMove function"
+  1151, 	"Set AutoMove 1"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1152, 	"On\\off character parameters panel"
+  1153, 	"Char Params"
+  1154, 	"Hotkeys for scripts"
+  1155, 	"Lock all script to selected UO window"
+  1156, 	"Lock all Scripts"
+  1157, 	"Copy console text into clipboard"
+  1158, 	"Copy ConsoleText"
+  1159, 	"Script files (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Keymacros files (*.mac)|*.mac|All files (*.*)|*.*"
+  1160, 	"Script files (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Keymacros files (*.mac)|*.mac|All files (*.*)|*.*"
+  1161, 	"Copy"
+  1162, 	"Script"
+  1163, 	"New"
+  1164, 	"Open"
+  1165, 	"Reopen ..."
+  1166, 	"Open procedures file"
+  1167, 	"Save"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1168, 	"Save as..."
+  1169, 	"Exit"
+  1170, 	"Exit without save"
+  1171, 	"Macros"
+  1172, 	"Load"
+  1173, 	"Save"
+  1174, 	"Record "
+  1175, 	"Stop "
+  1176, 	"Play "
+  1177, 	"Speed (in %)"
+  1178, 	"Repeat"
+  1179, 	"Once"
+  1180, 	"5 times"
+  1181, 	"15 times"
+  1182, 	"100 times"
+  1183, 	"Infinitely"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1184, 	"Settings"
+  1185, 	"Add spaces"
+  1186, 	"Indicate script process"
+  1187, 	"Show filenames of scripts"
+  1188, 	"Indicate running scripts"
+  1189, 	"Attach all scripts on startup"
+  1190, 	"Return mouse cursor after clicks"
+  1191, 	"Store number of dragging items"
+  1192, 	"Show cursor coordinates"
+  1193, 	"Relative"
+  1194, 	"Absolute"
+  1195, 	"UO properties"
+  1196, 	"Names "
+  1197, 	"Show names of approaching players"
+  1198, 	"Transparency"
+  1199, 	"Pathfinding"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1200, 	"Criminal Actions"
+  1201, 	"Save screenshot of ..."
+  1202, 	"Mark operators with other color"
+  1203, 	"Stop script on unknown command"
+  1204, 	"Stop script if client is closed or hung"
+  1205, 	"On error reading character parameters..."
+  1206, 	"stop script"
+  1207, 	"pause script"
+  1208, 	"show message"
+  1209, 	"Hide UoPilot on script maximize"
+  1210, 	"Minimize UoPilot into tray icon"
+  1211, 	"Stay on top..."
+  1212, 	"UoPilot"
+  1213, 	"Ship Control"
+  1214, 	"House Control"
+  1215, 	"Animal && Vendor"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1216, 	"Char Parameters"
+  1217, 	"Script window"
+  1218, 	"Save positions of..."
+  1219, 	"UoPilot window"
+  1220, 	"Script window"
+  1221, 	"CharParameters panel"
+  1222, 	"House control panel"
+  1223, 	"Ship control panel"
+  1224, 	"Animal control panel"
+  1225, 	"On startup, turn on windows... "
+  1226, 	"Char Parameters"
+  1227, 	"Script"
+  1228, 	"Show char parameters of..."
+  1229, 	"Active script"
+  1230, 	"Upper UO window"
+  1231, 	"UoPilot window"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1232, 	"Show numbers in hex format"
+  1233, 	"Select font for scripts"
+  1234, 	"Select UO server"
+  1235, 	"Save settings"
+  1236, 	"Save macro messages"
+  1237, 	"Save settings on exit"
+  1238, 	"History"
+  1239, 	"About..."
+  1240, 	"Cut"
+  1241, 	"Copy"
+  1242, 	"Paste"
+  1243, 	"Undo"
+  1245, 	"Variables"
+  1246, 	"Time"
+  1247, 	"Char Parameters"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1248, 	"Last objects"
+  1250, 	" <key [delay]> | <text>"
+  1251, 	"sendex <key list>"
+  1252, 	"set #<name> <var> [<operation> <var>]"
+  1253, 	"wait <delay>"
+  1254, 	"waitfortarget [time]"
+  1255, 	"Mouse"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1264, 	"move <coord> [abs]"
+  1265, 	"drag <source> <destination> [count]"
+  1266, 	"Cycles"
+  1267, 	"break [level]"
+  1268, 	"repeat <count>"
+  1269, 	"for #<name> <start> <end> [step]"
+  1270, 	"while <coord> <color> [color2]"
+  1271, 	"while <var> <operation> <var> [<and | or | xor> ...]"
+  1272, 	"while lastmsg <message>"
+  1273, 	"Conditions"
+  1274, 	"if <coord> <color> [color2]"
+  1275, 	"if <var> <operation> <var> [<and | or | xor> ...]"
+  1276, 	"if lastmsg <message>"
+  1277, 	"Sub-programms"
+  1278, 	"call <name> [var1] [var2] ..."
+  1279, 	"proc <name> [var1] [var2] ..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1280, 	"gosub <label>"
+  1281, 	"Macros"
+  1282, 	"macro_load <filename>"
+  1283, 	"macro_play [count] [speed]"
+  1284, 	"Scripts"
+  1285, 	"start_script <number>"
+  1286, 	"stop_script [number | all]"
+  1287, 	"pause_script [number | all]"
+  1288, 	"resume_script <number | all>"
+  1289, 	"Programms"
+  1290, 	" <filename> [parameters]"
+  1291, 	"terminate <window caption>"
+  1292, 	"injection <command> [; command...]"
+  1293, 	"goto <label>"
+  1294, 	"say [text]"
+  1295, 	"msg [text]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1296, 	"alarm [filename]"
+  1297, 	"flash [parameter]"
+  1298, 	"Open"
+  1299, 	"Save"
+  1300, 	"Clear"
+  1301, 	"Remove current script"
+  1302, 	"Add new script"
+  1303, 	"Select with cross, active addresses"
+  1304, 	"Char Parameters"
+  1305, 	"Active window"
+  1306, 	"Working window"
+  1307, 	"All screen"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1316, 	"Double left"
+  1317, 	"Double right"
+  1318, 	"Left click"
+  1319, 	"Right click"
+  1320, 	"Script language manual"
+  1321, 	"Show 'timer' variable"
+  1322, 	"Sort SkillList on the panel of char parameters"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1330, 	"below normal"
+  1331, 	"above normal"
+  1332, 	"normal"
+  1333, 	"New started clients priority class"
+  1335, 	"Delay, after entering items count"
+  1336, 	"Start UO only"
+  1337, 	"): Can't define operation"
+  1340, 	"On\\Off circle of transparency"
+  1341, 	"Transparency"
+  1342, 	"On\\Off pathfinding with double right click"
+  1343, 	"Path finding"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1344, 	"On\\Off query before performing criminal actions"
+  1345, 	"Criminal actions"
+  1346, 	"On\\Off always run"
+  1347, 	"Always run"
+  1350, 	"Repeat count"
+  1351, 	"Pause\\resume current script"
+  1352, 	"Pause all scripts"
+  1353, 	"Delay in mouse clicks"
+  1354, 	"Delay between press and release mouse button in mouse command"
+  1355, 	"Show all windows"
+  1356, 	"Delay SendEx"
+  1357, 	"Delay between sended symbols in 'SendEx' command"
+  1359, 	"New scripts priority"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1360, 	"low"
+  1361, 	"normal"
+  1362, 	"high"
+  1363, 	"max"
+  1365, 	"Functions"
+  1375, 	"Display the scripts start\\stop buttons"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1376, 	"Rename UoPilot"
+  1377, 	"Move cursor to a point of click"
+  1378, 	"Logging to file"
+  1379, 	"Keys"
+  1380, 	"Stop all scripts"
+  1381, 	"Define work window and color with coordinates."
+  1382, 	"Plugin Sample"
+  1383, 	"Color, coordinates, screen"
+  1384, 	"Select font for log window"
+  1385, 	"'Transparent' hotkeys"
+  1386, 	"Show line number in script"
+  1387, 	"Arrays"
+  1388, 	"Save scripts on exit"
+  1389, 	"Show help window on taskbar"
+  1390, 	"Output to a log error of"
+  1391, 	"Determining color"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1400, 	"Enter UO path and press Reload"
+  1401, 	"File "
+  1402, 	" not found in "
+  1403, 	"Address"
+  1404, 	"Port"
+  1405, 	"Description"
+  1406, 	"Enter UO path and press Reload"
+  1407, 	"Can't save changes into file "
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1408, 	"Error in command line parameters ("
+  1409, 	"Name"
+  1410, 	"Value"
+  1411, 	"Can't find work window"
+  1412, 	"Can't find work window, try to point it manually.\nSet mouse pointer under window and press "
+  1413, 	"Select click type"
+  1414, 	"Set key"
+  1415, 	"Set correct interval (in milliseconds)"
+  1416, 	"Error in a define key"
+  1417, 	"Error! Check for existing folder in which you try to save screen. ("
+  1418, 	"Can't load script"
+  1419, 	"Load script..."
+  1420, 	"Save script as..."
+  1421, 	"Do you want to clear this script?"
+  1422, 	"Set! For other window: (Ctrl+B)"
+  1423, 	"Help"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1424, 	"Error in GM Page definition"
+  1425, 	"Wrong delay specified between lines"
+  1426, 	"Minimize"
+  1427, 	"Maximize"
+  1428, 	"Save macros as..."
+  1429, 	"Load macros..."
+  1430, 	"Too much strings..."
+  1431, 	"Load procedures file..."
+  1432, 	"Can't define a form type."
+  1433, 	"Char parameters"
+  1434, 	"Table files (*.tbl)|*.tbl|All files (*.*)|*.*"
+  1435, 	"Load table..."
+  1436, 	"Save table as..."
+  1437, 	" About UoPilot"
+  1438, 	"Error in script execution. Can't find work window."
+  1439, 	"Default language selected.\nPlease, restart application."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1440, 	"Can't find end of While 'End_While', check the script"
+  1441, 	"Can't find begin of While 'While', check the script"
+  1442, 	"): Can't define variable name"
+  1443, 	"Procedure creation error"
+  1444, 	"End of procedure "
+  1445, 	" not found in script"
+  1446, 	" not found in procedures file"
+  1447, 	" not found"
+  1448, 	"Injection v309.05+ not found"
+  1449, 	"Can't find end of condition, check the script"
+  1450, 	"Nothing to break, check the script"
+  1451, 	"Error loading HotKeys"
+  1452, 	"Error loading HotKeys for scripts."
+  1453, 	"Can't find end of IF: 'End_IF', check the script"
+  1454, 	"Label '"
+  1455, 	"' not found, check the script"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1456, 	"Error reading char parameters"
+  1457, 	"Record with define number ("
+  1458, 	") not found"
+  1459, 	"Error in interpretation script (for)"
+  1460, 	"): Can't define variable name"
+  1461, 	"Can't find end of For 'End_For', check the script"
+  1462, 	"): Can't define variable name (for)"
+  1463, 	"Illegal parameter for Random"
+  1465, 	"Can't find ')'"
+  1466, 	"Error in interpretation script (repeat)"
+  1467, 	"Can't find end of Repeat 'End_Repeat', check the script"
+  1468, 	"Error in interpretation script (end_repeat)"
+  1470, 	"UO not found"
+  1471, 	"All files (*.*)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1472, 	"Editor ("
+  1473, 	"System error: script not created."
+  1474, 	"Animal & Vendor Control"
+  1475, 	"Error reading memory"
+  1476, 	"Client sooner dead, than alive..."
+  1477, 	"Cliend dead..."
+  1478, 	"Unrecognized command: "
+  1479, 	"): Error, check the script!"
+  1480, 	"Pause\\resume all scripts"
+  1481, 	"Show remaining waiting time"
+  1482, 	"Strings"
+  1483, 	"Display Messages"
+  1485, 	"Remove"
+  1486, 	"Close"
+  1487, 	"Rename"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1488, 	"Save script template"
+  1489, 	"Procedure"
+  1490, 	"File operation"
+  1491, 	"Automatically open log window"
+  1492, 	"Output messages to..."
+  1493, 	"on taskbar"
+  1494, 	"Numbers"
+  1495, 	"Show hints for commands"
+  1496, 	"Start minimized"
+  1497, 	"Start\\stop current script"
+  1498, 	"Can't find '', check the script"
+  1499, 	"Save scripts before run"
+  1500, 	"Show tooltip for commands"
+  1501, 	"Setting HotKeys"
+  1502, 	"Use kleft v2.17"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1504, 	"Show script process and 'timer' variable"
+  1505, 	"Slower"
+  1506, 	"Faster"
+  1507, 	"Loading plugins"
+  1508, 	"Show unsaved scripts"
+  1509, 	"Displays the names of the scripts on the tabs"
+  1510, 	"Hide related to Ultima Online"
+  1511, 	"Find"
+  1512, 	"Case sensitive"
+  1513, 	"Up"
+  1514, 	"Down"
+  1515, 	"Next"
+  1516, 	"Suspicious indented at line"
+  1517, 	"Somewhere unnecessary ""end""."
+  1518, 	"Format"
+  1519, 	"Remove formatting"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1520, 	"Color and Image"
+  1521, 	"Save settings as..."
+  1522, 	"Load settings..."
+  1523, 	"Comment..."
+  1524, 	"on click"
+  1525, 	"on select"
+  1526, 	"Syntax highlighting"
+  1527, 	"The file was not downloaded."
+  1528, 	"Error when downloading"
+  1529, 	"Something went wrong."
+  1530, 	"Could not open the form."
+  1531, 	"Could not show help."
+  1532, 	"Problems with the menu."
+  1533, 	"Could not get a list of files."
+  1534, 	"Functions found"
+  1535, 	"Downloading"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1536, 	"History"
+  1537, 	"Download all from Wiki"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  1999, 	"ЏҐаҐў\xAE\xA4 \xAD\xA0 Ђ\xADЈ\xABЁ\xA9бЄЁ\xA9 п\xA7лЄ: SVS RUSSIAN (svs_russian@hotmail.com)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2001, 	"Управление животными и вендорами"
+  2002, 	"Добавлять префикс"
+  2003, 	"Добавлять суффикс"
+  2004, 	"Префикс (имя животного или all)"
+  2005, 	"Суффикс (обычно цель)"
+  2006, 	"Общее"
+  2007, 	"Наведите курсор на цель и нажм. (Ctrl+A)"
+  2008, 	"Старт"
+  2009, 	"Старт"
+  2010, 	"Старт"
+  2011, 	"Координаты, куда кликать"
+  2012, 	"Интервал"
+  2013, 	"Интервал"
+  2014, 	"Интервал"
+  2015, 	"Интервал"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2017, 	"Посылать BackSpace после посылки буквенно-цифровой клавиши"
+  2018, 	"Посылать BackSpace после посылки буквенно-цифровой клавиши"
+  2019, 	"Посылать BackSpace после посылки буквенно-цифровой клавиши"
+  2020, 	"Второе окно (Ctrl+B)"
+  2021, 	"Старт"
+  2022, 	"Старт"
+  2023, 	"Интервал"
+  2024, 	"Интервал"
+  2025, 	"Посылать BackSpace после посылки буквенно-цифровой клавиши"
+  2026, 	"Посылать BackSpace после посылки буквенно-цифровой клавиши"
+  2027, 	"Скриншот (PrintScreen) :"
+  2028, 	"В имя файла добавить дату и время"
+  2029, 	"дата"
+  2030, 	"Занимает много места на диске, зато качественно"
+  2031, 	"Не качественно, зато занимает мало места на диске"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2032, 	"Куда сохранять файлы"
+  2033, 	"Качество jpg"
+  2034, 	"Скрипт"
+  2035, 	"Добавить клавишу в скрипт"
+  2036, 	"Точка (Ctrl+A):"
+  2037, 	"Относительные координаты точки"
+  2038, 	"Цвет точки"
+  2039, 	"Цвет:"
+  2040, 	"Определить цвет пикселя в выбранных координатах (Ctrl+B)"
+  2041, 	"Абсолютные координаты точки"
+  2042, 	"Клавиша"
+  2043, 	"Сразу вставлять относительные координаты в скрипт"
+  2044, 	"Сразу определять цвет"
+  2045, 	"Пауза между строками в миллисекундах"
+  2046, 	"Пошаговое выполнение скрипта"
+  2047, 	"Сразу вставлять абсолютные координаты в скрипт"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2048, 	"Нажмите правую кнопку мыши, чтобы получить список команд"
+  2049, 	"Разное"
+  2050, 	"Будильник"
+  2051, 	"Минуты"
+  2052, 	"Часы"
+  2053, 	"Запустить скрипт вместо издавания звукового сигнала"
+  2054, 	"Скрипт"
+  2055, 	"Перемещение итема под мышкой в указанную точку (нажмите кнопку и задайте координаты)"
+  2056, 	"AutoMove"
+  2057, 	"Выбор точки"
+  2058, 	"Задержка после поднятия итема"
+  2059, 	"Разрешает перемещать мышку в точку назначения (немного быстрее и корректнее)"
+  2060, 	"Перемещать мышку"
+  2061, 	"Количество перетаскиваемых итемов (0 - все)"
+  2062, 	"Количество перетаскиваемых итемов (0 - все)"
+  2063, 	"Количество перетаскиваемых итемов (0 - все)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2064, 	"Меняет местами Источник и Приемник при перетаскивании"
+  2065, 	"Меняет местами Источник и Приемник при перетаскивании"
+  2066, 	"Меняет местами Источник и Приемник при перетаскивании"
+  2067, 	"Для GM`ов"
+  2068, 	"Нажмите кнопку и выберите окно (Ctrl+A)"
+  2069, 	"UoPilot будет мигать при приходе пейджа"
+  2070, 	"Мигать при приходе пейжджа"
+  2071, 	"UoPilot издаст звуковой сигнал при приходе пейджа"
+  2072, 	"Пищать"
+  2073, 	"Запуск и логин"
+  2074, 	"Нажмите кнопку и выберите окно (Ctrl+A)"
+  2075, 	"Запускать в свернутом окне"
+  2076, 	"Ещё"
+  2077, 	"Панель макросов."
+  2078, 	"Панель управления кораблем"
+  2079, 	"Панель управления домом"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2080, 	"Редактировать горячие клавиши"
+  2081, 	"Панель характеристик чара."
+  2082, 	"Размер табуляции в редакторе"
+  2083, 	"Пауза между строк"
+  2084, 	"Пауза сигналов будильника"
+  2085, 	"Панель управления животными"
+  2086, 	"Пауза между пустых строк"
+  2087, 	"Реагировать на горячие клавиши"
+  2088, 	"Включить HotKeys"
+  2089, 	"Пауза между строк для новых скриптов"
+  2090, 	"Пауза между началами сигналов будильника (ms)"
+  2091, 	"Пауза между строк, не содержащих команды"
+  2092, 	"Управление кораблем"
+  2093, 	"Показать\\спрятать главную форму"
+  2094, 	"Управление домом"
+  2095, 	"Right click to edit"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2096, 	"Показать\\спрятать главную форму"
+  2097, 	"Load"
+  2098, 	"Save"
+  2099, 	"Show in UO caption"
+  2100, 	"Текущие значения переменных"
+  2101, 	"Add"
+  2102, 	"Delete"
+  2103, 	"Last Object"
+  2104, 	"Delete"
+  2105, 	"Add"
+  2106, 	"Last Target"
+  2107, 	"Показать\\спрятать главную форму"
+  2108, 	"Show in UO caption"
+  2109, 	"Drink Timer"
+  2110, 	"Задержка на питье пузырей"
+  2111, 	"HotKeys list"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2112, 	"Сохраняет копию экрана в файл"
+  2113, 	"Print Screen"
+  2114, 	"Запускает\\останавливает текуущий скрипт"
+  2115, 	"Start Script"
+  2116, 	"Записывает макрос клавиш"
+  2117, 	"Record Macros"
+  2118, 	"Останавливает запись или проигрывание макроса клавиш"
+  2119, 	"Stop Record"
+  2120, 	"Проигрывает, записанный ранее, макрос клавиш"
+  2121, 	"Play Macros"
+  2122, 	"Включает\\выключает отображение имен игроков"
+  2123, 	"Show Names"
+  2124, 	"Перемещение итема под мышкой в указанную точку или наоборот"
+  2125, 	"Auto Move 1"
+  2126, 	"Кликалки с вкладки Общее"
+  2127, 	"Button 1"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2128, 	"Кликалки с вкладки Общее"
+  2129, 	"Button 2"
+  2130, 	"Кликалки с вкладки Общее"
+  2131, 	"Button 3"
+  2132, 	"Кликалки с вкладки Общее"
+  2133, 	"Button 4"
+  2134, 	"Кликалки с вкладки Общее"
+  2135, 	"Button 5"
+  2136, 	"Включает\\выключает отображение панели макросов"
+  2137, 	"Macros"
+  2138, 	"Переключает UoPilot <-> UO"
+  2139, 	"UoPilot <-> UO"
+  2140, 	"Перемещение итема под мышкой в указанную точку или наоборот"
+  2141, 	"Auto Move 2"
+  2142, 	"Перемещение итема под мышкой в указанную точку или наоборот"
+  2143, 	"Auto Move 3"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2144, 	"Приостанавливает\\возобновляет выполнениетекущего скрипта"
+  2145, 	"Pause Script"
+  2146, 	"Установка координат для функции AutoMove"
+  2147, 	"Set AutoMove 3"
+  2148, 	"Установка координат для функции AutoMove"
+  2149, 	"Set AutoMove 2"
+  2150, 	"Установка координат для функции AutoMove"
+  2151, 	"Set AutoMove 1"
+  2152, 	"Включает\\выключает отображение панели параметров чара"
+  2153, 	"Char Params"
+  2154, 	"Горячие клавиши для скриптов"
+  2155, 	"Прилочивает все скрипты к указанному окну УО"
+  2156, 	"Lock all Scripts"
+  2157, 	"Копирует текст, набранный в окне клиента, в буфер обмена"
+  2158, 	"Copy ConsoleText"
+  2159, 	"Файлы скриптов (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Файлы макросов (*.mac)|*.mac|Все файлы (*.*)|*.*"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2160, 	"Файлы скриптов (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Файлы макросов (*.mac)|*.mac|Все файлы (*.*)|*.*"
+  2161, 	"Копировать"
+  2162, 	"Скрипт"
+  2163, 	"Новый"
+  2164, 	"Открыть"
+  2165, 	"Открыть последние ..."
+  2166, 	"Открыть файл процедур"
+  2167, 	"Сохранить"
+  2168, 	"Сохранить как..."
+  2169, 	"Выход"
+  2170, 	"Выход без сохранения"
+  2171, 	"Макрос"
+  2172, 	"Загрузить"
+  2173, 	"Сохранить"
+  2174, 	"Запись "
+  2175, 	"Стоп "
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2176, 	"Воспроизвести "
+  2177, 	"Скорость (в %)"
+  2178, 	"Повтор"
+  2179, 	"1 раз"
+  2180, 	"5 раз"
+  2181, 	"15 раз"
+  2182, 	"100 раз"
+  2183, 	"Бесконечно"
+  2184, 	"Настройки"
+  2185, 	"Добавлять пробелы"
+  2186, 	"Отображать ход выполнения скрипта"
+  2187, 	"Отображать имена файлов скриптов"
+  2188, 	"Отображать запущенные скрипты"
+  2189, 	"Прикреплять все скрипты при старте UoPilot'a"
+  2190, 	"Возвращать курсор мыши после кликов"
+  2191, 	"Запоминать количество перетаскиваемых итемов"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2192, 	"Отображать координаты курсора"
+  2193, 	"Относительные"
+  2194, 	"Абсолютные"
+  2195, 	"Наcтройки UO"
+  2196, 	"Имена "
+  2197, 	"Показывать имена приближающихся игроков"
+  2198, 	"Прозрачность"
+  2199, 	"Патфиндинг"
+  2200, 	"Criminal Actions"
+  2201, 	"Сохранять скриншот..."
+  2202, 	"Выделять операторы цветом"
+  2203, 	"Останавливать скрипт на неопознанной команде"
+  2204, 	"При закрытии клиента приостанавливать скрипт"
+  2205, 	"При ошибке чтения параметров чара"
+  2206, 	"Оставливать скрипт"
+  2207, 	"Приостанавливать скрипт"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2208, 	"Информировать об ошибке"
+  2209, 	"Прятать UoPilot при разворачивании скрипта"
+  2210, 	"Сворачивать UoPilot в трей"
+  2211, 	"Располагать поверх всех окон..."
+  2212, 	"UoPilot"
+  2213, 	"Ship Control"
+  2214, 	"House Control"
+  2215, 	"Animal && Vendor"
+  2216, 	"Char Parameters"
+  2217, 	"Окно скрипта"
+  2218, 	"Запоминать положение окон..."
+  2219, 	"UoPilot'a"
+  2220, 	"Скрипта"
+  2221, 	"Параметров чара"
+  2222, 	"Управления домом"
+  2223, 	"Управления кораблем"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2224, 	"Управления животными"
+  2225, 	"При запуске UoPilot'a открывать окна... "
+  2226, 	"Параметров чара"
+  2227, 	"Скрипта"
+  2228, 	"Отображать параметры чара"
+  2229, 	"Активного скрипта"
+  2230, 	"Верхнего окна UO"
+  2231, 	"Окна UoPilot'а"
+  2232, 	"Отображать числа в hex формате"
+  2233, 	"Выбрать шрифт редактора"
+  2234, 	"Select UO server"
+  2235, 	"Сохранить настройки"
+  2236, 	"Сохранить макросы сообщений"
+  2237, 	"Сохранять настройки при выходе"
+  2238, 	"История развития программы"
+  2239, 	"О программе..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2240, 	"Вырезать"
+  2241, 	"Копировать"
+  2242, 	"Вставить"
+  2243, 	"Отменить"
+  2245, 	"Переменные"
+  2246, 	"Время"
+  2247, 	"Параметры чара"
+  2248, 	"Последние объекты"
+  2250, 	" <клавиша [пауза]> | <текст>"
+  2251, 	"sendex <список клавиш>"
+  2252, 	"set #<имя> <знач.>[<зн.оп.> <знач.>]"
+  2253, 	"wait <число>"
+  2254, 	"waitfortarget [time]"
+  2255, 	"Мышка"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2264, 	"move <коорд> [abs]"
+  2265, 	"drag <откуда> <куда> [сколько]"
+  2266, 	"Циклы"
+  2267, 	"break [уровень]"
+  2268, 	"repeat <число>"
+  2269, 	"for #<имя> <начало> <конец> [шаг]"
+  2270, 	"while <коорд> <цвет> [цвет2]"
+  2271, 	"while <параметр> <зн.оп.> <значение> [<and | or | xor> ...]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2272, 	"while lastmsg <сообщение>"
+  2273, 	"Условия"
+  2274, 	"if <коорд> <цвет> [цвет2]"
+  2275, 	"if <параметр> <зн.оп.> <значение> [<and | or | xor> ...]"
+  2276, 	"if lastmsg <сообщение>"
+  2277, 	"Подпрограммы"
+  2278, 	"call <имя> [var1] [var2] ..."
+  2279, 	"proc <имя> [var1] [var2] ..."
+  2280, 	"gosub <метка>"
+  2281, 	"Макроcы"
+  2282, 	"macro_load <имя файла>"
+  2283, 	"macro_play [число] [скорость]"
+  2284, 	"Скрипты"
+  2285, 	"start_script <number>"
+  2286, 	"stop_script [number | all]"
+  2287, 	"pause_script [number | all]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2288, 	"resume_script <number | all>"
+  2289, 	"Программы"
+  2290, 	" <команда> [параметры]"
+  2291, 	"terminate <заголовок окна>"
+  2292, 	"injection <команда> [; команда...]"
+  2293, 	"goto <метка>"
+  2294, 	"say [текст]"
+  2295, 	"msg [текст]"
+  2296, 	"alarm [имя файла]"
+  2297, 	"flash [параметр]"
+  2298, 	"Открыть"
+  2299, 	"Сохранить"
+  2300, 	"Очистить"
+  2301, 	"Удалить текущий скрипт"
+  2302, 	"Добавить новый скрипт"
+  2303, 	"Отметьте крестиком активные адреса"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2304, 	"Параметры чара"
+  2305, 	"Aктивного окна"
+  2306, 	"Рабочего окна"
+  2307, 	"Всего экрана"
+  2316, 	"Двойной левой"
+  2317, 	"Двойной правой"
+  2318, 	"Клик левой"
+  2319, 	"Клик правой"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2320, 	"Помощь по языку скриптов"
+  2321, 	"Отображать переменную timer"
+  2322, 	"Сортировать список скилов на панели параметров"
+  2330, 	"ниже"
+  2331, 	"выше"
+  2332, 	"нормальный"
+  2333, 	"Приоритет для запускаемых клиентов"
+  2335, 	"Задержка после указания количества итемов"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2336, 	"Только запуск, без логина"
+  2337, 	"): Не могу определить операцию"
+  2340, 	"Включает\\выключает круг прозрачности"
+  2341, 	"Transparency"
+  2342, 	"Включает\\выключает поиск пути по двойному правому клику"
+  2343, 	"Path finding"
+  2344, 	"Включает\\выключает предупреждение о совершении противоправных действий"
+  2345, 	"Criminal actions"
+  2346, 	"Включает\\выключает постоянный бег"
+  2347, 	"Always run"
+  2350, 	"Количество"
+  2351, 	"Приостановить\\продолжить текущий"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2352, 	"Приостановить все скрипты"
+  2353, 	"Пауза в кликах мышью"
+  2354, 	"Пауза между нажатием и отпусканием кнопки мыши в мышинных командах"
+  2355, 	"Показывать все окна"
+  2356, 	"Пауза SendEx"
+  2357, 	"Пауза между посылаемыми символами в команде SendEx"
+  2359, 	"Приоритет для новых скриптов"
+  2360, 	"пониженный"
+  2361, 	"нормальный"
+  2362, 	"средний"
+  2363, 	"максимальный"
+  2365, 	"Функции"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2375, 	"Отображать кнопки запуска\\остановки скриптов"
+  2376, 	"Переименовывать пилот"
+  2377, 	"Перемещать курсор в точку клика"
+  2378, 	"Записывать лог в файл"
+  2379, 	"Клавиши"
+  2380, 	"Останавливает все скрипты"
+  2381, 	"Задает рабочее окно и определяет цвет с координатами. полный аналог Ctrl+A"
+  2382, 	"Пример плагина"
+  2383, 	"Цвет, координаты, экран"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2384, 	"Выбрать шрифт лога"
+  2385, 	"'Прозрачные' хоткеи"
+  2386, 	"Отображать номера строк скрипта"
+  2387, 	"Массивы"
+  2388, 	"Сохранять скрипты при выходе"
+  2389, 	"Отображать окна справки на панели задач"
+  2390, 	"Выводить в лог ошибки"
+  2391, 	"Определения цвета"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2400, 	"Введите путь к UO и нажмите кнопку Reload"
+  2401, 	"Файл "
+  2402, 	" не найден в "
+  2403, 	"Адрес"
+  2404, 	"Порт"
+  2405, 	"Коментарий"
+  2406, 	"Введите путь к UO и нажмите кнопку Reload"
+  2407, 	"Не удалось записать изменения в файл "
+  2408, 	"Ошибка в параметрах командной строки ("
+  2409, 	"Имя"
+  2410, 	"Значение"
+  2411, 	"Не могу найти рабочее окно"
+  2412, 	"Не могу найти рабочее окно, попробуйте указать его принудительно:\nУстановите курсор мыши над окном и нажмите "
+  2413, 	"Выберите тип кликания"
+  2414, 	"Задайте клавишу"
+  2415, 	"Задайте правильный интервал (в миллисекундах)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2416, 	"Ошибка при попытке определить клавишу"
+  2417, 	"Ошибка! Убедитесь, что каталог, куда сохранять экран, существует ("
+  2418, 	"Не могу загрузить скрипт"
+  2419, 	"Загрузить скрипт..."
+  2420, 	"Сохранить скрипт как..."
+  2421, 	"Вы уверены, что хотите\nочистить существующий скрипт?"
+  2422, 	"Выбрано! Для выбора другого: (Ctrl+B)"
+  2423, 	"Справка"
+  2424, 	"Ошибка определения GM Page"
+  2425, 	"Неправильно указана задержка между строк."
+  2426, 	"Свернуть"
+  2427, 	"Развернуть"
+  2428, 	"Сохранить макрос как..."
+  2429, 	"Загрузить макрос..."
+  2430, 	"Перебор"
+  2431, 	"Загрузить файл процедур..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2432, 	"Не могу определить тип формы."
+  2433, 	"Параметры чара"
+  2434, 	"Файлы таблиц (*.tbl)|*.tbl|Все файлы (*.*)|*.*"
+  2435, 	"Загрузить таблицу..."
+  2436, 	"Сохранить таблицу как..."
+  2437, 	" О программе UoPilot"
+  2438, 	"Ошибка запуска скрипта. Не могу найти рабочее окно"
+  2439, 	"Выбран язык по умолчанию.\nНеобходим перезапуск."
+  2440, 	"Не могу найти конец цикла: 'End_While', проверьте скрипт"
+  2441, 	"Не могу найти начало цикла: 'While', проверьте скрипт"
+  2442, 	"): Не могу определить имя переменной"
+  2443, 	"Ошибка создания процедуры."
+  2444, 	"Конец процедуры "
+  2445, 	" не найден в текущем скрипте."
+  2446, 	" не найден в файле процедур."
+  2447, 	" не найден"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2448, 	"Injection v309.05+ не найден."
+  2449, 	"Не могу найти конец цикла, проверьте скрипт"
+  2450, 	"Нечего прерывать, проверьте скрипт"
+  2451, 	"Error loading HotKeys"
+  2452, 	"Error loading HotKeys for scripts."
+  2453, 	"Не могу найти конец условия: 'End_IF', проверьте скрипт"
+  2454, 	"Метка '"
+  2455, 	"' не найдена, проверьте скрипт"
+  2456, 	"Ошибка чтения параметров чара"
+  2457, 	"Запись с указанным номером ("
+  2458, 	") не найдена."
+  2459, 	"Ошибка интерпретации скрипта (for)."
+  2460, 	"): Немогу определить имя переменной"
+  2461, 	"Не могу найти конец цикла: 'End_for', проверьте скрипт"
+  2462, 	"): Немогу найти имя переменной for"
+  2463, 	"Не правильно указан параметр random."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2465, 	"Не могу найти закрывающую скобку."
+  2466, 	"Ошибка интерпретации скрипта (repeat)."
+  2467, 	"Не могу найти конец цикла: 'End_Repeat', проверьте скрипт"
+  2468, 	"Ошибка интерпретации скрипта (end_repeat)."
+  2470, 	"UO not found"
+  2471, 	"Все файлы (*.*)"
+  2472, 	"Editor ("
+  2473, 	"System error: script not created."
+  2474, 	"Animal & Vendor Control"
+  2475, 	"Error reading memory"
+  2476, 	"Клиент скорее мертв, чем жив..."
+  2477, 	"Клиент мертв..."
+  2478, 	"Неопознанная команда: "
+  2479, 	"): Ошибка! Проверьте правильность скрипта! "
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2480, 	"Приостанавливает\\возобнавляет все скрипты"
+  2481, 	"Отображать оставшееся время ожидания"
+  2482, 	"Строки"
+  2483, 	"Вывод сообщений"
+  2485, 	"Удалить"
+  2486, 	"Закрыть"
+  2487, 	"Переименовать"
+  2488, 	"Сохранить шаблон скрипта"
+  2489, 	"Процедура"
+  2490, 	"Файловых операций"
+  2491, 	"Автоматически открывать лог"
+  2492, 	"Выводить сообщения в..."
+  2493, 	"на панели задач"
+  2494, 	"Числа"
+  2495, 	"Отображать подсказки для команд в скрипте"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2496, 	"Запускать свернутым"
+  2497, 	"Запустить\\остановить текущий скрипт"
+  2498, 	"Не могу найти '', проверьте скрипт"
+  2499, 	"Сохранять скрипты перед запуском"
+  2500, 	"Отображать подсказки для команд в скрипте"
+  2501, 	"Назначения горячих клавиш"
+  2502, 	"Использовать kleft v2.17"
+  2503, 	"Слежение"
+  2504, 	"Отображать ход выполнения скрипта и переменную timer"
+  2505, 	"Медленнее"
+  2506, 	"Быстрее"
+  2507, 	"Загрузки плагинов"
+  2508, 	"Отображать несохраненные скрипты"
+  2509, 	"Отображать имена скриптов на закладках"
+  2510, 	"Скрыть связанное с Ultima Online"
+  2511, 	"Найти"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2512, 	"С учетом регистра"
+  2513, 	"Вверх"
+  2514, 	"Вниз"
+  2515, 	"Найти далее"
+  2516, 	"Подозрительный отступ в строке"
+  2517, 	"Где-то лишний ""end""."
+  2518, 	"Форматировать"
+  2519, 	"Убрать форматирование"
+  2520, 	"Цвет и изображения"
+  2521, 	"Сохранить настройки как..."
+  2522, 	"Загрузить настройки..."
+  2523, 	"Коментировать..."
+  2524, 	"при клике"
+  2525, 	"при выделении"
+  2526, 	"Подсветка синтаксиса"
+  2527, 	"Не скачался файл."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  2528, 	"Ошибка при закачке"
+  2529, 	"Что то пошло не так."
+  2530, 	"Не удалось открыть форму."
+  2531, 	"Не удалось показать справку."
+  2532, 	"Проблемы с меню."
+  2533, 	"Не удалось получить список файлов."
+  2534, 	"Нашли функций"
+  2535, 	"Скачиваем"
+  2536, 	"История развития"
+  2537, 	"Перекачать всё с Wiki"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3001, 	"Controle de Vendedores e animais"
+  3002, 	"Adicionar prefixo"
+  3003, 	"Adicionar sufixo"
+  3004, 	"Prefixo (nome do animal ou 'all')"
+  3005, 	"Sufixo (normalmente o alvo)"
+  3006, 	"Geral"
+  3007, 	"Coloque o cursor no alvo e aperte (Ctrl+A)"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3008, 	"Iniciar"
+  3009, 	"Iniciar"
+  3010, 	"Iniciar"
+  3011, 	"Coordenadas para clicar"
+  3012, 	"Intervalo"
+  3013, 	"Intervalo"
+  3014, 	"Intervalo"
+  3015, 	"Intervalo"
+  3017, 	"Enviar BackSpace depois de teclas alfanumericas"
+  3018, 	"Enviar BackSpace depois de teclas alfanumericas"
+  3019, 	"Enviar BackSpace depois de teclas alfanumericas"
+  3020, 	"Segunda janela (Ctrl+B)"
+  3021, 	"Iniciar"
+  3022, 	"Iniciar"
+  3023, 	"Intervalo"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3024, 	"Intervalo"
+  3025, 	"Enviar BackSpace depois de teclas alfanumericas"
+  3026, 	"Enviar BackSpace depois de teclas alfanumericas"
+  3027, 	"ScreenShot (PrintScreen) :"
+  3028, 	"Adicionar data e horas ao nome do arquivo"
+  3029, 	"Data"
+  3030, 	"Qualidade alta (mais espaco em disco)"
+  3031, 	"Qualidade baixa (menos espaco em disco)"
+  3032, 	"Salvar no destino"
+  3033, 	"Qualidade JPG"
+  3034, 	"Script"
+  3035, 	"Adicionar tecla para o script"
+  3036, 	"Posicao (Ctrl+A):"
+  3037, 	"Posicao de coordenadas relativas"
+  3038, 	"Cor da posicao"
+  3039, 	"Cor:"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3040, 	"Obter cor da coordenadas selecionadas (Ctrl+B)"
+  3041, 	"Posicao de coordenadas absolutas"
+  3042, 	"Tecla"
+  3043, 	"Inserir automaticamente a coordenada relativa ao script"
+  3044, 	"Determinar cor automaticamente"
+  3045, 	"Pausa entre linhas, em milisegundos"
+  3046, 	"Execucao passo a passo"
+  3047, 	"Inserir automaticamente a coordenada absoluta ao script"
+  3048, 	"Pressione o botao direito para a lista de comandos"
+  3049, 	"Vari."
+  3050, 	"Alarme"
+  3051, 	"Minutos"
+  3052, 	"Horas"
+  3053, 	"Inicie o script atual ao inves de som"
+  3054, 	"Script"
+  3055, 	"Transferir um item, que esta embaixo do ponteiro do mouse, para o lugar selecionado (pressione o botao e defina as coordenadas)"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3056, 	"AutoMover"
+  3057, 	"Selecao de ponto"
+  3058, 	"Pausa, entre arrastar um item"
+  3059, 	"Permitir a mover o ponteiro do mouse, para o lugar selecionado (um pouco rapido e mais exato)"
+  3060, 	"Mover mouse"
+  3061, 	"Quantidade de itens a serem arrastados (0 - todos)"
+  3062, 	"Quantidade de itens a serem arrastados (0 - todos)"
+  3063, 	"Quantidade de itens a serem arrastados (0 - todos)"
+  3064, 	"Mudar coordenadas de origem/destino no arrastar"
+  3065, 	"Mudar coordenadas de origem/destino no arrastar"
+  3066, 	"Mudar coordenadas de origem/destino no arrastar"
+  3067, 	"Para GM`s"
+  3068, 	"Pressione o botao e selecione a janela (Ctrl+A)"
+  3069, 	"UoPilot ficara piscando quando voce receber uma page"
+  3070, 	"Piscar quando novas pages chegarem"
+  3071, 	"UoPilot fara um som quando voce receber uma page"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3072, 	"Beep"
+  3073, 	"Iniciar e logar"
+  3074, 	"Pressione o botao e selecione a janela"
+  3075, 	"Iniciar minimizado"
+  3076, 	"Add"
+  3077, 	"Painel de macros"
+  3078, 	"Painel de controle de barcos"
+  3079, 	"Painel de controle de casas"
+  3080, 	"Editar teclas"
+  3081, 	"Painel do personagem"
+  3082, 	"Tab size"
+  3083, 	"Pausa entre linhas"
+  3084, 	"Intervalo entre o alarme"
+  3085, 	"Painel de controle de animais"
+  3086, 	"Pausa entre linhas em branco"
+  3087, 	"Reagir a teclas"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3088, 	"Habilitar teclas"
+  3089, 	"Pausa entre linhas para scripts novos"
+  3090, 	"Pausa entre sinais do alarme (ms)"
+  3091, 	"Pausa entre linhas em branco ou nao comandos"
+  3092, 	"Controle de Barcos"
+  3093, 	"Mostrar\\esconder tela principal"
+  3094, 	"Controle de casas"
+  3095, 	"Clique direito para editar"
+  3096, 	"Mostrar\\esconder tela principal"
+  3097, 	"Carregar"
+  3098, 	"Salvar"
+  3099, 	"Mostrar no titulo do UO"
+  3100, 	"Valor da variavel atual"
+  3101, 	"Adicionar"
+  3102, 	"Deletar"
+  3103, 	"Last Object"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3104, 	"Deletar"
+  3105, 	"Adicionar"
+  3106, 	"Last Target"
+  3107, 	"Mostrar\\esconder tela principal"
+  3108, 	"Mostrar no titulo do UO"
+  3109, 	"Drink Timer"
+  3110, 	"Tempo entre beber pocoes"
+  3111, 	"Lista de teclas"
+  3112, 	"Salvar screenshot para um arquivo"
+  3113, 	"Print Screen"
+  3114, 	"Iniciar\\parar script atual"
+  3115, 	"Iniciar Script"
+  3116, 	"Gravar macros de teclas"
+  3117, 	"Gravar Macros"
+  3118, 	"Parar gravacao ou macros iniciados"
+  3119, 	"Parar Gravacao"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3120, 	"Iniciar macros gravados"
+  3121, 	"Iniciar macros"
+  3122, 	"Ligar\\Desligar show names of approaching players"
+  3123, 	"Mostrar nomes"
+  3124, 	"Pegar objeto abaixo do mouse para o local selecionado"
+  3125, 	"Auto Move 1"
+  3126, 	"Ligar\\desligar envio de teclas para a aba Geral"
+  3127, 	"Botao 1"
+  3128, 	"Ligar\\desligar envio de teclas para a aba Geral"
+  3129, 	"Botao 2"
+  3130, 	"Ligar\\desligar envio de teclas para a aba Geral"
+  3131, 	"Botao 3"
+  3132, 	"Ligar\\desligar envio de teclas para a aba Geral"
+  3133, 	"Botao 4"
+  3134, 	"Ligar\\desligar envio de teclas para a aba Geral"
+  3135, 	"Botao 5"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3136, 	"Mostrar\\esconder painel de macros"
+  3137, 	"Macros"
+  3138, 	"Alternar entre UoPilot e a janela do UO"
+  3139, 	"UoPilot <-> UO"
+  3140, 	"Pegar objeto abaixo do mouse para o local selecionado"
+  3141, 	"Auto Move 2"
+  3142, 	"Pegar objeto abaixo do mouse para o local selecionado"
+  3143, 	"Auto Move 3"
+  3144, 	"Pausar\\re-assumir execucao do script atual"
+  3145, 	"Pausar Script"
+  3146, 	"Setar coordenadas para a funcao AutoMove"
+  3147, 	"Setar AutoMove 3"
+  3148, 	"Setar coordenadas para a funcao AutoMove"
+  3149, 	"Setar AutoMove 2"
+  3150, 	"Setar coordenadas para a funcao AutoMove"
+  3151, 	"Setar AutoMove 1"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3152, 	"Ligar\\desligar Painel do personagem"
+  3153, 	"Painel do Char"
+  3154, 	"Teclas para scripts"
+  3155, 	"Travar todos scripts para a janela selecionada"
+  3156, 	"Travar Scripts"
+  3157, 	"Copiar texto do console para a area de transferencia"
+  3158, 	"Copiar texto do console"
+  3159, 	"Documentos de script (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Documentos de macro (*.mac)|*.mac|Todos os arquivos (*.*)|*.*"
+  3160, 	"Documentos de script (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Documentos de macro (*.mac)|*.mac|Todos os arquivos (*.*)|*.*"
+  3161, 	"Copiar"
+  3162, 	"Script"
+  3163, 	"Novo"
+  3164, 	"Abrir..."
+  3165, 	"Arquivos recentes ..."
+  3166, 	"Abrir arquivos de procedimento"
+  3167, 	"Salvar"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3168, 	"Salvar como..."
+  3169, 	"Sair"
+  3170, 	"Sair sem salvar"
+  3171, 	"Macros"
+  3172, 	"Carregar"
+  3173, 	"Salvar"
+  3174, 	"Gravar "
+  3175, 	"Parar "
+  3176, 	"Iniciar "
+  3177, 	"Velocidade (em %)"
+  3178, 	"Repetir"
+  3179, 	"Uma"
+  3180, 	"5 vezes"
+  3181, 	"15 vezes"
+  3182, 	"100 vezes"
+  3183, 	"Sem fim"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3184, 	"Configuracoes"
+  3185, 	"Adicionar espacos"
+  3186, 	"Indicar processo de scripts"
+  3187, 	"Mostrar nome de arquivos de scripts"
+  3188, 	"Indicar scripts rodando"
+  3189, 	"Anexar todos os scripts ao iniciar"
+  3190, 	"Retornar o cursor do mouse apos cliques"
+  3191, 	"Armazenar numero de itens arrastados"
+  3192, 	"Mostrar coordenadas do cursor"
+  3193, 	"Relativa"
+  3194, 	"Absoluta"
+  3195, 	"Propriedades do UO"
+  3196, 	"Nomes "
+  3197, 	"Show names of approaching players"
+  3198, 	"Transparencia"
+  3199, 	"Pathfinding"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3200, 	"Criminal Actions"
+  3201, 	"Salvar screenshot da ..."
+  3202, 	"Marcar operadores com outras cores"
+  3203, 	"Parar script em comandos desconhecidos"
+  3204, 	"Parar script se o client for fechados ou desligado"
+  3205, 	"Erro ao ler os parametros do personagem..."
+  3206, 	"Parar script"
+  3207, 	"Pausar script"
+  3208, 	"Mostrar mensagem"
+  3209, 	"Ocultar UoPilot quando o Script for maximizado"
+  3210, 	"Minimizar UoPilot para a tray "
+  3211, 	"Sempre visivel..."
+  3212, 	"UoPilot"
+  3213, 	"Controle de barcos"
+  3214, 	"Controle de casas"
+  3215, 	"Animais && Vendedores"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3216, 	"Painel do personagem"
+  3217, 	"Janela do Script"
+  3218, 	"Salvar posicoes da..."
+  3219, 	"Janela do UoPilot"
+  3220, 	"Janela do Script"
+  3221, 	"Painel do personagem"
+  3222, 	"Painel de controle de casas"
+  3223, 	"Painel de controle de barcos"
+  3224, 	"Painel de controle de animais"
+  3225, 	"Ao iniciar, abrir janelas... "
+  3226, 	"Painel do personagem"
+  3227, 	"Script"
+  3228, 	"Mostrar as informacoes do char..."
+  3229, 	"Script ativo"
+  3230, 	"Janela ativa do UO"
+  3231, 	"Janela do UoPilot"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3232, 	"Mostrar numeros em hex"
+  3233, 	"Selecionar fonte para scripts"
+  3234, 	"Selecionar servidor de UO"
+  3235, 	"Salvar configuracoes"
+  3236, 	"Salvar mensagens do macro"
+  3237, 	"Salvar configuracoes ao sair"
+  3238, 	"Historico"
+  3239, 	"Sobre..."
+  3240, 	"Recortar"
+  3241, 	"Copiar"
+  3242, 	"Colar"
+  3243, 	"Desfazer"
+  3245, 	"Variaveis"
+  3246, 	"Tempo"
+  3247, 	"Informacoes do char"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3248, 	"ultimos objetos"
+  3250, 	" <tecla [tempo]> | <texto>"
+  3251, 	"sendex <lista de teclas>"
+  3252, 	"set #<nome> <var> [<operacao> <var>]"
+  3253, 	"wait <tempo>"
+  3254, 	"waitfortarget [tempo]"
+  3255, 	"Mouse"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3264, 	"move <coord> [abs]"
+  3265, 	"drag <origem> <destino> [quantidade]"
+  3266, 	"Ciclos"
+  3267, 	"break [level]"
+  3268, 	"repeat <quantidade>"
+  3269, 	"for #<nome> <inicio> <fim> [passos]"
+  3270, 	"while <coord> <cor> [cor2]"
+  3271, 	"while <var> <operacao> <var> [<and | or | xor> ...]"
+  3272, 	"while lastmsg <mensagem>"
+  3273, 	"Condicoes"
+  3274, 	"if <coord> <cor> [cor2]"
+  3275, 	"if <var> <operacao> <var> [<and | or | xor> ...]"
+  3276, 	"if lastmsg <mensagem>"
+  3277, 	"Sub-programas"
+  3278, 	"call <nome> [var1] [var2] ..."
+  3279, 	"proc <nome> [var1] [var2] ..."
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3280, 	"gosub <label>"
+  3281, 	"Macros"
+  3282, 	"macro_load <nome do arquivo>"
+  3283, 	"macro_play [vezes] [speed]"
+  3284, 	"Scripts"
+  3285, 	"start_script <numero>"
+  3286, 	"stop_script [numero | all]"
+  3287, 	"pause_script [numero | all]"
+  3288, 	"resume_script <number | all>"
+  3289, 	"Programas"
+  3290, 	" <nome do arquivo> [parametros]"
+  3291, 	"terminate <texto da janela>"
+  3292, 	"injection <comando> [; comando...]"
+  3293, 	"goto <label>"
+  3294, 	"say [texto]"
+  3295, 	"msg [texto]"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3296, 	"alarm [nome do arquivo]"
+  3297, 	"flash [parametros]"
+  3298, 	"Abrir"
+  3299, 	"Salvar"
+  3300, 	"Limpar"
+  3301, 	"Remover script atual"
+  3302, 	"Adicionar novo script"
+  3303, 	"Selecionar com um x, endereco ativo"
+  3304, 	"Parametros do Personagem"
+  3305, 	"Janela ativa"
+  3306, 	"Working window"
+  3307, 	"Toda tela"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3316, 	"Esquerdo Duplo"
+  3317, 	"Direito Duplo"
+  3318, 	"Clique esquerdo"
+  3319, 	"Clique direito"
+  3320, 	"Manual da linguagem do script"
+  3321, 	"Mostrar variavel 'timer'"
+  3322, 	"Sort SkillList on the panel of char parameters"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3330, 	"abaixo do normal"
+  3331, 	"acima do normal"
+  3332, 	"normal"
+  3333, 	"Prioridade de novos clients"
+  3335, 	"Intervalo, apos"
+  3336, 	"Iniciar UO apenas"
+  3337, 	"): Nao pode ser definida a operacao"
+  3340, 	"On\\Off circlo de transparencia"
+  3341, 	"Transparencia"
+  3342, 	"On\\Off pathfinding com clique duplo do botao direito"
+  3343, 	"Path finding"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3344, 	"On\\Off questionamento antes de realizar acoes criminosas"
+  3345, 	"Acoes Criminosas"
+  3346, 	"On\\Off Correr Sempre"
+  3347, 	"Correr Sempre"
+  3350, 	"Contagem de repeticoes"
+  3351, 	"Pausar script atual"
+  3352, 	"Pausar todos os Scripts"
+  3353, 	"Delay in mouse clicks"
+  3354, 	"Delay between press and release mouse button in mouse command"
+  3355, 	"Show all windows"
+  3356, 	"Delay SendEx"
+  3357, 	"Delay between sended symbols in 'SendEx' command"
+  3359, 	"New scripts priority"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3360, 	"low"
+  3361, 	"normal"
+  3362, 	"high"
+  3363, 	"max"
+  3365, 	"Functions"
+  3375, 	"Display the scripts start\\stop buttons"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3376, 	"Rename UoPilot"
+  3377, 	"Move cursor to a point of click"
+  3378, 	"Logging to file"
+  3379, 	"Keys"
+  3380, 	"Stop all scripts"
+  3381, 	"Define work window and color with coordinates."
+  3382, 	"Plugin Sample"
+  3383, 	"Color, coordinates, screen"
+  3384, 	"Select font for log window"
+  3385, 	"'Transparent' hotkeys"
+  3386, 	"Show line number in script"
+  3387, 	"Arrays"
+  3388, 	"Save scripts on exit"
+  3389, 	"Show help window on taskbar"
+  3390, 	"Output to a log error of"
+  3391, 	"Determining color"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3400, 	"Digite a pasta do UO e pressione atualizar"
+  3401, 	"Arquivo "
+  3402, 	" nao encontrado em "
+  3403, 	"Endereco"
+  3404, 	"Porta"
+  3405, 	"Descricao"
+  3406, 	"Digite a pasta do UO e pressione atualizar"
+  3407, 	"Nao pode salvar alteracoes no arquivo "
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3408, 	"Erro na linha de comando ("
+  3409, 	"Nome"
+  3410, 	"Valor"
+  3411, 	"Nao localizada a janela do UO"
+  3412, 	"Nao localizada a janela do UO, tente indicar manualmente.\nPonha o mouse na tela do UO e pressione "
+  3413, 	"Selecionar tipo de clique"
+  3414, 	"Sel. Tecla"
+  3415, 	"Sel. intervalo correto (em milisegundos)"
+  3416, 	"Erro em uma tecla definida"
+  3417, 	"Erro! Checar pasta existente na qual tentou salvar uma tela. ("
+  3418, 	"Nao pode carregar script"
+  3419, 	"Carregar script..."
+  3420, 	"Salvar script como..."
+  3421, 	"Voce quer limpar esse script?"
+  3422, 	"Selecione! Para outra janela: (Ctrl+B)"
+  3423, 	"Ajuda"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3424, 	"Erro na definicao da GM Page"
+  3425, 	"Pausa errada selecionada entre linhas"
+  3426, 	"Minimizar"
+  3427, 	"Maximizar"
+  3428, 	"Salvar macros como..."
+  3429, 	"Carregar macros..."
+  3430, 	"Muitas variaveis..."
+  3431, 	"Carregar arquivo de procedimentos..."
+  3432, 	"Nao definiu um tipo de forma"
+  3433, 	"Char parametros"
+  3434, 	"Arquivos de table (*.tbl)|*.tbl|Todos os arquivos (*.*)|*.*"
+  3435, 	"Carregar table..."
+  3436, 	"Salvar table como..."
+  3437, 	" Sobre UoPilot"
+  3438, 	"Erro na definicao de script. Nao pode localizar o UO."
+  3439, 	"Lingua original selecionada.\nPor favor reiniciar aplicativo."
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3440, 	"Nao localizado final do While 'End_While', checar script"
+  3441, 	"Nao localizado comeco do While 'While', checar script"
+  3442, 	"): Nao definiu o nome da variavel"
+  3443, 	"Erro no procedimento"
+  3444, 	"Final do procedimento "
+  3445, 	" nao encontrado no script"
+  3446, 	" nao encontrado no arquivo de procedimento"
+  3447, 	" nao encontrado"
+  3448, 	"Injection v309.05+ nao encontrado"
+  3449, 	"Nao encontrado final da condicao, checar script"
+  3450, 	"Nada para parar, checar script"
+  3451, 	"Erro carregando teclas"
+  3452, 	"Erro carregando teclas para scripts."
+  3453, 	"Nao localizado fim do IF: 'End_IF', checar script"
+  3454, 	"Label '"
+  3455, 	"' nao localizado, checar script"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3456, 	"Erro ao ler informacoes do char"
+  3457, 	"Gravar com numero definido ("
+  3458, 	") nao encontrado"
+  3459, 	"Erro na interpretacao do script (for)"
+  3460, 	"): Nao pode definir nome da variavel"
+  3461, 	"Nao localizado fim do For 'End_For', checar script"
+  3462, 	"): Nao pode definir nome da variavel (for)"
+  3463, 	"parametro ilegal para Random"
+  3465, 	"Nao localizado ')'"
+  3466, 	"Erro na interpretacao do script (repeat)"
+  3467, 	"Nao localizado fim do Repeat 'End_Repeat', checar script"
+  3468, 	"Erro na interpretacao do script (end_repeat)"
+  3470, 	"UO nao encontrado"
+  3471, 	"Todos os documentos (*.*)"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3472, 	"Editor ("
+  3473, 	"Erro de sistema: script nao criado."
+  3474, 	"Controle Animal & vendedor"
+  3475, 	"Erro lendo memoria"
+  3476, 	"Client sooner dead, than alive..."
+  3477, 	"Client fechado..."
+  3478, 	"Comando desconhecido: "
+  3479, 	"): Erro, checar o script!"
+  3480, 	"Pause\\resume all scripts"
+  3481, 	"Show remaining waiting time"
+  3482, 	"Strings"
+  3483, 	"Display Messages"
+  3485, 	"Remove"
+  3486, 	"Close"
+  3487, 	"Rename"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3488, 	"Save script template"
+  3489, 	"Procedure"
+  3490, 	"File operation"
+  3491, 	"Automatically open log window"
+  3492, 	"Output messages to..."
+  3493, 	"on taskbar"
+  3494, 	"Numbers"
+  3495, 	"Show hints for commands"
+  3496, 	"Start minimized"
+  3497, 	"Start\\stop current script"
+  3498, 	"Nao localizado '', checar script"
+  3499, 	"Save scripts before run"
+  3500, 	"Show tooltip for commands"
+  3501, 	"Setting HotKeys"
+  3502, 	"Use kleft v2.17"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3504, 	"Show script process and 'timer' variable"
+  3505, 	"Slower"
+  3506, 	"Faster"
+  3507, 	"Loading plugins"
+  3508, 	"Show unsaved scripts"
+  3509, 	"Displays the names of the scripts on the tabs"
+  3510, 	"Hide related to Ultima Online"
+  3511, 	"Find"
+  3512, 	"Case sensitive"
+  3513, 	"Up"
+  3514, 	"Down"
+  3515, 	"Next"
+  3516, 	"Suspicious indented at line"
+  3517, 	"Somewhere unnecessary ""end""."
+  3518, 	"Format"
+  3519, 	"Remove formatting"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3520, 	"Color and Image"
+  3521, 	"Save settings as..."
+  3522, 	"Load settings..."
+  3523, 	"Comment..."
+  3524, 	"on click"
+  3525, 	"on select"
+  3526, 	"Syntax highlighting"
+  3527, 	"The file was not downloaded."
+  3528, 	"Error when downloading"
+  3529, 	"Something went wrong."
+  3530, 	"Could not open the form."
+  3531, 	"Could not show help."
+  3532, 	"Problems with the menu."
+  3533, 	"Could not get a list of files."
+  3534, 	"Functions found"
+  3535, 	"Downloading"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3536, 	"History"
+  3537, 	"Download all from Wiki"
+}
+
+STRINGTABLE
+LANGUAGE 22, 2
+{
+  3999, 	"\xC2\xD1α\xD1\xF3\xAB\xF1 \xA1\xE1 \xC2\xABαΓπ\xFA\xE1\xBD∞\xDF\xAC\xBF\xD2 ∩\xBAδ\xAC: Gustavo (theyue@ibest.com.br)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4001, 	"Кіраванне жывёламі і вендарамі"
+  4002, 	"Дадаваць прэфікс"
+  4003, 	"Дадаваць суфікс"
+  4004, 	"Прэфікс (імя жывёлы ці all)"
+  4005, 	"Суфікс (звычайна мэта)"
+  4006, 	"Агульнае"
+  4007, 	"Навядзіце курсор на мэту і нажм. (Ctrl+A)"
+  4008, 	"Старт"
+  4009, 	"Старт"
+  4010, 	"Старт"
+  4011, 	"Каардынаты, куды клікаць"
+  4012, 	"Інтэрвал"
+  4013, 	"Інтэрвал"
+  4014, 	"Інтэрвал"
+  4015, 	"Інтэрвал"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4017, 	"Пасылаць BackSpace пасля пасылкі літарна-лічбавай клавішы"
+  4018, 	"Пасылаць BackSpace пасля пасылкі літарна-лічбавай клавішы"
+  4019, 	"Пасылаць BackSpace пасля пасылкі літарна-лічбавай клавішы"
+  4020, 	"Другое акно (Ctrl+B)"
+  4021, 	"Старт"
+  4022, 	"Старт"
+  4023, 	"Інтэрвал"
+  4024, 	"Інтэрвал"
+  4025, 	"Пасылаць BackSpace пасля пасылкі літарна-лічбавай клавішы"
+  4026, 	"Пасылаць BackSpace пасля пасылкі літарна-лічбавай клавішы"
+  4027, 	"Скрыншот (PrintScreen) :"
+  4028, 	"У імя файла дадаць дату і час"
+  4029, 	"дата"
+  4030, 	"Займае шмат месца на дыску, затое якасна"
+  4031, 	"Не якасна, затое займае мала месцы на дыску"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4032, 	"Куды захоўваць файлы"
+  4033, 	"Якасць jpg"
+  4034, 	"Скрыпт"
+  4035, 	"Дадаць клавішу ў скрыпт"
+  4036, 	"Кропка (Ctrl+A):"
+  4037, 	"Адносныя каардынаты кропкі"
+  4038, 	"Колер кропкі"
+  4039, 	"Колер:"
+  4040, 	"Вызначыць колер пікселя ў абраных каардынатах (Ctrl+B)"
+  4041, 	"Абсалютныя каардынаты кропкі"
+  4042, 	"Клавіша"
+  4043, 	"Адразу ўстаўляць адносныя каардынаты ў скрыпт"
+  4044, 	"Адразу вызначаць колер"
+  4045, 	"Паўза паміж радкамі ў мілісекундах"
+  4046, 	"Пакрокавае выкананне скрыпту"
+  4047, 	"Адразу ўстаўляць абсалютныя каардынаты ў скрыпт"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4048, 	"Націсніце правую кнопку мышы, каб атрымаць спіс камандаў"
+  4049, 	"Рознае"
+  4050, 	"Будзільнік"
+  4051, 	"Хвіліны"
+  4052, 	"Гадзіны"
+  4053, 	"Запусціць скрыпт заміж издавания гукавога сігналу"
+  4054, 	"Скрыпт"
+  4055, 	"Перасоўванне итема пад мышкай у паказаную кропку (націсніце кнопку і задайце каардынаты)"
+  4056, 	"AutoMove"
+  4057, 	"Выбар кропкі"
+  4058, 	"Затрымка пасля ўзняцця итема"
+  4059, 	"Дазваляе перасоўваць мышку ў кропку прызначэння (няшмат хутчэй і карэктней)"
+  4060, 	"Перасоўваць мышку"
+  4061, 	"Колькасць перацягвальных итемов (0 - усё)"
+  4062, 	"Колькасць перацягвальных итемов (0 - усё)"
+  4063, 	"Колькасць перацягвальных итемов (0 - усё)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4064, 	"Змяняе месцамі Крыніца і Прымач пры перацягванні"
+  4065, 	"Змяняе месцамі Крыніца і Прымач пры перацягванні"
+  4066, 	"Змяняе месцамі Крыніца і Прымач пры перацягванні"
+  4067, 	"Для GM`ов"
+  4068, 	"Націсніце кнопку і выберыце акно (Ctrl+A)"
+  4069, 	"UoPilot будзе міргаць пры прыходзе пэйджа"
+  4070, 	"Міргаць пры прыходзе пейжджа"
+  4071, 	"UoPilot выдасць гукавы сігнал пры прыходзе пэйджа"
+  4072, 	"Пішчаць"
+  4073, 	"Запуск і лагін"
+  4074, 	"Націсніце кнопку і выберыце акно (Ctrl+A)"
+  4075, 	"Запускаць у згорнутым акне"
+  4076, 	"Яшчэ"
+  4077, 	"Панэль макрасаў."
+  4078, 	"Панэль кіравання караблём"
+  4079, 	"Панэль кіравання хатай"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4080, 	"Рэдагаваць гарачыя клавішы"
+  4081, 	"Панэль характарыстык чара."
+  4082, 	"Памер табуляцыі ў рэдактары"
+  4083, 	"Паўза паміж радкоў"
+  4084, 	"Паўза сігналаў будзільніка"
+  4085, 	"Панэль кіравання жывёламі"
+  4086, 	"Паўза паміж пустых радкоў"
+  4087, 	"Рэагаваць на гарачыя клавішы"
+  4088, 	"Ўключыць HotKeys"
+  4089, 	"Паўза паміж радкоў для новых скрыптоў"
+  4090, 	"Паўза паміж пачаткамі сігналаў будзільніка (ms)"
+  4091, 	"Паўза паміж радкоў, не ўтрымоўвалых каманды"
+  4092, 	"Кіраванне караблём"
+  4093, 	"Паказаць\\схаваць галоўную форму"
+  4094, 	"Кіраванне хатай"
+  4095, 	"Right click to edit"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4096, 	"Паказаць\\схаваць галоўную форму"
+  4097, 	"Load"
+  4098, 	"Save"
+  4099, 	"Show in UO caption"
+  4100, 	"Бягучыя значэнні зменных"
+  4101, 	"Add"
+  4102, 	"Delete"
+  4103, 	"Last Object"
+  4104, 	"Delete"
+  4105, 	"Add"
+  4106, 	"Last Target"
+  4107, 	"Паказаць\\схаваць галоўную форму"
+  4108, 	"Show in UO caption"
+  4109, 	"Drink Timer"
+  4110, 	"Затрымка на пітво бурбалак"
+  4111, 	"HotKeys list"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4112, 	"Захоўвае копію экрана ў файл"
+  4113, 	"Print Screen"
+  4114, 	"Запускае\\спыняе текуущий скрыпт"
+  4115, 	"Start Script"
+  4116, 	"Запісвае макрас клавіш"
+  4117, 	"Record Macros"
+  4118, 	"Спыняе запіс ці прайграванне макраса клавіш"
+  4119, 	"Stop Record"
+  4120, 	"Прайгравае, запісаны раней, макрас клавіш"
+  4121, 	"Play Macros"
+  4122, 	"Улучае\\вымыкае адлюстраванне імёнаў гульцоў"
+  4123, 	"Show Names"
+  4124, 	"Перасоўванне итема пад мышкай у паказаную кропку ці наадварот"
+  4125, 	"Auto Move 1"
+  4126, 	"Кликалки з укладкі Агульнае"
+  4127, 	"Button 1"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4128, 	"Кликалки з укладкі Агульнае"
+  4129, 	"Button 2"
+  4130, 	"Кликалки з укладкі Агульнае"
+  4131, 	"Button 3"
+  4132, 	"Кликалки з укладкі Агульнае"
+  4133, 	"Button 4"
+  4134, 	"Кликалки з укладкі Агульнае"
+  4135, 	"Button 5"
+  4136, 	"Улучае\\вымыкае адлюстраванне панэлі макрасаў"
+  4137, 	"Macros"
+  4138, 	"Перамыкае UoPilot <-> UO"
+  4139, 	"UoPilot <-> UO"
+  4140, 	"Перасоўванне итема пад мышкай у паказаную кропку ці наадварот"
+  4141, 	"Auto Move 2"
+  4142, 	"Перасоўванне итема пад мышкай у паказаную кропку ці наадварот"
+  4143, 	"Auto Move 3"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4144, 	"Прыпыняе\\аднаўляе выполнениетекущего скрыпту"
+  4145, 	"Pause Script"
+  4146, 	"Усталёўка каардынат для функцыі AutoMove"
+  4147, 	"Set AutoMove 3"
+  4148, 	"Усталёўка каардынат для функцыі AutoMove"
+  4149, 	"Set AutoMove 2"
+  4150, 	"Усталёўка каардынат для функцыі AutoMove"
+  4151, 	"Set AutoMove 1"
+  4152, 	"Улучае\\вымыкае адлюстраванне панэлі параметраў чара"
+  4153, 	"Char Params"
+  4154, 	"Гарачыя клавішы для скрыптоў"
+  4155, 	"Прилочивает усе скрыпты да паказанага акна УО"
+  4156, 	"Lock all Scripts"
+  4157, 	"Капіюе тэкст, набраны ў акне кліента, у буфер абмену"
+  4158, 	"Copy ConsoleText"
+  4159, 	"Файлы скрыптоў (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Файлы макрасаў (*.mac)|*.mac|Усе файлы (*.*)|*.*"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4160, 	"Файлы скрыптоў (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Файлы макрасаў (*.mac)|*.mac|Усе файлы (*.*)|*.*"
+  4161, 	"Капіяваць"
+  4162, 	"Скрыпт"
+  4163, 	"Новы"
+  4164, 	"Адкрыць"
+  4165, 	"Адкрыць апошнія ..."
+  4166, 	"Адкрыць файл працэдур"
+  4167, 	"Захаваць"
+  4168, 	"Захаваць як..."
+  4169, 	"Выйсце"
+  4170, 	"Выйсце без захавання"
+  4171, 	"Макрас"
+  4172, 	"Загрузіць"
+  4173, 	"Захаваць"
+  4174, 	"Запіс "
+  4175, 	"Стоп "
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4176, 	"Прайграць "
+  4177, 	"Хуткасць (у %)"
+  4178, 	"Паўтор"
+  4179, 	"1 раз"
+  4180, 	"5 раз"
+  4181, 	"15 раз"
+  4182, 	"100 раз"
+  4183, 	"Бясконца"
+  4184, 	"Налады"
+  4185, 	"Дадаваць прабелы"
+  4186, 	"Адлюстроўваць ход выканання скрыпту"
+  4187, 	"Адлюстроўваць імёны файлаў скрыптоў"
+  4188, 	"Адлюстроўваць запушчаныя скрыпты"
+  4189, 	"Прымацоўваць усе скрыпты пры старце UoPilot'a"
+  4190, 	"Вяртаць курсор мышы пасля клікаў"
+  4191, 	"Запамінаць колькасць перацягвальных итемов"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4192, 	"Адлюстроўваць каардынаты курсора"
+  4193, 	"Адносныя"
+  4194, 	"Абсалютныя"
+  4195, 	"Наcтройки UO"
+  4196, 	"Імёны "
+  4197, 	"Паказваць імёны надыходных гульцоў"
+  4198, 	"Празрыстасць"
+  4199, 	"Патфиндинг"
+  4200, 	"Criminal Actions"
+  4201, 	"Захоўваць скрыншот..."
+  4202, 	"Вылучаць аператары колерам"
+  4203, 	"Прыпыняць скрыпт на неапазнанай камандзе"
+  4204, 	"Пры зачыненні кліента прыпыняць скрыпт"
+  4205, 	"Пры абмыле чытання параметраў чара"
+  4206, 	"Оставливать скрыпт"
+  4207, 	"Прыпыняць скрыпт"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4208, 	"Інфармаваць пра абмылу"
+  4209, 	"Хаваць UoPilot пры разгортванні скрыпту"
+  4210, 	"Згортваць UoPilot у трэй"
+  4211, 	"Месцаваць па-над усіх вокнамі..."
+  4212, 	"UoPilot"
+  4213, 	"Ship Control"
+  4214, 	"House Control"
+  4215, 	"Animal && Vendor"
+  4216, 	"Char Parameters"
+  4217, 	"Акно скрыпту"
+  4218, 	"Запамінаць становішча вокнаў..."
+  4219, 	"UoPilot'a"
+  4220, 	"Скрыпту"
+  4221, 	"Параметраў чара"
+  4222, 	"Кіраванні хатай"
+  4223, 	"Кіравання караблём"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4224, 	"Кіравання жывёламі"
+  4225, 	"Пры запуску UoPilot'a адкрываць вокны... "
+  4226, 	"Параметраў чара"
+  4227, 	"Скрыпту"
+  4228, 	"Адлюстроўваць параметры чара"
+  4229, 	"Актыўнага скрыпту"
+  4230, 	"Верхняга акна UO"
+  4231, 	"Вокны UoPilot'а"
+  4232, 	"Адлюстроўваць лікі ў hex фармаце"
+  4233, 	"Выбраць шрыфт рэдактара"
+  4234, 	"Select UO server"
+  4235, 	"Захаваць налады"
+  4236, 	"Захаваць макрасы паведамленняў"
+  4237, 	"Захоўваць налады пры выйсці"
+  4238, 	"Гісторыя развіцця праграмы"
+  4239, 	"Пра праграму..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4240, 	"Выразаць"
+  4241, 	"Капіяваць"
+  4242, 	"Уставіць"
+  4243, 	"Адмяніць"
+  4245, 	"Зменныя"
+  4246, 	"Час"
+  4247, 	"Параметры чара"
+  4248, 	"Апошнія аб'екты"
+  4250, 	" <клавіша [паўза]> | <тэкст>"
+  4251, 	"sendex <спіс клавіш>"
+  4252, 	"set #<імя> <знач.>[<зн.оп.> <знач.>]"
+  4253, 	"wait <лік>"
+  4254, 	"waitfortarget [time]"
+  4255, 	"Мышка"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4264, 	"move <коорд> [abs]"
+  4265, 	"drag <адкуль> <куды> [колькі]"
+  4266, 	"Цыклы"
+  4267, 	"break [узровень]"
+  4268, 	"repeat <лік>"
+  4269, 	"for #<імя> <пачатак> <канец> [крок]"
+  4270, 	"while <коорд> <колер> [цвет2]"
+  4271, 	"while <параметр> <зн.оп.> <значэнне> [<and | or | xor> ...]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4272, 	"while lastmsg <паведамленне>"
+  4273, 	"Умовы"
+  4274, 	"if <коорд> <колер> [цвет2]"
+  4275, 	"if <параметр> <зн.оп.> <значэнне> [<and | or | xor> ...]"
+  4276, 	"if lastmsg <паведамленне>"
+  4277, 	"Падпраграмы"
+  4278, 	"call <імя> [var1] [var2] ..."
+  4279, 	"proc <імя> [var1] [var2] ..."
+  4280, 	"gosub <пазнака>"
+  4281, 	"Макроcы"
+  4282, 	"macro_load <імя файла>"
+  4283, 	"macro_play [лік] [хуткасць]"
+  4284, 	"Скрыпты"
+  4285, 	"start_script <number>"
+  4286, 	"stop_script [number | all]"
+  4287, 	"pause_script [number | all]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4288, 	"resume_script <number | all>"
+  4289, 	"Праграмы"
+  4290, 	" <каманда> [параметры]"
+  4291, 	"terminate <загаловак акна>"
+  4292, 	"injection <каманда> [; каманда...]"
+  4293, 	"goto <пазнака>"
+  4294, 	"say [тэкст]"
+  4295, 	"msg [тэкст]"
+  4296, 	"alarm [імя файла]"
+  4297, 	"flash [параметр]"
+  4298, 	"Адкрыць"
+  4299, 	"Захаваць"
+  4300, 	"Ачысціць"
+  4301, 	"Выдаліць бягучы скрыпт"
+  4302, 	"Дадаць новы скрыпт"
+  4303, 	"Адзначце крыжыкам актыўныя адрасы"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4304, 	"Параметры чара"
+  4305, 	"Aктивного вокны"
+  4306, 	"Рабочего окна"
+  4307, 	"Усяго экрана"
+  4316, 	"Падвойнай левай"
+  4317, 	"Падвойнай правай"
+  4318, 	"Зграй левай"
+  4319, 	"Зграй правай"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4320, 	"Дапамога па мове скрыптоў"
+  4321, 	"Адлюстроўваць зменную timer"
+  4322, 	"Сартаваць спіс скилов на панэлі параметраў"
+  4330, 	"ніжэй"
+  4331, 	"вышэй"
+  4332, 	"нармальны"
+  4333, 	"Прыярытэт для якія запускаюцца кліентаў"
+  4335, 	"Затрымка пасля ўказання колькасці итемов"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4336, 	"Толькі запуск, без лагіна"
+  4337, 	"): Не магу вызначыць аперацыю"
+  4340, 	"Ўлучае\\вымыкае кола празрыстасці"
+  4341, 	"Transparency"
+  4342, 	"Улучае\\вымыкае пошук шляху па падвойным правым кліку"
+  4343, 	"Path finding"
+  4344, 	"Улучае\\вымыкае папярэджанне пра здзяйсненне супрацьпраўных дзеянняў"
+  4345, 	"Criminal actions"
+  4346, 	"Улучае\\вымыкае сталы бег"
+  4347, 	"Always run"
+  4350, 	"Колькасць"
+  4351, 	"Прыпыніць\\працягнуць бягучы"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4352, 	"Прыпыніць усе скрыпты"
+  4353, 	"Паўза ў зграях мышшу"
+  4354, 	"Паўза паміж націскам і адпушчэннем кнопкі мышы ў мышинных камандах"
+  4355, 	"Паказваць усе вокны"
+  4356, 	"Паўза SendEx"
+  4357, 	"Паўза паміж пасыланымі знакамі ў камандзе SendEx"
+  4359, 	"Прыярытэт для новых скрыптоў"
+  4360, 	"пониженный"
+  4361, 	"нармальны"
+  4362, 	"сярэдні"
+  4363, 	"максімальны"
+  4365, 	"Функцыі"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4375, 	"Адлюстроўваць кнопкі запуску\\прыпынкі скрыптоў"
+  4376, 	"Переименовывать пилот"
+  4377, 	"Перемещать курсор в точку клика"
+  4378, 	"Записывать лог в файл"
+  4379, 	"Клавиши"
+  4380, 	"Останавливает все скрипты"
+  4381, 	"Задает рабочее окно и определяет цвет с координатами. полный аналог Ctrl+A"
+  4382, 	"Пример плагина"
+  4383, 	"Цвет, координаты, экран"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4384, 	"Выбрать шрифт лога"
+  4385, 	"'Прозрачные' хоткеи"
+  4386, 	"Отображать номера строк скрипта"
+  4387, 	"Массивы"
+  4388, 	"Сохранять скрипты при выходе"
+  4389, 	"Отображать окна справки на панели задач"
+  4390, 	"Выводить в лог ошибки"
+  4391, 	"Определения цвета"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4400, 	"Увядзіце шлях да UO і націсніце кнопку Reload"
+  4401, 	"Файл "
+  4402, 	" не знойдзены ў "
+  4403, 	"Адрас"
+  4404, 	"Порт"
+  4405, 	"Коментарий"
+  4406, 	"Увядзіце шлях да UO і націсніце кнопку Reload"
+  4407, 	"Не атрымалася запісаць змены ў файл "
+  4408, 	"Абмыла ў параметрах каманднага радка ("
+  4409, 	"Імя"
+  4410, 	"Значэнне"
+  4411, 	"Не магу знайсці працоўнае акно"
+  4412, 	"Не магу знайсці працоўнае акно, паспрабуйце паказаць яго прымусова:\nУстановите курсор мышы над акном і націсніце "
+  4413, 	"Выберыце тып кликания"
+  4414, 	"Задайце клавішу"
+  4415, 	"Задайце слушны інтэрвал (у мілісекундах)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4416, 	"Абмыла пры спробе вызначыць клавішу"
+  4417, 	"Абмыла! Пераканаецеся, што каталог, куды захоўваць экран, існуе ("
+  4418, 	"Не магу загрузіць скрыпт"
+  4419, 	"Загрузіць скрыпт..."
+  4420, 	"Захаваць скрыпт як..."
+  4421, 	"Вы ўпэўнены, што жадаеце\nочистить існы скрыпт?"
+  4422, 	"Абрана! Для выбару іншага: (Ctrl+B)"
+  4423, 	"Даведка"
+  4424, 	"Абмыла вызначэння GM Page"
+  4425, 	"Няправільна паказана затрымка паміж радкоў."
+  4426, 	"Згарнуць"
+  4427, 	"Разгарнуць"
+  4428, 	"Захаваць макрас як..."
+  4429, 	"Загрузіць макрас..."
+  4430, 	"Перабор"
+  4431, 	"Загрузіць файл працэдур..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4432, 	"Не магу вызначыць тып формы."
+  4433, 	"Параметры чара"
+  4434, 	"Файлы табліц (*.tbl)|*.tbl|Усе файлы (*.*)|*.*"
+  4435, 	"Загрузіць табліцу..."
+  4436, 	"Захаваць табліцу як..."
+  4437, 	" Пра праграму UoPilot"
+  4438, 	"Абмыла запуску скрыпту. Не магу знайсці працоўнае акно"
+  4439, 	"Абраны мова па змаўчанні.\nНеобходим перазапуск."
+  4440, 	"Не магу знайсці канец цыкла: 'End_While', спраўдзьце скрыпт"
+  4441, 	"Не магу знайсці пачатак цыкла: 'While', спраўдзьце скрыпт"
+  4442, 	"): Не магу вызначыць імя зменнай"
+  4443, 	"Абмыла стварэння працэдуры."
+  4444, 	"Канец працэдуры "
+  4445, 	" не знойдзены ў бягучым скрыпце."
+  4446, 	" не знойдзены ў файле працэдур."
+  4447, 	" не знойдзены"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4448, 	"Injection v309.05+ не знойдзены."
+  4449, 	"Не магу знайсці канец цыкла, спраўдзьце скрыпт"
+  4450, 	"Няма чаго перапыняць, спраўдзьце скрыпт"
+  4451, 	"Error loading HotKeys"
+  4452, 	"Error loading HotKeys for scripts."
+  4453, 	"Не магу знайсці канец умовы: 'End_IF', спраўдзьце скрыпт"
+  4454, 	"Пазнака '"
+  4455, 	"' не знойдзена, спраўдзьце скрыпт"
+  4456, 	"Абмыла чытання параметраў чара"
+  4457, 	"Запіс з паказаным нумарам ("
+  4458, 	") не знойдзена."
+  4459, 	"Абмыла інтэрпрэтацыі скрыпту (for)."
+  4460, 	"): Немогу вызначыць імя зменнай"
+  4461, 	"Не магу знайсці канец цыкла: 'End_for', спраўдзьце скрыпт"
+  4462, 	"): Немогу знайсці імя зменнай for"
+  4463, 	"Не слушна паказаны параметр random."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4465, 	"Не магу знайсці якая зачыняе дужку."
+  4466, 	"Абмыла інтэрпрэтацыі скрыпту (repeat)."
+  4467, 	"Не магу знайсці канец цыкла: 'End_Repeat', спраўдзьце скрыпт"
+  4468, 	"Абмыла інтэрпрэтацыі скрыпту (end_repeat)."
+  4470, 	"UO not found"
+  4471, 	"Усе файлы (*.*)"
+  4472, 	"Editor ("
+  4473, 	"System error: script not created."
+  4474, 	"Animal & Vendor Control"
+  4475, 	"Error reading memory"
+  4476, 	"Кліент хутчэй мёртвы, чым жывы..."
+  4477, 	"Кліент мёртвы..."
+  4478, 	"Неапазнаная каманда: "
+  4479, 	"): Абмыла! Спраўдзьце правільнасць скрыпту! "
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4480, 	"Приостанавливает\\возобнавляет все скрипты"
+  4481, 	"Отображать оставшееся время ожидания"
+  4482, 	"Строки"
+  4483, 	"Вывод сообщений"
+  4485, 	"Удалить"
+  4486, 	"Закрыть"
+  4487, 	"Переименовать"
+  4488, 	"Сохранить шаблон скрипта"
+  4489, 	"Процедура"
+  4490, 	"Файловых операций"
+  4491, 	"Автоматически открывать лог"
+  4492, 	"Выводить сообщения в..."
+  4493, 	"на панели задач"
+  4494, 	"Числа"
+  4495, 	"Отображать подсказки для команд в скрипте"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4496, 	"Запускать свернутым"
+  4497, 	"Запустить\\остановить текущий скрипт"
+  4498, 	"Не магу знайсцi '', спраўдзьце скрыпт"
+  4499, 	"Сохранять скрипты перед запуском"
+  4500, 	"Отображать подсказки для команд в скрипте"
+  4501, 	"Назначения горячих клавиш"
+  4502, 	"Использовать kleft v2.17"
+  4503, 	"Слежение"
+  4504, 	"Отображать ход выполнения скрипта и переменную timer"
+  4505, 	"Медленнее"
+  4506, 	"Быстрее"
+  4507, 	"Загрузки плагинов"
+  4508, 	"Отображать несохраненные скрипты"
+  4509, 	"Отображать имена скриптов на закладках"
+  4510, 	"Скрыть связанное с Ultima Online"
+  4511, 	"Найти"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4512, 	"С учетом регистра"
+  4513, 	"Вверх"
+  4514, 	"Вниз"
+  4515, 	"Найти далее"
+  4516, 	"Подозрительный отступ в строке"
+  4517, 	"Где-то лишний ""end""."
+  4518, 	"Форматировать"
+  4519, 	"Убрать форматирование"
+  4520, 	"Цвет и изображения"
+  4521, 	"Сохранить настройки как..."
+  4522, 	"Загрузить настройки..."
+  4523, 	"Коментировать..."
+  4524, 	"при клике"
+  4525, 	"при выделении"
+  4526, 	"Подсветка синтаксиса"
+  4527, 	"Не скачался файл."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4528, 	"Ошибка при закачке"
+  4529, 	"Что то пошло не так."
+  4530, 	"Не удалось открыть форму."
+  4531, 	"Не удалось показать справку."
+  4532, 	"Проблемы с меню."
+  4533, 	"Не удалось получить список файлов."
+  4534, 	"Нашли функций"
+  4535, 	"Скачиваем"
+  4536, 	"История развития"
+  4537, 	"Перекачать всё с Wiki"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  4999, 	"Перевод на Беларуский язык: Оксана Погодина (pogodinamusic.ru)"
+  5001, 	"Tiere und Lieferanten Steuerung"
+  5002, 	"Hinzuf:ugen der Vorsilbe"
+  5003, 	"Hinzuf:ugen der Endung"
+  5004, 	"Vorsilbe (Name des Tieres oder alle)"
+  5005, 	"Endung (in der Regel Ziel)"
+  5006, 	"Allgemein"
+  5007, 	"Bewegen Sie den Cursor zum ziel und klicken Sie auf. (Strg + A)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5008, 	"Start"
+  5009, 	"Start"
+  5010, 	"Start"
+  5011, 	"Koordinaten, wo Sie klicken"
+  5012, 	"Intervall"
+  5013, 	"Intervall"
+  5014, 	"Intervall"
+  5015, 	"Intervall"
+  5017, 	"Senden BackSpace nach dem Absenden der alphanumerischen Tasten"
+  5018, 	"Senden BackSpace nach dem Absenden der alphanumerischen Tasten"
+  5019, 	"Senden BackSpace nach dem Absenden der alphanumerischen Tasten"
+  5020, 	"Das zweite Fenster (Strg + B)"
+  5021, 	"Start"
+  5022, 	"Start"
+  5023, 	"Intervall"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5024, 	"Intervall"
+  5025, 	"Senden BackSpace nach dem Absenden der alphanumerischen Tasten"
+  5026, 	"Senden BackSpace nach dem Absenden der alphanumerischen Tasten"
+  5027, 	"Screenshot (PrintScreen):"
+  5028, 	"Im Namen der Datei, das Datum und die Zeit einf:ugen"
+  5029, 	"Datum"
+  5030, 	"Nimmt eine Menge platz auf der Festplatte, aber qualitativ"
+  5031, 	"Nicht Qualitativ, aber nimmt wenig platz auf der Festplatte"
+  5032, 	"Wo Sie die Dateien speichern"
+  5033, 	"jpg Qualit:at"
+  5034, 	"Skript"
+  5035, 	"Schaltfl:ache in das Skript einf:ugen"
+  5036, 	"Punkt (Strg + A):"
+  5037, 	"Relative Koordinaten von Punkt"
+  5038, 	"Farbe von Punkt"
+  5039, 	"Farbe"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5040, 	"Definieren Sie die Farbe eines Pixels in der gew:ahlten Koordinaten (Strg + B)"
+  5041, 	"Die absolute Koordinaten von Punkt"
+  5042, 	"Taste"
+  5043, 	"Unmittelbar einbinden der relativen Koordinaten in das Skript"
+  5044, 	"Unmittelbare erkennung von Farbe"
+  5045, 	"Eine Pause in Millisekunden zwischen den Zeilen"
+  5046, 	"Schritt f:ur Schritt die Ausfuhrung des Skripts"
+  5047, 	"Unmittelbar einbinden den absoluten Koordinaten in das Skript"
+  5048, 	"Klicken Sie mit der rechten Maustaste, um eine Liste der Befehle zu bekommen"
+  5049, 	"Sonstiges"
+  5050, 	"Wecker"
+  5051, 	"Minuten"
+  5052, 	"Stunden"
+  5053, 	"Fuhren Sie das Skript ein statt Alarm "
+  5054, 	"Skript"
+  5055, 	"Verschiebung ein Element unter dem Mauszeiger in der angegebenen Nummer (Klicken Sie und geben Sie die Koordinaten ein)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5056, 	"AutoMove"
+  5057, 	"Punkt auswahl"
+  5058, 	"Verzogerung nach dem Anheben eines Elements"
+  5059, 	"Erlaubt die Maus um das Ziel zu bewegen (ein bisschen schneller und korrekter)"
+  5060, 	"Maus bewegen"
+  5061, 	"Anzahl schleppten Artikel (0 - alle)"
+  5062, 	"Anzahl schleppten Artikel (0 - alle)"
+  5063, 	"Anzahl schleppten Artikel (0 - alle)"
+  5064, 	"Swap-Quelle und Empf:anger beim Ziehen"
+  5065, 	"Swap-Quelle und Empf:anger beim Ziehen"
+  5066, 	"Swap-Quelle und Empf:anger beim Ziehen"
+  5067, 	"F:ur GM` s "
+  5068, 	"Dr:ucken Sie die Taste und w:ahlen Sie das Fenster (Strg + A)"
+  5069, 	"UoPilot wird blinken, wenn Sie einen Nachricht erhalten"
+  5070, 	"Blinken bei erhaltung von Nachricht "
+  5071, 	"UoPilot ert:ont Signalton bei erhaltung von Nachricht"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5072, 	"Piepsen"
+  5073, 	"Start und Anmeldung"
+  5074, 	"Dr:ucken Sie die Taste und w:ahlen Sie das Fenster (Strg + A)"
+  5075, 	"Ausfurung im minimierten Fenster"
+  5076, 	"Noch"
+  5077, 	"Panel-Makros"
+  5078, 	"Schiff Systemsteuerung"
+  5079, 	"Haus Systemsteuerung"
+  5080, 	"Edit Hotkeys"
+  5081, 	"Panel Eigenschaften von Char"
+  5082, 	"Registerkarte Gr:osse im Editor"
+  5083, 	"Pause zwischen den Zeilen"
+  5084, 	"Signalisierung den Wecker"
+  5085, 	"Systemsteuerung von Tieren"
+  5086, 	"Pause zwischen leeren Zeilen "
+  5087, 	"Reagieren Sie auf Hot-Keys"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5088, 	"HotKeys Einschalten"
+  5089, 	"Pause zwischen den Zeilen f:ur die neuen Skripte"
+  5090, 	"Pause zwischen dem Beginn der ein Alarmsignal (ms)"
+  5091, 	"Pause zwischen den Zeilen, ohne enthaltenen Befehl"
+  5092, 	"Schiff Steuerung"
+  5093, 	"Zeigen\\verstecken Hauptformular"
+  5094, 	"Haus Steuerung"
+  5095, 	"Right click to edit"
+  5096, 	"Zeigen\\verstecken Hauptformular"
+  5097, 	"Load"
+  5098, 	"Save"
+  5099, 	"Show in UO caption"
+  5100, 	"Die aktuellen Werte der Variablen"
+  5101, 	"Add"
+  5102, 	"Delete"
+  5103, 	"Last Object"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5104, 	"Delete"
+  5105, 	"Add"
+  5106, 	"Last Target"
+  5107, 	"Zeigen\\verstecken Hauptformular"
+  5108, 	"Show in UO caption"
+  5109, 	"Drink Timer"
+  5110, 	"Die Verz:ogerung beim Blasen trinken"
+  5111, 	"HotKeys list"
+  5112, 	"Speichert eine Kopie des Bildschirms, um eine Datei"
+  5113, 	"Print Screen"
+  5114, 	"Zeigen\\verstecken ausgef:uhrte Skript"
+  5115, 	"Start Script"
+  5116, 	"Schreibt die Makro-Tasten"
+  5117, 	"Record Macros"
+  5118, 	"Stoppt die Aufnahme oder Wiedergabe Makro-Tasten"
+  5119, 	"Stop Record"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5120, 	"Spielen zuvor aufgenommenen Makro-Tasten"
+  5121, 	"Play Macros"
+  5122, 	"Ein\\Aus-Schalten Anzeige der Namen der Spieler"
+  5123, 	"Show Names"
+  5124, 	"Verschiebung ein Element unter dem Mauszeiger in die angegebene Ziel, oder umgekehrt"
+  5125, 	"Auto Move 1"
+  5126, 	"Click`s aus Registerkarte Allgemein"
+  5127, 	"Button 1"
+  5128, 	"Click`s aus Registerkarte Allgemein"
+  5129, 	"Button 2"
+  5130, 	"Click`s aus Registerkarte Allgemein"
+  5131, 	"Button 3"
+  5132, 	"Click`s aus Registerkarte Allgemein"
+  5133, 	"Button 4"
+  5134, 	"Click`s aus Registerkarte Allgemein"
+  5135, 	"Button 5"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5136, 	"Ein\\Aus-Schalten Anzeige von Panel Makros"
+  5137, 	"Macros"
+  5138, 	"Umschaltung UoPilot <-> UO"
+  5139, 	"UoPilot <-> UO"
+  5140, 	"Verschiebung ein Element unter dem Mauszeiger in die angegebene Ziel, oder umgekehrt"
+  5141, 	"Auto Move 2"
+  5142, 	"Verschiebung ein Element unter dem Mauszeiger in die angegebene Ziel, oder umgekehrt"
+  5143, 	"Auto Move 3"
+  5144, 	"Pause\\Play ausgef:uhre Skript"
+  5145, 	"Pause Script"
+  5146, 	"Stellen Sie die Koordinaten f:ur die Funktion AutoMove"
+  5147, 	"Set AutoMove 3"
+  5148, 	"Stellen Sie die Koordinaten f:ur die Funktion AutoMove"
+  5149, 	"Set AutoMove 2"
+  5150, 	"Stellen Sie die Koordinaten f:ur die Funktion AutoMove"
+  5151, 	"Set AutoMove 1"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5152, 	"Ein\\Aus-Schalten Panel-Display-Optionen char"
+  5153, 	"Char Params"
+  5154, 	"Hot-Keys f:ur Skripting"
+  5155, 	"Verbindet alle Skripte, die auf dem angegebene Fenster UO"
+  5156, 	"Lock all Scripts"
+  5157, 	"Kopiert den Text im Fenster Client ins Zwischenablage"
+  5158, 	"Copy ConsoleText"
+  5159, 	"Skript-Dateien (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Makro-Dateien (*.mac)|*.mac|Alle Dateien (*.*)|*.*"
+  5160, 	"Skript-Dateien (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Makro-Dateien (*.mac)|*.mac|Alle Dateien (*.*)|*.*"
+  5161, 	"Kopieren"
+  5162, 	"Skript"
+  5163, 	"Neu"
+  5164, 	":Offnen"
+  5165, 	":Offnen letzte ..."
+  5166, 	"Verfahren Datei :offnen"
+  5167, 	"Speichern"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5168, 	"Speichern unter ..."
+  5169, 	"Beenden"
+  5170, 	"Beenden ohne zu Speichern"
+  5171, 	"Makros"
+  5172, 	"Laden"
+  5173, 	"Speichern"
+  5174, 	"Aufzeichnung"
+  5175, 	"Stop"
+  5176, 	"Wiedergabe"
+  5177, 	"Geschwindigkeit (in %)"
+  5178, 	"Wiederholung"
+  5179, 	"1 mal"
+  5180, 	"5 mal"
+  5181, 	"15 mal"
+  5182, 	"100 mal"
+  5183, 	"Unendlich"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5184, 	"Einstellungen"
+  5185, 	"Leerzeichen einf:ugen"
+  5186, 	"Anzeige Fortschritte des Skripts"
+  5187, 	"Anzeigen Skript datei namen"
+  5188, 	"Anzeigen ausgef:uhrte Skript"
+  5189, 	"Verbinden alle Skript bei Start UoPilot"
+  5190, 	"Maus nach bet:atigung zur:uck stellen"
+  5191, 	"Merken anzahl verschiebte Punkte"
+  5192, 	"Anzeigen Cursor Koordinaten"
+  5193, 	"Relativ"
+  5194, 	"Absolute"
+  5195, 	"Einstellungen UO"
+  5196, 	"Namen"
+  5197, 	"Anzeigen die Namen von kommenden Spieler"
+  5198, 	"Transparenz"
+  5199, 	"Patfinding"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5200, 	"Criminal Actions"
+  5201, 	"Speichern screenshot ..."
+  5202, 	"Weisen Sie die Betreiber Farbe"
+  5203, 	"Skript stoppen bei ein unbekannte Kommando"
+  5204, 	"Beim Client schliessung, Skript ahalten"
+  5205, 	"Bei Lesefehler der Parameter char"
+  5206, 	"Skript stoppen"
+  5207, 	"Skript anhalten"
+  5208, 	"Informieren bei Fehlermeldung"
+  5209, 	"UoPilot verschtecken bei Skript aufrufen"
+  5210, 	"Minimieren zu Tray UoPilot"
+  5211, 	":Uber alle fenster plazieren..."
+  5212, 	"UoPilot"
+  5213, 	"Ship Control"
+  5214, 	"House Control"
+  5215, 	"Animal && Vendor"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5216, 	"Char Parameters"
+  5217, 	"Skript Fenster"
+  5218, 	"Fenster plazierung merken..."
+  5219, 	"UoPilot"
+  5220, 	"Skript"
+  5221, 	"Parameter char"
+  5222, 	"Haus Steuerung"
+  5223, 	"Schiff Steuerung"
+  5224, 	"Tier Steuerung"
+  5225, 	"Beim Start UoPilot die Fenstern :offnen..."
+  5226, 	"Parameter char"
+  5227, 	"Skript"
+  5228, 	"Anzeigen Parameter char"
+  5229, 	"Aktive Skript"
+  5230, 	"Oberen Fenster UO"
+  5231, 	"Fenster UoPilot"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5232, 	"Anzeigen datum in hex format"
+  5233, 	"Schrift auswahl von Editor"
+  5234, 	"Select UO server"
+  5235, 	"Einstellungen speichern"
+  5236, 	"Makros Nachrichten speichern"
+  5237, 	"Einstellungen speichern beim Start"
+  5238, 	"Geschichte von Entwicklungsprogrammen"
+  5239, 	":Uber Programm..."
+  5240, 	"Ausschneiden"
+  5241, 	"Kopieren"
+  5242, 	"Einf:ugen"
+  5243, 	"Ablehnen"
+  5245, 	"Ge:anderte"
+  5246, 	"Zeit"
+  5247, 	"Parametr char"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5248, 	"Letzte objekte"
+  5250, 	" <taste [pause]> | <text>"
+  5251, 	"sendex <testen liste>"
+  5252, 	"set #<name> <zeichen.>[<zeich.erken.> <zeich.>]"
+  5253, 	"wait <datum>"
+  5254, 	"waitfortarget [time]"
+  5255, 	"Maus"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5264, 	"move <koord> [abs]"
+  5265, 	"drag <woher> <wohin> [wieviel]"
+  5266, 	"Cycles"
+  5267, 	"break [level]"
+  5268, 	"repeat <datum>"
+  5269, 	"for #<name> <anfang> <ende> [schritt]"
+  5270, 	"while <koord> <farbe> [farbe2]"
+  5271, 	"while <parametr> <zeich.erken.> <zeichen> [<and | or | xor> ...]"
+  5272, 	"while lastmsg <nachricht>"
+  5273, 	"Bedingungen"
+  5274, 	"if <koord> <farbe> [farbe2]"
+  5275, 	"if <parametr> <zeich.erken.> <zeichen> [<and | or | xor> ...]"
+  5276, 	"if lastmsg <nachricht>"
+  5277, 	"Unterprogramme"
+  5278, 	"call <name> [var1] [var2] ..."
+  5279, 	"proc <name> [var1] [var2] ..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5280, 	"gosub <tag>"
+  5281, 	"Makros"
+  5282, 	"macro_load <dateiname>"
+  5283, 	"macro_play [datum] [geschwindigkeit]"
+  5284, 	"SKript"
+  5285, 	"start_script <number>"
+  5286, 	"stop_script [number | all]"
+  5287, 	"pause_script [number | all]"
+  5288, 	"resume_script <number | all>"
+  5289, 	"Programmen"
+  5290, 	" <befehl> [parametr]"
+  5291, 	"terminate <fenster titel>"
+  5292, 	"injection <befehl> [; befehl...]"
+  5293, 	"goto <tag>"
+  5294, 	"say [text]"
+  5295, 	"msg [text]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5296, 	"alarm [dateiname]"
+  5297, 	"flash [parametr]"
+  5298, 	":Offnen"
+  5299, 	"Speichern"
+  5300, 	"Leeren"
+  5301, 	"Ausgef:uhrte Skript l:oschen"
+  5302, 	"Neu Skript einf:ugen"
+  5303, 	"Markieren Sie mit kreuz aktive adressen"
+  5304, 	"Parametr char"
+  5305, 	"Aktive fenster"
+  5306, 	"Working window"
+  5307, 	"Ganzer Bildschirm"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5316, 	"doppelt linken"
+  5317, 	"doppelt rechten"
+  5318, 	"Click linke"
+  5319, 	"Click rechte"
+  5320, 	"Hilfe f:ur Skripting-Sprache"
+  5321, 	"Anzeigen variablen Timer"
+  5322, 	"Sortieren einer Liste von F:ahigkeiten in den Optionen-Panel"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5330, 	"unter"
+  5331, 	"ober"
+  5332, 	"normal"
+  5333, 	"Vorrang f:ur gestarten Client"
+  5335, 	"Die Verz:ogerung nach Angabe der Nummer eines Artikels"
+  5336, 	"Fangen Sie einfach an, ohne login"
+  5337, 	"): Ich kann nicht definieren eine Operation"
+  5340, 	"Schaltet ein\\aus Kreis transporenz"
+  5341, 	"Transparency"
+  5342, 	"Schaltet ein\\aus die Suche nach dem doppelten rechten Mausteste"
+  5343, 	"Path finding"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5344, 	"Schaltet ein\\aus Verhinderung der Begehung der rechtswidrigen Handlungen "
+  5345, 	"Criminal actions"
+  5346, 	"Schaltet ein\\aus Konstante running "
+  5347, 	"Always run"
+  5350, 	"Menge"
+  5351, 	"Anhalten\\Weiter ausgef:uhrte"
+  5352, 	"Alle Skripten anhalten"
+  5353, 	"Pause in der Maus-Klicks"
+  5354, 	"Eine Pause zwischen dem Dr:ucken und Loslassen der Maustaste in Maus befehlen"
+  5355, 	"Alle fenster anzeigen"
+  5356, 	"Pause SendEx"
+  5357, 	"Pause zwischen angezeigten symbolen in befehl SendEx"
+  5359, 	"Priorit:at f:ur neue Skripte"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5360, 	"low"
+  5361, 	"normaler"
+  5362, 	"mittler"
+  5363, 	"maximaler"
+  5365, 	"Funktionen"
+  5375, 	"Anzeigen die Taste start\\stop Skript."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5376, 	"Rename UoPilot"
+  5377, 	"Move cursor to a point of click"
+  5378, 	"Logging to file"
+  5379, 	"Keys"
+  5380, 	"Stop all scripts"
+  5381, 	"Define work window and color with coordinates."
+  5382, 	"Plugin Sample"
+  5383, 	"Color, coordinates, screen"
+  5384, 	"Select font for log window"
+  5385, 	"'Transparent' hotkeys"
+  5386, 	"Show line number in script"
+  5387, 	"Arrays"
+  5388, 	"Save scripts on exit"
+  5389, 	"Show help window on taskbar"
+  5390, 	"Output to a log error of"
+  5391, 	"Determining color"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5400, 	"Geben Sie den Pfad zu der UO und klicken Sie auf Reload"
+  5401, 	"Datei"
+  5402, 	"nicht gefunden in"
+  5403, 	"Adresse"
+  5404, 	"Port"
+  5405, 	"Kommentar"
+  5406, 	"Geben Sie den Pfad zu der UO und klicken Sie auf Reload"
+  5407, 	"Nicht in der Lage, :Anderungen an der Datei zu schreiben"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5408, 	"Fehler in der Befehlszeile ("
+  5409, 	"Name"
+  5410, 	"Bedeutung"
+  5411, 	"Ich kann nicht finden Aktive fenster"
+  5412, 	"Ich kann nicht finden Aktive fenster, versuchen Sie es selber zuweisen:\nPlazieren Sie Mauszeiger :uber den Fenster und clicken an"
+  5413, 	"W:ahlen Sie Clickart"
+  5414, 	"Taste zuweisen"
+  5415, 	"Stellen Sie eine korrekte Intervall (in Millisekunden)"
+  5416, 	"Fehler beim Versuch, die Taste zu ermitteln"
+  5417, 	"Fehler! Stellen Sie sicher, dass das Verzeichnis, wo dem Bildschirm zu sparen, gibt es ("
+  5418, 	"Fehler bei Skript laden"
+  5419, 	"Skript laden..."
+  5420, 	"Skript speichern als..."
+  5421, 	"Sind Sie sicher, dass Sie wollen\\l:oschen vorhandenen Skript?"
+  5422, 	"Ausgew:ahlt! Um einen anderen zu w:ahlen: (Strg + B)"
+  5423, 	"Auskunft"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5424, 	"Fehler von erkennung GM Page"
+  5425, 	"Falsch bestimmten Intervall zwischen den Zeilen."
+  5426, 	"Minimieren"
+  5427, 	"Maximieren"
+  5428, 	"Makros speichern als..."
+  5429, 	"Makros laden..."
+  5430, 	"Zu viel"
+  5431, 	"Verfahren datei laden"
+  5432, 	"Ich kann nicht feststellen, die Art des Formulars."
+  5433, 	"Parameter char"
+  5434, 	"Dateien-Tabelle (*.tbl)|*.tbl|Alle Dateien (*.*)|*.*"
+  5435, 	"Tabelle laden..."
+  5436, 	"Tabelle speichern als..."
+  5437, 	":Uber UoPilot Programm"
+  5438, 	"Fehler bei Skript Ausf:urung. Kann nicht finden Aktive fenster"
+  5439, 	"Die Standardsprache. \n muss neu gestartet werden."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5440, 	"K:onnte nicht das Ende des Zyklus ermitteln: 'End_While', :uberpr:ufen Sie das Skript"
+  5441, 	"K:onnte nicht das Ende des Zyklus ermitteln: 'End_While', :uberpr:ufen Sie das Skript"
+  5442, 	"): Ich kann nicht feststellen, der Name der Variablen"
+  5443, 	"Fehler beim Erstellen des Verfahrens."
+  5444, 	"Ende des Verfahrens."
+  5445, 	"nicht gefunden in dem aktuellem Skript."
+  5446, 	"Nicht in der Datei Verfahren gefunden."
+  5447, 	"nicht gefunden"
+  5448, 	"Injection v309.05+ nicht gefunden"
+  5449, 	"Ich finde das Ende des Zyklus nicht, pr:ufen Sie das Skript"
+  5450, 	"Es ist nicht n:otig zu unterbrechen, :uberpr:ufen Sie das Skript"
+  5451, 	"Error loading HotKeys"
+  5452, 	"Error loading HotKeys for scripts."
+  5453, 	"Ich finde das Ende Bedingungen nicht :'End_IF', :uberpr:ufen Sie das Skript"
+  5454, 	"tag '"
+  5455, 	"' Nicht gefunden, :uberpr:ufen Sie das Skript"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5456, 	"Fehler beim Lesen der Einstellungen chara"
+  5457, 	"Aufnehmen mit der angegebenen Nummer ("
+  5458, 	") nicht gefunden"
+  5459, 	"Fehler bei der Interpretation das Skripts (for)."
+  5460, 	"): Variablennamen kann nicht ermittelt werden"
+  5461, 	"Ich finde das Ende des Zyklus nicht, pr:ufen Sie das Skript"
+  5462, 	"): Kann nicht ermitteln die Namen der Variablen for"
+  5463, 	"Nicht korrekt angegeben parametr random"
+  5465, 	"Ich kann nicht finden eine schliessende Klammer."
+  5466, 	"Fehler bei der Interpretation das Skripts (repeat)."
+  5467, 	"K:onnte nicht ermitteln das Ende des Zyklus: 'End_Repeat', :uberpr:ufen Sie das Skript"
+  5468, 	"Fehler bei der Interpretation das Skripts (end_repeat)."
+  5470, 	"UO not found"
+  5471, 	"Alle Dateien (*.*)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5472, 	"Editor ("
+  5473, 	"System error: script not created."
+  5474, 	"Animal & Vendor Control"
+  5475, 	"Error reading memory"
+  5476, 	"Client ist schneller tot, als lebendig ist"
+  5477, 	"Client ist tot..."
+  5478, 	"Ein nicht identifiziertes befehl:"
+  5479, 	"): Fehler: :Uberpr:ufen Sie die Skript!"
+  5480, 	"Pause\\resume all scripts"
+  5481, 	"Show remaining waiting time"
+  5482, 	"Strings"
+  5483, 	"Display Messages"
+  5485, 	"Remove"
+  5486, 	"Close"
+  5487, 	"Rename"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5488, 	"Save script template"
+  5489, 	"Procedure"
+  5490, 	"File operation"
+  5491, 	"Automatically open log window"
+  5492, 	"Output messages to..."
+  5493, 	"on taskbar"
+  5494, 	"Numbers"
+  5495, 	"Show hints for commands"
+  5496, 	"Start minimized"
+  5497, 	"Start\\stop current script"
+  5498, 	"Ich finde nicht '', :uberpr:ufen Sie das Skript"
+  5499, 	"Save scripts before run"
+  5500, 	"Show tooltip for commands"
+  5501, 	"Setting HotKeys"
+  5502, 	"Use kleft v2.17"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5504, 	"Show script process and 'timer' variable"
+  5505, 	"Slower"
+  5506, 	"Faster"
+  5507, 	"Loading plugins"
+  5508, 	"Show unsaved scripts"
+  5509, 	"Displays the names of the scripts on the tabs"
+  5510, 	"Hide related to Ultima Online"
+  5511, 	"Find"
+  5512, 	"Case sensitive"
+  5513, 	"Up"
+  5514, 	"Down"
+  5515, 	"Next"
+  5516, 	"Suspicious indented at line"
+  5517, 	"Somewhere unnecessary ""end""."
+  5518, 	"Format"
+  5519, 	"Remove formatting"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5520, 	"Color and Image"
+  5521, 	"Save settings as..."
+  5522, 	"Load settings..."
+  5523, 	"Comment..."
+  5524, 	"on click"
+  5525, 	"on select"
+  5526, 	"Syntax highlighting"
+  5527, 	"The file was not downloaded."
+  5528, 	"Error when downloading"
+  5529, 	"Something went wrong."
+  5530, 	"Could not open the form."
+  5531, 	"Could not show help."
+  5532, 	"Problems with the menu."
+  5533, 	"Could not get a list of files."
+  5534, 	"Functions found"
+  5535, 	"Downloading"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5536, 	"History"
+  5537, 	"Download all from Wiki"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  5999, 	"перевод на немецкий язык: Alexey 'Basket' Andreev (g-a-n-s@myspace.com)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7001, 	"Керування тваринами та вендорами"
+  7002, 	"Додати префікс"
+  7003, 	"Добавлять суффикс"
+  7004, 	"Префікс (iм'я тварини all)"
+  7005, 	"Суфікс (зазвичай ціль)"
+  7006, 	"Загальне"
+  7007, 	"Нведіть курсор на ціль та натисніть (Ctrl+A)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7008, 	"Старт"
+  7009, 	"Старт"
+  7010, 	"Старт"
+  7011, 	"Координати, куди клацати"
+  7012, 	"Інтервал"
+  7013, 	"Інтервал"
+  7014, 	"Інтервал"
+  7015, 	"Інтервал"
+  7017, 	"Відправляти BackSpace після віправки буквенно-цифрової клавіші"
+  7018, 	"Відправляти BackSpace після віправки буквенно-цифрової клавіші"
+  7019, 	"Відправляти BackSpace після віправки буквенно-цифрової клавіші"
+  7020, 	"Друге вікно (Ctrl+B)"
+  7021, 	"Старт"
+  7022, 	"Старт"
+  7023, 	"Інтервал"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7024, 	"Інтервал"
+  7025, 	"Відправляти BackSpace після віправки буквенно-цифрової клавіші"
+  7026, 	"Відправляти BackSpace після віправки буквенно-цифрової клавіші"
+  7027, 	"Скріншот (PrintScreen) :"
+  7028, 	"В і'мя файлу додати дату та час"
+  7029, 	"дата"
+  7030, 	"Займає багато мясця на диску, проте якісно"
+  7031, 	"Не якісно проте займає мало місця на диску"
+  7032, 	"Куди зберігати файли"
+  7033, 	"Якість jpg"
+  7034, 	"Скрипт"
+  7035, 	"Додати клавішу в скрипт"
+  7036, 	"Крапка (Ctrl+A):"
+  7037, 	"Відносні координати крапки"
+  7038, 	"Колір крапки"
+  7039, 	"Колір:"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7040, 	"Встановити колір пікселя у вибраних координатах (Ctrl+B)"
+  7041, 	"Абсолютні координати крапки"
+  7042, 	"Клавiша"
+  7043, 	"Одразу вставляти відносні координати в скрипт"
+  7044, 	"Одразу встановлювати колір"
+  7045, 	"Пауза між строками у мілісекундах"
+  7046, 	"Пачергове виконання скрипта"
+  7047, 	"Одразу вставляти абсолютні координати в скрипт"
+  7048, 	"Натисніть праву кнопку миші щоб отримати список команд"
+  7049, 	"Різне"
+  7050, 	"Будильник"
+  7051, 	"Хвилини"
+  7052, 	"Години"
+  7053, 	"Запустити скрипт замість видавання звукового сигналу"
+  7054, 	"Скрипт"
+  7055, 	"Переміщення ітема під мишкою у вказану крапку (натисніть кнопку та вкажіть координати)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7056, 	"AutoMove"
+  7057, 	"Вибір крапки"
+  7058, 	"Затримка псля підняття ітема"
+  7059, 	"Дозволяє перемістити мишку у точку призначення (трохи швидше і коректніше)"
+  7060, 	"Перемістити мишку"
+  7061, 	"Кількість ітемів які перетягуємо (0 - всi)"
+  7062, 	"Кількість ітемів які перетягуємо (0 - всi)"
+  7063, 	"Кількість ітемів які перетягуємо (0 - всi)"
+  7064, 	"Змінює місцями Джерело і Приймач при перетяганні"
+  7065, 	"Змінює місцями Джерело і Приймач при перетяганні"
+  7066, 	"Змінює місцями Джерело і Приймач при перетяганні"
+  7067, 	"Для GM`iв"
+  7068, 	"Натисніть кнопку та виберіть вікно (Ctrl+A)"
+  7069, 	"UoPilot буде блимати під час переходу пейджу"
+  7070, 	"Блимати під час переходу пейджу"
+  7071, 	"UoPilot видаватиме звуковий сигнал під час переходу пейджу"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7072, 	"Пищати"
+  7073, 	"Запуск і логін"
+  7074, 	"Натисніть кнопку та виберіть вікно (Ctrl+A)"
+  7075, 	"Запустити у звернутому вікні"
+  7076, 	"Ще"
+  7077, 	"Панель макросiв."
+  7078, 	"Панель управління кораблем"
+  7079, 	"Панель управління будинком"
+  7080, 	"Редагувати гарячі клавіші"
+  7081, 	"Панель характеристик чара."
+  7082, 	"Розмір табуляції в редакторі"
+  7083, 	"Пауза між строками"
+  7084, 	"Пауза сигналів будильника"
+  7085, 	"Панель управління тваринами"
+  7086, 	"Пауза між пустими строками"
+  7087, 	"Реагувати на гарячі клавіші"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7088, 	"Включити HotKeys"
+  7089, 	"Пауза між строками для нових скриптів"
+  7090, 	"Пауза між початками сигналів будильника (ms)"
+  7091, 	"Пауза між строками які не містять команди"
+  7092, 	"Управління кораблем"
+  7093, 	"Показати\\сховати головну форму"
+  7094, 	"Управление домом"
+  7095, 	"Right click to edit"
+  7096, 	"Показати\\сховати головну форму"
+  7097, 	"Load"
+  7098, 	"Save"
+  7099, 	"Show in UO caption"
+  7100, 	"Поточні значення змінних"
+  7101, 	"Add"
+  7102, 	"Delete"
+  7103, 	"Last Object"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7104, 	"Delete"
+  7105, 	"Add"
+  7106, 	"Last Target"
+  7107, 	"Показати\\сховати головну форму"
+  7108, 	"Show in UO caption"
+  7109, 	"Drink Timer"
+  7110, 	"Затримка на питті пузирів"
+  7111, 	"HotKeys list"
+  7112, 	"Зберігає копію екрана у файл"
+  7113, 	"Print Screen"
+  7114, 	"Запускає\\зупиняє поточний скрипт"
+  7115, 	"Start Script"
+  7116, 	"Записує макрос клавіш"
+  7117, 	"Record Macros"
+  7118, 	"Зупиняє запис чи програвання макроса клавіш"
+  7119, 	"Stop Record"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7120, 	"Програє записаний завчасно макрос клавіш"
+  7121, 	"Play Macros"
+  7122, 	"Включає\\виключає відображення імен гравців"
+  7123, 	"Show Names"
+  7124, 	"Переміщення ітема під мишкою у вказану крапку чи навпаки"
+  7125, 	"Auto Move 1"
+  7126, 	"Клацалки з вкладки Загальне"
+  7127, 	"Button 1"
+  7128, 	"Клацалки з вкладки Загальне"
+  7129, 	"Button 2"
+  7130, 	"Клацалки з вкладки Загальне"
+  7131, 	"Button 3"
+  7132, 	"Клацалки з вкладки Загальне"
+  7133, 	"Button 4"
+  7134, 	"Клацалки з вкладки Загальне"
+  7135, 	"Button 5"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7136, 	"Включає\\виключає відображення панелі макросів"
+  7137, 	"Macros"
+  7138, 	"Переключає UoPilot <-> UO"
+  7139, 	"UoPilot <-> UO"
+  7140, 	"Переміщення ітема під мишкою у вказану крапку чи навпаки"
+  7141, 	"Auto Move 2"
+  7142, 	"Переміщення ітема під мишкою у вказану крапку чи навпаки"
+  7143, 	"Auto Move 3"
+  7144, 	"Призупиняє\\відновлює виконання поточного скрипта"
+  7145, 	"Pause Script"
+  7146, 	"Встановлення координат для функції AutoMove"
+  7147, 	"Set AutoMove 3"
+  7148, 	"Встановлення координат для функції AutoMove"
+  7149, 	"Set AutoMove 2"
+  7150, 	"Встановлення координат для функції AutoMove"
+  7151, 	"Set AutoMove 1"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7152, 	"Включає\\виключає відображення панелі параметрів чара"
+  7153, 	"Char Params"
+  7154, 	"Горячі клавіші для скриптів"
+  7155, 	"Прилочує всі скрипти до вказаного вікна УО"
+  7156, 	"Lock all Scripts"
+  7157, 	"Копіює текст ,набраний у вікні клієнта в буфер обміну"
+  7158, 	"Copy ConsoleText"
+  7159, 	"Файли скриптів (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Файли макросів (*.mac)|*.mac|Всі файли (*.*)|*.*"
+  7160, 	"Файли скриптів (*.txt;*.scr;*.lua)|*.txt;*.scr;*.lua|Файли макросів (*.mac)|*.mac|Всі файли (*.*)|*.*"
+  7161, 	"Копіювати"
+  7162, 	"Скрипт"
+  7163, 	"Новий"
+  7164, 	"Відкрити"
+  7165, 	"Відкрити останні ..."
+  7166, 	"Відкрити файл процедур"
+  7167, 	"Зберегти"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7168, 	"Зберегти як..."
+  7169, 	"Вихід"
+  7170, 	"Вихід без збереження"
+  7171, 	"Макрос"
+  7172, 	"Завантажити"
+  7173, 	"Зберегти"
+  7174, 	"Запис "
+  7175, 	"Стоп "
+  7176, 	"Відтворити "
+  7177, 	"Швидкість (в %)"
+  7178, 	"Повтор"
+  7179, 	"1 раз"
+  7180, 	"5 разів"
+  7181, 	"15 раз"
+  7182, 	"100 раз"
+  7183, 	"Бзкінечно"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7184, 	"Налаштування"
+  7185, 	"Додавати пробіли"
+  7186, 	"Відображати хід виконання скрипта"
+  7187, 	"Відображати імена файлів скриптів"
+  7188, 	"Відображати включені скрипти"
+  7189, 	"Прикріплювати всі скрипти при старті UoPilot'a"
+  7190, 	"Повертати курсор миші після кліков"
+  7191, 	"Запам'ятовувати кількість перетаскуваних ітемів"
+  7192, 	"Відображати координати курсора"
+  7193, 	"Відносні"
+  7194, 	"Абсолютні"
+  7195, 	"Налаштування UO"
+  7196, 	"Iмена "
+  7197, 	"Показувати іменя наближаючих гравців"
+  7198, 	"Прозорість"
+  7199, 	"Патфиндинг"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7200, 	"Criminal Actions"
+  7201, 	"Зберігати скриншот..."
+  7202, 	"Виділяти оператори кольором"
+  7203, 	"Зупиняти скрипт на невизначеній команді"
+  7204, 	"При закритті клієнта призупиняти скрипт"
+  7205, 	"При помилці читання параметрів чара"
+  7206, 	"Зупиняти скрипт"
+  7207, 	"Призупиняти скрипт"
+  7208, 	"Інформувати про помилку"
+  7209, 	"Ховати UoPilot при відкритті скрипта"
+  7210, 	"Звертати UoPilot в трей"
+  7211, 	"Розміщувати поверх усіх вікон..."
+  7212, 	"UoPilot"
+  7213, 	"Ship Control"
+  7214, 	"House Control"
+  7215, 	"Animal && Vendor"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7216, 	"Char Parameters"
+  7217, 	"Вікно скрипта"
+  7218, 	"Запам'ятовувати положення вікон..."
+  7219, 	"UoPilot'a"
+  7220, 	"Скрипта"
+  7221, 	"Параметрів чара"
+  7222, 	"Управління домом"
+  7223, 	"Управління кораблем"
+  7224, 	"Управління тваринами"
+  7225, 	"При запуску UoPilot'a відкривати вікна... "
+  7226, 	"Параметрів чара"
+  7227, 	"Скрипта"
+  7228, 	"Відображати параметри чара"
+  7229, 	"Активного скрипта"
+  7230, 	"Верхнього вікна UO"
+  7231, 	"Вікна UoPilot'а"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7232, 	"Відображати числа в hex форматi"
+  7233, 	"Обрати шрифт редактора"
+  7234, 	"Select UO server"
+  7235, 	"Зберегти налаштування"
+  7236, 	"Зберегти макроси повідомлень"
+  7237, 	"Зберігати налаштування при виході"
+  7238, 	"Історія розвитку програми"
+  7239, 	"Про програму..."
+  7240, 	"Вирізати"
+  7241, 	"Копіювати"
+  7242, 	"Вставити"
+  7243, 	"Відмінити"
+  7245, 	"Перемінні"
+  7246, 	"Час"
+  7247, 	"Параметри чара"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7248, 	"Останні об'єкти"
+  7250, 	" <клавіша [пауза]> | <текст>"
+  7251, 	"sendex <список клавіш>"
+  7252, 	"set # <ім'я> <знач.> [<зн.оп.> <знач.>]"
+  7253, 	"wait <число>"
+  7254, 	"waitfortarget [time]"
+  7255, 	"Мишка"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7264, 	"move <коорд> [abs]"
+  7265, 	"drag <звідки> <куди> [скільки]"
+  7266, 	"Цикли"
+  7267, 	"break [рівень]"
+  7268, 	"repeat <число>"
+  7269, 	"for # <ім'я> <початок> <кінець> [крок]"
+  7270, 	"while <коорд> <колір> [цвет2]"
+  7271, 	"while <параметр> <зн.оп.> <значення> [<and | or | xor> ...]"
+  7272, 	"while lastmsg <повідомлення>"
+  7273, 	"Умови"
+  7274, 	"if <коорд> <колір> [цвет2]"
+  7275, 	"if <параметр> <зн.оп.> <значення> [<and | or | xor> ...]"
+  7276, 	"if lastmsg <повідомлення>"
+  7277, 	"Підпрограми"
+  7278, 	"call <ім'я> [var1] [var2] ..."
+  7279, 	"proc <ім'я> [var1] [var2] ..."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7280, 	"gosub <мітка>"
+  7281, 	"Макроcи"
+  7282, 	"macro_load <ім'я файлу>"
+  7283, 	"macro_play [число] [швидкість]"
+  7284, 	"Скрипти"
+  7285, 	"start_script <number>"
+  7286, 	"stop_script [number | all]"
+  7287, 	"pause_script [number | all]"
+  7288, 	"resume_script <number | all>"
+  7289, 	"Програми"
+  7290, 	" <команда> [параметри]"
+  7291, 	"terminate <заголовок вікна>"
+  7292, 	"injection <команда> [; команда ...]"
+  7293, 	"goto <мітка>"
+  7294, 	"say [текст]"
+  7295, 	"msg [текст]"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7296, 	"alarm [ім'я файлу]"
+  7297, 	"flash [параметр]"
+  7298, 	"Відкрити"
+  7299, 	"Зберегти"
+  7300, 	"Очистити"
+  7301, 	"Знищити поточний скрипт"
+  7302, 	"Додати новий скрипт"
+  7303, 	"Відмітьте хрестиком активні адреси"
+  7304, 	"Параметри чара"
+  7305, 	"Aктівного вікна"
+  7306, 	"Рабочего окна"
+  7307, 	"Всього екрану"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7316, 	"Подвійний лівою"
+  7317, 	"Подвійний правою"
+  7318, 	"Клік лівою"
+  7319, 	"Клік правою"
+  7320, 	"Допомога по мові скриптів"
+  7321, 	"Відображати перемінну timer"
+  7322, 	"Сортувати список скилів на панелі параметрів"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7330, 	"нижче"
+  7331, 	"выжче"
+  7332, 	"нормальний"
+  7333, 	"Пріоритет для клієнтів що запускаються"
+  7335, 	"Затримка після вказаних ітемів"
+  7336, 	"Тільки запуск, без логіну"
+  7337, 	"): Не можу визначити операцію"
+  7340, 	"Включає\\виключає коло прозорості"
+  7341, 	"Transparency"
+  7342, 	"Включає\\виключає пошук шляху по подвійному правому кліку"
+  7343, 	"Path finding"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7344, 	"Включає\\виключає попередження про вчинення протипрвних дій"
+  7345, 	"Criminal actions"
+  7346, 	"Включає\\виключає постійний біг"
+  7347, 	"Always run"
+  7350, 	"Кількість"
+  7351, 	"Призупиняти\\продовжувати поточний"
+  7352, 	"Призупиняти усі скрипти"
+  7353, 	"Пауза у кліках мишкою"
+  7354, 	"Пауза між натисканням і відпуском кнопки миші в мишачих командах"
+  7355, 	"Показувати всі вікна"
+  7356, 	"Пауза SendEx"
+  7357, 	"Пауза між символами що відправляються у команді SendEx"
+  7359, 	"Пріоритет нових скриптів"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7360, 	"пониженный"
+  7361, 	"нормальний"
+  7362, 	"середній"
+  7363, 	"максимальний"
+  7365, 	"Функції"
+  7375, 	"Відображати кнопки запуска\\зупинки скриптів"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7376, 	"Переименовывать пилот"
+  7377, 	"Перемещать курсор в точку клика"
+  7378, 	"Записывать лог в файл"
+  7379, 	"Клавиши"
+  7380, 	"Останавливает все скрипты"
+  7381, 	"Задает рабочее окно и определяет цвет с координатами. полный аналог Ctrl+A"
+  7382, 	"Пример плагина"
+  7383, 	"Цвет, координаты, экран"
+  7384, 	"Выбрать шрифт лога"
+  7385, 	"'Прозрачные' хоткеи"
+  7386, 	"Отображать номера строк скрипта"
+  7387, 	"Массивы"
+  7388, 	"Сохранять скрипты при выходе"
+  7389, 	"Отображать окна справки на панели задач"
+  7390, 	"Выводить в лог ошибки"
+  7391, 	"Определения цвета"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7400, 	"Введіть шлях до UO і натисніть кнопкуц Reload"
+  7401, 	"Файл "
+  7402, 	" не знайдений в "
+  7403, 	"Адреса"
+  7404, 	"Порт"
+  7405, 	"Коментарій"
+  7406, 	"Введіть шлях до UO і натисніть кнопкуц Reload"
+  7407, 	"Не вдалося записати зміни у файл "
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7408, 	"Помилка у параметрах командної строки ("
+  7409, 	"Iм'я"
+  7410, 	"Значення"
+  7411, 	"Не можу знайти робоче вікно"
+  7412, 	"Не можу знайти робоче вікно, спробуйте вказати його примусово:\nВстановіть курсор миші над вікном та натисніть "
+  7413, 	"Оберіть тип клацання"
+  7414, 	"Задайте клавішу"
+  7415, 	"Задайте правильний інтервал (в мілісекундах)"
+  7416, 	"Помилка при спробі визначити клавішу"
+  7417, 	"Помилка! Впевніться що каталог куди зберігати екран існує ("
+  7418, 	"Не можу завантажити скрипт"
+  7419, 	"Завантажити скрипт..."
+  7420, 	"Зберігти скрипт як..."
+  7421, 	"Ві впевнені що хочете\nочистити існуючий скрипт?"
+  7422, 	"Обрано! Для обрання іншого: (Ctrl+B)"
+  7423, 	"Довідка"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7424, 	"Помилка візначення GM Page"
+  7425, 	"Неправильно вказана затримка між строками."
+  7426, 	"Звернути"
+  7427, 	"Розвернути"
+  7428, 	"Зберегти макрос як..."
+  7429, 	"Загрузити макрос..."
+  7430, 	"Перебiр"
+  7431, 	"Загрузити файл процедур..."
+  7432, 	"Не можу визначити тип форми."
+  7433, 	"Параметри чара"
+  7434, 	"Файли таблиць (*. tbl) | *. tbl | Всі файли (*.*)|*.*"
+  7435, 	"Завантажити таблицю ..."
+  7436, 	"Зберегти таблицю як ..."
+  7437, 	" Про програму UoPilot"
+  7438, 	"Помилка запуску скрипта. Не можу знайти робоче вікно"
+  7439, 	"Обрана мова за умовченням.\nНеобхідний перезапуск."
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7440, 	"Не можу знайти кінець циклу: 'End_While', перевірте скрипт"
+  7441, 	"Не можу знайти початок: 'While', перевірте скрипт"
+  7442, 	"): Не можу визначити ім'я змінної"
+  7443, 	"Помилка створення процедури."
+  7444, 	"Кінець процедури "
+  7445, 	" не знайдений в поточному скрипті."
+  7446, 	" не знайдений у файлі процедур."
+  7447, 	" не знайдено"
+  7448, 	"Injection v309.05+ не знайдений."
+  7449, 	"Не можу знайти кінець циклу, перевірте скрипт"
+  7450, 	"Нема що переривати, перевірте скрипт"
+  7451, 	"Error loading HotKeys"
+  7452, 	"Error loading HotKeys for scripts."
+  7453, 	"Не можу знайти кінець умови: 'End_IF', перевірте скрипт"
+  7454, 	"Помітка '"
+  7455, 	"' не знайдена, перевірте скрипт"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7456, 	"Помилка читання параметрів чара"
+  7457, 	"Запис із вказаним номером ("
+  7458, 	") не знайдена."
+  7459, 	"Помилка інтерпритації скрипта (for)."
+  7460, 	"): Не можу визначити ім'я перемінної"
+  7461, 	"Не можу знайти кінець умови: 'End_for', перевірте скрипт"
+  7462, 	"): Немогу знайти ім'я змінної for"
+  7463, 	"Невірно вказані параметри random."
+  7465, 	"Не можу знайти закриваючу скобку."
+  7466, 	"Помилка інтерпритації скрипта (repeat)."
+  7467, 	"Не можу знайти кінець умови: 'End_Repeat', перевірте скрипт"
+  7468, 	"Помилка інтерпритації скрипта (end_repeat)."
+  7470, 	"UO not found"
+  7471, 	"Усі файли (*.*)"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7472, 	"Editor ("
+  7473, 	"System error: script not created."
+  7474, 	"Animal & Vendor Control"
+  7475, 	"Error reading memory"
+  7476, 	"Клієнт швидше мертвий, ніж живий..."
+  7477, 	"Клієнт мертвий..."
+  7478, 	"Невпізнана команда: "
+  7479, 	"): Помилка! Перевірте правильність скрипта! "
+  7480, 	"Приостанавливает\\возобнавляет все скрипты"
+  7481, 	"Отображать оставшееся время ожидания"
+  7482, 	"Строки"
+  7483, 	"Вывод сообщений"
+  7485, 	"Удалить"
+  7486, 	"Закрыть"
+  7487, 	"Переименовать"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7488, 	"Сохранить шаблон скрипта"
+  7489, 	"Процедура"
+  7490, 	"Файловых операций"
+  7491, 	"Автоматически открывать лог"
+  7492, 	"Выводить сообщения в..."
+  7493, 	"на панели задач"
+  7494, 	"Числа"
+  7495, 	"Отображать подсказки для команд в скрипте"
+  7496, 	"Запускать свернутым"
+  7497, 	"Запустить\\остановить текущий скрипт"
+  7498, 	"Не можу знайти '', перевiрте скрипт"
+  7499, 	"Сохранять скрипты перед запуском"
+  7500, 	"Отображать подсказки для команд в скрипте"
+  7501, 	"Назначения горячих клавиш"
+  7502, 	"Использовать kleft v2.17"
+  7503, 	"Слежение"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7504, 	"Отображать ход выполнения скрипта и переменную timer"
+  7505, 	"Медленнее"
+  7506, 	"Быстрее"
+  7507, 	"Загрузки плагинов"
+  7508, 	"Отображать несохраненные скрипты"
+  7509, 	"Отображать имена скриптов на закладках"
+  7510, 	"Скрыть связанное с Ultima Online"
+  7511, 	"Найти"
+  7512, 	"С учетом регистра"
+  7513, 	"Вверх"
+  7514, 	"Вниз"
+  7515, 	"Найти далее"
+  7516, 	"Подозрительный отступ в строке"
+  7517, 	"Где-то лишний ""end""."
+  7518, 	"Форматировать"
+  7519, 	"Убрать форматирование"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7520, 	"Цвет и изображения"
+  7521, 	"Сохранить настройки как..."
+  7522, 	"Загрузить настройки..."
+  7523, 	"Коментировать..."
+  7524, 	"при клике"
+  7525, 	"при выделении"
+  7526, 	"Подсветка синтаксиса"
+  7527, 	"Не скачался файл."
+  7528, 	"Ошибка при закачке"
+  7529, 	"Что то пошло не так."
+  7530, 	"Не удалось открыть форму."
+  7531, 	"Не удалось показать справку."
+  7532, 	"Проблемы с меню."
+  7533, 	"Не удалось получить список файлов."
+  7534, 	"Нашли функций"
+  7535, 	"Скачиваем"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7536, 	"История развития"
+  7537, 	"Перекачать всё с Wiki"
+}
+
+STRINGTABLE
+LANGUAGE 25, 1
+{
+  7999, 	"Перевод на Украинский язык: ARSI & Small"
+}
+
+MSGWAV RCDATA "msg.wav"
+
+1 RCDATA "history_ru.txt"
+
+2 RCDATA "scriptdoc_ru.txt"
+
+10 RCDATA "plugin_template.pas"
+
+11 RCDATA "history_en.txt"
+
+12 RCDATA "scriptdoc_en.txt"
+
+20 RCDATA "plugin_template.cpp"
+
+51 RCDATA "lua51.dll"
+
+77 RCDATA "wiki.uop"
+
+102 RCDATA "empty.txt"
+
+151 RCDATA "libgcc_s_dw2-1.dll"
+
+WEB_HAND CURSOR "web_hand.cur"
+
+MAINICON ICON "mainicon.ico"
+
+MICON ICON "micon.ico"
+
+MICONPAUSE ICON "miconpause.ico"
+
+MICONRUN ICON "miconrun.ico"
+

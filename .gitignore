@@ -7,6 +7,10 @@
 *.local
 *.identcache
 __history/
+*.res
+*.o
+*.ppu
+lib/
 
 # резервные копии редактора
 *.~*

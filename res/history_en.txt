@@ -20,7 +20,7 @@ Click the right button of the mouse above the text to choose the command from th
 
 The first word in the line - a command, other words - parameters.
 
-The words consist of symbols 0-9, A-z, А-я, '_'
+The words consist of symbols 0-9, A-z, Рђ-СЏ, '_'
 Symbols * $ of % + - * / > < = (). []: are services, other separators.
 
 In one line there can be only one command.
@@ -99,7 +99,7 @@ Has added an alarm clock. At approach of event plays all the same file msg.wav d
 With a break on one minute; or plays the unitary above mentioned file and starts current script.
 
 Has added variable.
-In a name variable the symbols are allowable - ['0'..'9','A'..'z','А'..'я'], case-insensitive.
+In a name variable the symbols are allowable - ['0'..'9','A'..'z','Рђ'..'СЏ'], case-insensitive.
 Henceforth word the following for '#' is considered by a name variable also is replaced with its value, if it was appropriated earlier. Exception is the first word after commands 'set' and 'for'. Variable change only at participation 'set' and 'for', the command 'repeat' uses value, not changing it.
 
 Has added the 'set' command - setting and adding variable
@@ -1670,7 +1670,7 @@ added a hot key to set the working window, and determining the color and coordin
 
 corrected another unauthorized movement of an indicator of the current line in the script
 
-corrected the stretching the panel of the character parameters for the best perception of the variables (stretch panels of types ь2 and ь5)
+corrected the stretching the panel of the character parameters for the best perception of the variables (stretch panels of types СЊ2 and СЊ5)
 
 script editor changed back to a regular 'memo', to deal with different-sized fonts when typing\insert new text
 
@@ -2617,7 +2617,7 @@ The list of the tabs with the names of the scripts did multiline.
 
 Turned 'findimage'. Now, again, looking for the top down.
 
-Corrected in the command 'findimаge' out of search range.
+Corrected in the command 'findimР°ge' out of search range.
 
 Added in 'findimage' return end coordinates of the found images in the third and fourth element of the returned array when the search type 2.
 
@@ -2915,7 +2915,7 @@ Fixed an error in the command 'set windowpos' with parameters TOP and BOTTOM.
 
 Added the ability to reload a specified plugin. 'pluginload [filename]', 'pluginreload [filename]', 'pluginunload [filename]'.
 
-Added the function of smooth cursor movement, syntax like 'move' command. 'move_smooth <х> <у> [+х +у [-х -у]] [abs|handle]'.
+Added the function of smooth cursor movement, syntax like 'move' command. 'move_smooth <С…> <Сѓ> [+С… +Сѓ [-С… -Сѓ]] [abs|handle]'.
 
 To the formatting added formatting routines from ":marks" to "return" that are at the same nesting level.
 
@@ -2925,7 +2925,7 @@ Fixed the error "-4" in the command 'findimage', which occur if the coordinate a
 
 Corrected the function read memory of the client.
 
-Disabled the display of variable values on the form parameters of the character, if you disable tracking the progress of the script execution. Thus, the speed of the active script close to the script execution rate in inactive tabs.
+Disabled the display of variable values on the form parameters of the character,В if you disable tracking the progress of the script execution. Thus, the speed of the active script close to the script execution rate in inactive tabs.
 
 Added command line switch that changes the working folder of the UOPilot. "UoPilot.exe /hC:\Temp\".
 
@@ -3011,11 +3011,11 @@ Fixed setting addresses for "War\Hidden", "ConsoleUnicodeText", "AlwaysRun" when
 Added "Backpack" to "Custom Client".
 
 Added the ability to run scripts "Lua". So far only versions 5.1, 5.2.
-      Признаком того, что скрипт на языке луа, является "--lua" в первой строке скрипта.
+      РџСЂРёР·РЅР°РєРѕРј С‚РѕРіРѕ, С‡С‚Рѕ СЃРєСЂРёРїС‚ РЅР° СЏР·С‹РєРµ Р»СѓР°, СЏРІР»СЏРµС‚СЃСЏ "--lua" РІ РїРµСЂРІРѕР№ СЃС‚СЂРѕРєРµ СЃРєСЂРёРїС‚Р°.
       The script is not processed by the UOpilot, but is immediately transferred to the Lua interpreter.
       When the execution is completed, the script does not restart at first, i.e. Is performed once.
       For repeated execution, use loops / jump statements.
-      В Lua отсутствует нормальная возможность прервать выполнения скрипта из вне. 
+      Р’ Lua РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РЅРѕСЂРјР°Р»СЊРЅР°СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїСЂРµСЂРІР°С‚СЊ РІС‹РїРѕР»РЅРµРЅРёСЏ СЃРєСЂРёРїС‚Р° РёР· РІРЅРµ. 
       Therefore, when the pilot stops the script, the global variable "terminate" is set to "true".
       And it needs to be checked with the Lua script.
       In addition, after setting "terminate" to "true", all the called functions of the UOpilot are ignored.
@@ -3027,7 +3027,7 @@ Added the ability to run scripts "Lua". So far only versions 5.1, 5.2.
       The return value of some functions slightly modified, for example, 'findwindow' always returns an array.
       --lua
       while terminated ~= true do 
-        as3 = findwindow ("Блокнот")
+        as3 = findwindow ("Р‘Р»РѕРєРЅРѕС‚")
         log (as3[1][1], as3[1][2])
         wait (1500)
       end
