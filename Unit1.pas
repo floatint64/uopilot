@@ -1819,6 +1819,9 @@ procedure OleUninitialize;
 {$IFDEF FPC}
 function LoadStr(Ident: Integer): string;
 {$ENDIF}
+function LoadStrCP1251(Ident: Integer): string;
+function UTF8ToCP1251(const S: string): string;
+function CP1251ToUTF8(const S: string): string;
 
 var
   gStartUOThread: TStartUOThread;
@@ -4604,9 +4607,9 @@ begin
         { Msg -- ShortString, а присваивается PChar. Текст берётся из строковых
           ресурсов через LoadStr. }
         if gLangOffsety > 0 then
-          gScriptso3[N].Msg := PChar(LoadStr(gLangOffsety + $19B))
+          gScriptso3[N].Msg := PChar(LoadStrCP1251(gLangOffsety + $19B))
         else
-          gScriptso3[N].Msg := PChar('Не могу найти рабочее окно');
+          gScriptso3[N].Msg := PChar(UTF8ToCP1251('Не могу найти рабочее окно'));
         gScriptso3[N].SyncLogMsg;
       end;
       Tid := GetWindowThreadProcessId(W, @Pid);
@@ -4636,9 +4639,9 @@ begin
       if gScriptso3[N].ClientWnd = 0 then
       begin
         if gLangOffsety > 0 then
-          gScriptso3[0].Msg := PChar(LoadStr(gLangOffsety + $19B))
+          gScriptso3[0].Msg := PChar(LoadStrCP1251(gLangOffsety + $19B))
         else
-          gScriptso3[0].Msg := PChar('Не могу найти рабочее окно');
+          gScriptso3[0].Msg := PChar(UTF8ToCP1251('Не могу найти рабочее окно'));
         gCoordCaptureddo := True;
         gScriptso3[0].SyncLogMsg;
       end
@@ -4759,9 +4762,9 @@ begin
     if FTargetWnd = 0 then
     begin
       if gLangOffsety > 0 then
-        gScriptso3[0].Msg := PChar(LoadStr(gLangOffsety + $19B))
+        gScriptso3[0].Msg := PChar(LoadStrCP1251(gLangOffsety + $19B))
       else
-        gScriptso3[0].Msg := PChar('Не могу найти рабочее окно');
+        gScriptso3[0].Msg := PChar(UTF8ToCP1251('Не могу найти рабочее окно'));
       gCoordCaptureddo := True;
       gScriptso3[0].SyncLogMsg;
     end
@@ -11271,7 +11274,7 @@ begin
   if gScriptso3[I] = nil then
   begin
     if gLangOffsety > 0 then
-      gScriptso3[I].Msg := LoadStr(gLangOffsety + $1D9)
+      gScriptso3[I].Msg := LoadStrCP1251(gLangOffsety + $1D9)
     else
       gScriptso3[I].Msg := 'System error: script not created.';
     ShowScriptMsg(TScanThread(gScriptso3[I]));
@@ -11592,6 +11595,68 @@ begin
   end;
 end;
 {$ENDIF}
+
+function LoadStrCP1251(Ident: Integer): string;
+{$IFDEF FPC}
+var
+  Buf: array[0..4095] of WideChar;
+  Len, N: Integer;
+  WS: WideString;
+begin
+  Result := '';
+  if Ident <= 0 then
+    Exit;
+  Len := LoadStringW(HInstance, Ident, Buf, Length(Buf));
+  if Len > 0 then
+  begin
+    SetString(WS, Buf, Len);
+    N := WideCharToMultiByte(1251, 0, PWideChar(WS), Len, nil, 0, nil, nil);
+    SetLength(Result, N);
+    if N > 0 then
+      WideCharToMultiByte(1251, 0, PWideChar(WS), Len, PChar(Result), N, nil, nil);
+  end;
+end;
+{$ELSE}
+begin
+  Result := LoadStr(Ident);
+end;
+{$ENDIF}
+
+function UTF8ToCP1251(const S: string): string;
+var
+  WS: WideString;
+  N: Integer;
+begin
+  Result := '';
+  if S = '' then
+    Exit;
+  N := MultiByteToWideChar(CP_UTF8, 0, PChar(S), Length(S), nil, 0);
+  SetLength(WS, N);
+  if N > 0 then
+    MultiByteToWideChar(CP_UTF8, 0, PChar(S), Length(S), PWideChar(WS), N);
+  N := WideCharToMultiByte(1251, 0, PWideChar(WS), Length(WS), nil, 0, nil, nil);
+  SetLength(Result, N);
+  if N > 0 then
+    WideCharToMultiByte(1251, 0, PWideChar(WS), Length(WS), PChar(Result), N, nil, nil);
+end;
+
+function CP1251ToUTF8(const S: string): string;
+var
+  WS: WideString;
+  N: Integer;
+begin
+  Result := '';
+  if S = '' then
+    Exit;
+  N := MultiByteToWideChar(1251, 0, PChar(S), Length(S), nil, 0);
+  SetLength(WS, N);
+  if N > 0 then
+    MultiByteToWideChar(1251, 0, PChar(S), Length(S), PWideChar(WS), N);
+  N := WideCharToMultiByte(CP_UTF8, 0, PWideChar(WS), Length(WS), nil, 0, nil, nil);
+  SetLength(Result, N);
+  if N > 0 then
+    WideCharToMultiByte(CP_UTF8, 0, PWideChar(WS), Length(WS), PChar(Result), N, nil, nil);
+end;
 
 procedure TfmSecond.ApplyLanguage(Code: Integer);
 begin
@@ -13365,7 +13430,7 @@ begin
   if gScriptso3[N] = nil then
   begin
     if gLangOffsety > 0 then
-      gScriptso3[0].Msg := LoadStr(gLangOffsety + $1D9)
+      gScriptso3[0].Msg := LoadStrCP1251(gLangOffsety + $1D9)
     else
       gScriptso3[0].Msg := 'System error: script ' + IntToStr(N) + ' not created.';
     ShowScriptMsg(TScanThread(gScriptso3[0]));

@@ -1586,7 +1586,7 @@ begin
     ScreenBmp.Width := 1;
     ScreenBmp.Height := 1;
   except
-    Msg := 'Ошибка выполнения скрипта 3313 ';
+    Msg := UTF8ToCP1251('Ошибка выполнения скрипта 3313 ');
     Synchronize(ShowScriptHint);
   end;
 end;
@@ -1646,7 +1646,7 @@ begin
     T.CapH := V;
     if GetEncoderClsid('image/bmp', Cid) > 0 then
     begin
-      T.Msg := 'Не удалось закодировать картинку.';
+      T.Msg := UTF8ToCP1251('Не удалось закодировать картинку.');
       { Data метода-указателя берётся ГОЛЫМ именем, без приведения: с
         приведением оба значения сливаются в одно и вызов выходит длиннее. }
       TScanThread(T).Synchronize(T.SyncLogMsg);
@@ -1800,14 +1800,14 @@ begin
   DC := GetDC(0);
   if DC = 0 then
   begin
-    Self.Msg := 'Поверхность неровная.';
+    Self.Msg := UTF8ToCP1251('Поверхность неровная.');
     Self.Synchronize(Self.SyncLogMsg);
   end;
   try
     MemDC := CreateCompatibleDC(DC);
     if MemDC = 0 then
     begin
-      Self.Msg := 'Не удалось выровнять поверхность.';
+      Self.Msg := UTF8ToCP1251('Не удалось выровнять поверхность.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if Self.CapWnd = 2 then
@@ -1815,19 +1815,19 @@ begin
       Bmp := CreateCompatibleBitmap(DC, Self.ShotW, Self.ShotH);
       if Bmp = 0 then
       begin
-        Self.Msg := 'Не удалось создать картинку.';
+        Self.Msg := UTF8ToCP1251('Не удалось создать картинку.');
         Self.Synchronize(Self.SyncLogMsg);
       end;
       OldBmp := SelectObject(MemDC, Bmp);
       if (OldBmp = 0) or (OldBmp = HGDI_ERROR) then
       begin
-        Self.Msg := 'Не удалось выбрать картинку.';
+        Self.Msg := UTF8ToCP1251('Не удалось выбрать картинку.');
         Self.Synchronize(Self.SyncLogMsg);
       end;
       OK := BitBlt(MemDC, 0, 0, Self.ShotW, Self.ShotH, DC, PFrom.X, PFrom.Y, SRCCOPY);
       if not OK then
       begin
-        Self.Msg := 'Не удалось скопировать картинку.';
+        Self.Msg := UTF8ToCP1251('Не удалось скопировать картинку.');
         Self.Synchronize(Self.SyncLogMsg);
       end;
     end
@@ -1836,20 +1836,20 @@ begin
       Bmp := CreateCompatibleBitmap(DC, W, H);
       if Bmp = 0 then
       begin
-        Self.Msg := 'Не удалось создать картинку.';
+        Self.Msg := UTF8ToCP1251('Не удалось создать картинку.');
         Self.Synchronize(Self.SyncLogMsg);
       end;
       OldBmp := SelectObject(MemDC, Bmp);
       if (OldBmp = 0) or (OldBmp = HGDI_ERROR) then
       begin
-        Self.Msg := 'Не удалось выбрать картинку.';
+        Self.Msg := UTF8ToCP1251('Не удалось выбрать картинку.');
         Self.Synchronize(Self.SyncLogMsg);
       end;
       PrintWindow(Self.CapWnd, MemDC, 0);
       OK := BitBlt(MemDC, 0, 0, Self.ShotW, Self.ShotH, MemDC, PFrom.X, PFrom.Y, SRCCOPY);
       if not OK then
       begin
-        Self.Msg := 'Не удалось скопировать картинку повторно.';
+        Self.Msg := UTF8ToCP1251('Не удалось скопировать картинку повторно.');
         Self.Synchronize(Self.SyncLogMsg);
       end;
     end;
@@ -1858,17 +1858,17 @@ begin
     SI.GdiplusVersion := 1;
     if GdiplusStartup(Token, @SI, nil) <> 0 then
     begin
-      Self.Msg := 'С+ не запущен.';
+      Self.Msg := UTF8ToCP1251('С+ не запущен.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if GdipCreateBitmapFromHBITMAP(Bmp, 0, Img) <> 0 then
     begin
-      Self.Msg := 'Не удалось создать картинку из памяти.';
+      Self.Msg := UTF8ToCP1251('Не удалось создать картинку из памяти.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if GetEncoderClsid('image/bmp', Cid) > 0 then
     begin
-      Self.Msg := 'Не удалось закодировать картинку.';
+      Self.Msg := UTF8ToCP1251('Не удалось закодировать картинку.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     if gDlg59671Ct7.Visible then
@@ -1888,14 +1888,14 @@ begin
     R.Height := Self.ShotH;
     if GdipBitmapLockBits(Img, @R, 3, PixelFormat24bppRGB, @BD) <> 0 then
     begin
-      Self.Msg := 'Не закрылось.';
+      Self.Msg := UTF8ToCP1251('Не закрылось.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     Self.ShotSize := Abs(Integer(BD.Height) * BD.Stride);
     Self.ShotBits := Pointer(GlobalAlloc(GPTR, Self.ShotSize));
     if Self.ShotBits = nil then
     begin
-      Self.Msg := 'Некуда копировать картинку.';
+      Self.Msg := UTF8ToCP1251('Некуда копировать картинку.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     { строки DIB идут снизу вверх, когда Stride отрицательный: тогда началом
@@ -1914,7 +1914,7 @@ begin
     Self.Lock.Stride := BD.Stride;
     if GdipBitmapUnlockBits(Img, @BD) <> 0 then
     begin
-      Self.Msg := 'Не открылось.';
+      Self.Msg := UTF8ToCP1251('Не открылось.');
       Self.Synchronize(Self.SyncLogMsg);
     end;
     GdipDisposeImage(Img);
@@ -1926,7 +1926,7 @@ begin
       Self.ShotFailed := True;
   except
     Self.ShotFailed := True;
-    Self.Msg := 'Ошибка выполнения скрипта 3317 ';
+    Self.Msg := UTF8ToCP1251('Ошибка выполнения скрипта 3317 ');
     Self.Synchronize(Self.ShowScriptHint);
   end;
   ReleaseDC(0, DC);
@@ -2313,9 +2313,9 @@ label
         Self.StopRequested := True;
         Self.Flag91 := False;
         if gLangOffsety > 0 then
-          Self.Msg := '(' + IntToStr(N) + LoadStr(gLangOffsety + $1BA)
+          Self.Msg := '(' + IntToStr(N) + LoadStrCP1251(gLangOffsety + $1BA)
         else
-          Self.Msg := '(' + IntToStr(N) + '): Не могу определить имя переменной';
+          Self.Msg := '(' + IntToStr(N) + UTF8ToCP1251('): Не могу определить имя переменной');
         ShowScriptMsg(TScanThread(Self));
         Exit;
       end;
@@ -2360,9 +2360,9 @@ label
     if not TryStrToInt(S, Ms) then
     begin
       if gLangOffsety > 0 then
-        Self.Msg := LoadStr(PWord(@gLangOffsety)^ + $1A9)
+        Self.Msg := LoadStrCP1251(PWord(@gLangOffsety)^ + $1A9)
       else
-        Self.Msg := 'Неправильно указана задержка между строк.';
+        Self.Msg := UTF8ToCP1251('Неправильно указана задержка между строк.');
       case UpCase(S[Length(S)]) of
         'S':
           begin
@@ -2927,17 +2927,17 @@ NoLua:
               begin
                 Self.Paused := True;
                 if gLangOffsety > 0 then
-                  Self.Msg := LoadStr(gLangOffsety + $1DC) + #0
+                  Self.Msg := LoadStrCP1251(gLangOffsety + $1DC) + #0
                 else
-                  Self.Msg := 'Клиент скорее мертв, чем жив...'#0;
+                  Self.Msg := UTF8ToCP1251('Клиент скорее мертв, чем жив...') + #0;
               end
               else
               begin
                 Self.Paused := True;
                 if gLangOffsety > 0 then
-                  Self.Msg := LoadStr(gLangOffsety + $1DD) + #0
+                  Self.Msg := LoadStrCP1251(gLangOffsety + $1DD) + #0
                 else
-                  Self.Msg := 'Клиент мертв...'#0;
+                  Self.Msg := UTF8ToCP1251('Клиент мертв...') + #0;
               end;
               if Self.AutoStart then
                 Synchronize(TScanThread(Self).PauseScriptThread);
@@ -2977,17 +2977,17 @@ NextLine:
         if gLangOffsety > 0 then
           Self.Msg := 'Unknown'#0
         else
-          Self.Msg := 'Абсолютно неизвестная ошибка.'#0;
+          Self.Msg := UTF8ToCP1251('Абсолютно неизвестная ошибка.') + #0;
         Synchronize(TScanThread(Self).ShowScriptHint);
         Synchronize(SyncLogMsg);
       end;
     end;
     StartScriptThread(Self);
     if gLangOffsety > 0 then
-      Self.Msg := '(' + IntToStr(Self.CurLine) + LoadStr(gLangOffsety + $1DF) + Self.Msg
+      Self.Msg := '(' + IntToStr(Self.CurLine) + LoadStrCP1251(gLangOffsety + $1DF) + Self.Msg
     else
       Self.Msg := '(' + IntToStr(Self.CurLine) +
-        '): Ошибка! Проверьте правильность скрипта! '#13#10 + Self.Msg;
+        UTF8ToCP1251('): Ошибка! Проверьте правильность скрипта! ') + #13#10 + Self.Msg;
     Self.Msg := Self.Msg + #13 + #10 + Self.Line + #0;
     if not Self.StopRequested or (Copy(Self.Lines[0], 1, 2) <> '--') then
       ShowScriptMsg(TScanThread(Self));
@@ -3124,6 +3124,7 @@ end;
 procedure ShowScriptMsg(T: TScanThread);
 var
   S: string;
+  Msg8: string;
   I: Integer;
 begin
   if T.ClientWnd2 <> 0 then
@@ -3144,11 +3145,12 @@ begin
   T.ToMsgBox := fmSecondfj.miToMessageBox.Checked;
   if T.ToMsgBox then
   begin
+    Msg8 := CP1251ToUTF8(T.Msg);
     if fmSecondfj.miRenameSelf.Checked then
-      MsgBox(@T.Msg[1], PChar(fmSecondfj.miRenameSelf.Hint + ' Message  (' +
+      MsgBox(PChar(Msg8), PChar(fmSecondfj.miRenameSelf.Hint + ' Message  (' +
         T.Str43E0 + T.Name + ': ' + S + ')'), 0)
     else
-      MsgBox(@T.Msg[1], PChar(Copy(fmSecondfj.Hint, 1, 7) + ' Message  (' +
+      MsgBox(PChar(Msg8), PChar(Copy(fmSecondfj.Hint, 1, 7) + ' Message  (' +
         T.Str43E0 + T.Name + ': ' + S + ')'), 0);
   end
   else if fmSecondfj.miToHint.Checked then
@@ -3182,7 +3184,7 @@ begin
         fmSecondfj.miLogWindowClick(nil);
     if gCoordCaptureddo then
     begin
-      S := TimeToStr(Time) + ' : ' + Self.Msg;
+      S := TimeToStr(Time) + ' : ' + CP1251ToUTF8(Self.Msg);
       gCoordCaptureddo := False;
     end
     else
@@ -3198,10 +3200,10 @@ begin
           Pfx := '';
           Num := IntToStr(Self.LineCount + Self.LineBase);
           if Self.LogPrefix <> '' then
-            Pfx := Self.LogPrefix + ' - ';
+            Pfx := CP1251ToUTF8(Self.LogPrefix) + ' - ';
           if Self.LogFlags = 0 then
             S := TimeToStr(Time) + ' ' + Self.Name + ' (' + ExtractFileName(Self.Title) +
-              ', ' + Num + ')' + ': ' + Pfx + PChar(@Self.LogBuf)
+              ', ' + Num + ')' + ': ' + Pfx + CP1251ToUTF8(PChar(@Self.LogBuf))
           else
           begin
             if Self.LogFlags and 1 = 0 then
@@ -3226,13 +3228,13 @@ begin
             if A <> '' then
               A := A + ')';
             if Self.LogFlags = $F then
-              S := S + A + Pfx + PChar(@Self.LogBuf)
+              S := S + A + Pfx + CP1251ToUTF8(PChar(@Self.LogBuf))
             else
-              S := S + A + ': ' + Pfx + PChar(@Self.LogBuf);
+              S := S + A + ': ' + Pfx + CP1251ToUTF8(PChar(@Self.LogBuf));
           end;
         end
         else
-          S := PChar(@Self.LogBuf);
+          S := CP1251ToUTF8(PChar(@Self.LogBuf));
       end;
     end;
     FillChar(Self.LogBuf, $4000, 0);
@@ -13425,9 +13427,9 @@ begin
     if S <> G.Cells[0, nRow] then
     begin
       if gLangOffsety > 0 then
-        T.Msg := LoadStr(gLangOffsety + $1C9) + S + LoadStr(gLangOffsety + $1CA) + #0
+        T.Msg := LoadStrCP1251(gLangOffsety + $1C9) + S + LoadStrCP1251(gLangOffsety + $1CA) + #0
       else
-        T.Msg := 'Запись с указанным номером (' + S + ') не найдена.' + #0;
+        T.Msg := UTF8ToCP1251('Запись с указанным номером (') + S + UTF8ToCP1251(') не найдена.') + #0;
       ShowScriptMsg(T);
       if T.ToMsgBox then
       begin
@@ -15560,7 +15562,7 @@ var
         end;
       end;
     except
-      T.Msg := 'Ошибка перезапуска' + #0;
+      T.Msg := UTF8ToCP1251('Ошибка перезапуска') + #0;
       T.Synchronize(T.ShowScriptHint);
     end;
   end;
@@ -15784,7 +15786,7 @@ var
           T.Synchronize(T.StopScriptThread);
       end;
     except
-      T.Msg := 'Ошибка остановки' + #0;
+      T.Msg := UTF8ToCP1251('Ошибка остановки') + #0;
       T.Synchronize(T.ShowScriptHint);
     end;
   end;
@@ -16087,11 +16089,11 @@ var
           begin
             T.StopRequested := True;
             if gLangOffsety > 0 then
-              T.Msg := LoadStr(gLangOffsety + $1BC) + sC +
-                       LoadStr(gLangOffsety + $1BD) + #0
+              T.Msg := LoadStrCP1251(gLangOffsety + $1BC) + sC +
+                       LoadStrCP1251(gLangOffsety + $1BD) + #0
             else
-              T.Msg := 'Конец процедуры ' + sC +
-                       ' не найден в текущем скрипте.' + #0;
+              T.Msg := UTF8ToCP1251('Конец процедуры ') + sC +
+                       UTF8ToCP1251(' не найден в текущем скрипте.') + #0;
             ShowScriptMsg(T);
           end;
           SetLength(T.SubScript.Lines, nD - nI);
@@ -16130,11 +16132,11 @@ var
               begin
                 T.StopRequested := True;
                 if gLangOffsety > 0 then
-                  T.Msg := LoadStr(gLangOffsety + $1BC) + sC +
-                           LoadStr(gLangOffsety + $1BE) + #0
+                  T.Msg := LoadStrCP1251(gLangOffsety + $1BC) + sC +
+                           LoadStrCP1251(gLangOffsety + $1BE) + #0
                 else
-                  T.Msg := 'Конец процедуры ' + sC +
-                           ' не найден в файле процедур.' + #0;
+                  T.Msg := UTF8ToCP1251('Конец процедуры ') + sC +
+                           UTF8ToCP1251(' не найден в файле процедур.') + #0;
                 ShowScriptMsg(T);
               end;
               SetLength(T.SubScript.Lines, nD - nI);
@@ -16155,11 +16157,11 @@ var
     begin
       T.StopRequested := True;
       if gLangOffsety > 0 then
-        T.Msg := LoadStr(gLangOffsety + $1E9) + ' ''' + sC +
-                 LoadStr(gLangOffsety + $1C7) + #0
+        T.Msg := LoadStrCP1251(gLangOffsety + $1E9) + ' ''' + sC +
+                 LoadStrCP1251(gLangOffsety + $1C7) + #0
       else
-        T.Msg := 'Процедура ''' + sC +
-                 ''' не найдена, проверьте скрипт' + #0;
+        T.Msg := UTF8ToCP1251('Процедура ''') + sC +
+                 UTF8ToCP1251(''' не найдена, проверьте скрипт') + #0;
       ShowScriptMsg(T);
     end
     else
@@ -16167,10 +16169,10 @@ var
       begin
         T.StopRequested := True;
         if gLangOffsety > 0 then
-          T.Msg := LoadStr(gLangOffsety + $1BC) + sC +
-                   LoadStr(gLangOffsety + $1BF) + #0
+          T.Msg := LoadStrCP1251(gLangOffsety + $1BC) + sC +
+                   LoadStrCP1251(gLangOffsety + $1BF) + #0
         else
-          T.Msg := 'Конец процедуры ' + sC + ' не найден' + #0;
+          T.Msg := UTF8ToCP1251('Конец процедуры ') + sC + UTF8ToCP1251(' не найден') + #0;
         ShowScriptMsg(T);
       end;
     T.SubScript.Flag91 := True;
@@ -16230,11 +16232,11 @@ var
       T.StopRequested := True;
       T.Flag91 := False;
       if gLangOffsety > 0 then
-        T.Msg := LoadStr(PWord(@gLangOffsety)^ + $1BC) + sC +
-                 LoadStr(gLangOffsety + $1BF) + #0
+        T.Msg := LoadStrCP1251(PWord(@gLangOffsety)^ + $1BC) + sC +
+                 LoadStrCP1251(gLangOffsety + $1BF) + #0
       else
-        T.Msg := 'Конец процедуры ' +
-                 EvalScriptExpr(T, S, 1) + ' не найден' + #0;
+        T.Msg := UTF8ToCP1251('Конец процедуры ') +
+                 EvalScriptExpr(T, S, 1) + UTF8ToCP1251(' не найден') + #0;
       ShowScriptMsg(T);
     end;
   end;
@@ -16345,9 +16347,9 @@ var
     if not TryStrToInt64(S, qVal) then
     begin
       if gLangOffsety > 0 then
-        T.Msg := LoadStr(PWord(@gLangOffsety)^ + $1A9)
+        T.Msg := LoadStrCP1251(PWord(@gLangOffsety)^ + $1A9)
       else
-        T.Msg := 'Неправильно указана задержка между строк.';
+        T.Msg := UTF8ToCP1251('Неправильно указана задержка между строк.');
       case UpCase(S[Length(S)]) of
         'S':
           begin
@@ -17253,9 +17255,9 @@ begin
     if Length(T.Lines) <= nJ then
     begin
       if gLangOffsety > 0 then
-      T.Msg := LoadStr(gLangOffsety + $1C1) + #0
+      T.Msg := LoadStrCP1251(gLangOffsety + $1C1) + #0
     else
-      T.Msg := 'Не могу найти конец цикла, проверьте скрипт'#0;
+      T.Msg := UTF8ToCP1251('Не могу найти конец цикла, проверьте скрипт') + #0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -17313,9 +17315,9 @@ begin
       if Length(TScanThread(T).Lines) <= nJ then
       begin
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1C1) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1C1) + #0
         else
-          TScanThread(T).Msg := 'Не могу найти конец цикла, проверьте скрипт' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Не могу найти конец цикла, проверьте скрипт') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -17333,9 +17335,9 @@ begin
       except
         TScanThread(T).StopRequested := True;
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1C2) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1C2) + #0
         else
-          TScanThread(T).Msg := 'Нечего прерывать, проверьте скрипт' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Нечего прерывать, проверьте скрипт') + #0;
         ShowScriptMsg(TScanThread(T));
       end;
       if TScanThread(T).StopRequested then
@@ -17566,9 +17568,9 @@ begin
       if Length(TScanThread(T).Arr50) > nJ then
       begin
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1CB) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1CB) + #0
         else
-          TScanThread(T).Msg := 'Ошибка интерпретации скрипта (for).' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Ошибка интерпретации скрипта (for).') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -17621,10 +17623,10 @@ begin
       begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := '(' + IntToStr(TScanThread(T).CurLine) +
-            LoadStr(gLangOffsety + $1CC) + #0
+            LoadStrCP1251(gLangOffsety + $1CC) + #0
         else
           TScanThread(T).Msg := '(' + IntToStr(TScanThread(T).CurLine) +
-            '): Немогу определить имя переменной' + #0;
+            UTF8ToCP1251('): Немогу определить имя переменной') + #0;
         ShowScriptMsg(TScanThread(T));
       end;
       if not TryStrToInt(EvalScriptExpr(T, S, 4), nI) then
@@ -17650,9 +17652,9 @@ begin
       if Length(TScanThread(T).Lines) <= nJ then
       begin
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1CD) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1CD) + #0
         else
-          TScanThread(T).Msg := 'Не могу найти конец цикла: "End_for", проверьте скрипт' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Не могу найти конец цикла: "End_for", проверьте скрипт') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -17710,10 +17712,10 @@ begin
       begin
         if gLangOffsety > 0 then
           TScanThread(T).Msg := '(' + IntToStr(TScanThread(T).CurLine) +
-            LoadStr(gLangOffsety + $1CE) + #0
+            LoadStrCP1251(gLangOffsety + $1CE) + #0
         else
           TScanThread(T).Msg := '(' + IntToStr(TScanThread(T).CurLine) +
-            '): Немогу найти имя переменной for' + #0;
+            UTF8ToCP1251('): Немогу найти имя переменной for') + #0;
         ShowScriptMsg(TScanThread(T));
       end;
 
@@ -18193,9 +18195,9 @@ begin
     else
       begin
       if gLangOffsety > 0 then
-          T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $151) + #0
+          T.Msg := '(' + IntToStr(T.CurLine) + LoadStrCP1251(gLangOffsety + $151) + #0
         else
-          T.Msg := '(' + IntToStr(T.CurLine) + '): Не могу определить операцию' + #0;
+          T.Msg := '(' + IntToStr(T.CurLine) + UTF8ToCP1251('): Не могу определить операцию') + #0;
         ShowScriptMsg(T);
         if T.ToMsgBox then
         begin
@@ -18208,9 +18210,9 @@ begin
     if not bOk then
       begin
         if gLangOffsety > 0 then
-          T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $1BA) + #0
+          T.Msg := '(' + IntToStr(T.CurLine) + LoadStrCP1251(gLangOffsety + $1BA) + #0
         else
-          T.Msg := '(' + IntToStr(T.CurLine) + '): Не могу определить имя переменной' + #0;
+          T.Msg := '(' + IntToStr(T.CurLine) + UTF8ToCP1251('): Не могу определить имя переменной') + #0;
         ShowScriptMsg(T);
         if T.ToMsgBox then
         begin
@@ -18238,11 +18240,11 @@ begin
       if Length(TScanThread(T).Lines) <= nJ then
       begin
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1C6) +
-            EvalScriptExpr(T, S, 1) + LoadStr(gLangOffsety + $1C7) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1C6) +
+            EvalScriptExpr(T, S, 1) + LoadStrCP1251(gLangOffsety + $1C7) + #0
         else
-          TScanThread(T).Msg := 'Метка ''' + EvalScriptExpr(T, S, 1) +
-            ''' не найдена, проверьте скрипт' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Метка ''') + EvalScriptExpr(T, S, 1) +
+            UTF8ToCP1251(''' не найдена, проверьте скрипт') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -18315,11 +18317,11 @@ begin
       if Length(TScanThread(T).Lines) > nJ then
         Exit;
       if gLangOffsety > 0 then
-        TScanThread(T).Msg := LoadStr(gLangOffsety + $1C6) +
-          EvalScriptExpr(T, S, 1) + LoadStr(gLangOffsety + $1C7) + #0
+        TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1C6) +
+          EvalScriptExpr(T, S, 1) + LoadStrCP1251(gLangOffsety + $1C7) + #0
       else
-        TScanThread(T).Msg := 'Метка ''' + EvalScriptExpr(T, S, 1) +
-          ''' не найдена, проверьте скрипт' + #0;
+        TScanThread(T).Msg := UTF8ToCP1251('Метка ''') + EvalScriptExpr(T, S, 1) +
+          UTF8ToCP1251(''' не найдена, проверьте скрипт') + #0;
       ShowScriptMsg(TScanThread(T));
       if TScanThread(T).ToMsgBox then
       begin
@@ -18360,9 +18362,9 @@ begin
     if Length(T.Lines) = nJ then
     begin
       if gLangOffsety > 0 then
-        T.Msg := LoadStr(gLangOffsety + $1C5) + #0
+        T.Msg := LoadStrCP1251(gLangOffsety + $1C5) + #0
       else
-        T.Msg := 'Не могу найти конец условия: "End_IF", проверьте скрипт'#0;
+        T.Msg := UTF8ToCP1251('Не могу найти конец условия: "End_IF", проверьте скрипт') + #0;
       ShowScriptMsg(T);
       if T.ToMsgBox then
       begin
@@ -18398,9 +18400,9 @@ begin
     if Length(T.Lines) = nJ then
     begin
       if gLangOffsety > 0 then
-      T.Msg := LoadStr(gLangOffsety + $1C5) + #0
+      T.Msg := LoadStrCP1251(gLangOffsety + $1C5) + #0
     else
-      T.Msg := 'Не могу найти конец условия: "End_IF", проверьте скрипт'#0;
+      T.Msg := UTF8ToCP1251('Не могу найти конец условия: "End_IF", проверьте скрипт') + #0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -18983,10 +18985,10 @@ begin
       else
       begin
         if gLangOffsety > 0 then
-          T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $1BA) + #0
+          T.Msg := '(' + IntToStr(T.CurLine) + LoadStrCP1251(gLangOffsety + $1BA) + #0
         else
           T.Msg := '(' + IntToStr(T.CurLine) +
-            '): Не могу определить имя переменной' + #0;
+            UTF8ToCP1251('): Не могу определить имя переменной') + #0;
         ShowScriptMsg(T);
         if T.ToMsgBox then
         begin
@@ -19157,9 +19159,9 @@ begin
       if Length(TScanThread(T).Arr54) > nJ then
       begin
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1D2) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1D2) + #0
         else
-          TScanThread(T).Msg := 'Ошибка интерпретации скрипта (repeat).' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Ошибка интерпретации скрипта (repeat).') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -19205,9 +19207,9 @@ begin
       if Length(TScanThread(T).Lines) = nJ then
       begin
         if gLangOffsety > 0 then
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1D3) + #0
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1D3) + #0
         else
-          TScanThread(T).Msg := 'Не могу найти конец цикла: "End_Repeat", проверьте скрипт' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Не могу найти конец цикла: "End_Repeat", проверьте скрипт') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -19232,9 +19234,9 @@ begin
     if Length(T.Arr54) <= nJ then
     begin
       if gLangOffsety > 0 then
-      T.Msg := LoadStr(gLangOffsety + $1D4) + #0
+      T.Msg := LoadStrCP1251(gLangOffsety + $1D4) + #0
     else
-      T.Msg := 'Ошибка интерпретации скрипта (end_repeat).'#0;
+      T.Msg := UTF8ToCP1251('Ошибка интерпретации скрипта (end_repeat).') + #0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -20907,9 +20909,9 @@ begin
         Exit;
       end;
     if gLangOffsety > 0 then
-        T.Msg := '(' + IntToStr(T.CurLine) + LoadStr(gLangOffsety + $1BA) + #0
+        T.Msg := '(' + IntToStr(T.CurLine) + LoadStrCP1251(gLangOffsety + $1BA) + #0
       else
-        T.Msg := '(' + IntToStr(T.CurLine) + '): Не могу определить имя переменной' + #0;
+        T.Msg := '(' + IntToStr(T.CurLine) + UTF8ToCP1251('): Не могу определить имя переменной') + #0;
       ShowScriptMsg(T);
       if T.ToMsgBox then
       begin
@@ -20949,14 +20951,14 @@ begin
       begin
         if gLangOffsety > 0 then
         begin
-          TScanThread(T).Msg := LoadStr(gLangOffsety + $1F2) + #0;
+          TScanThread(T).Msg := LoadStrCP1251(gLangOffsety + $1F2) + #0;
           { игла -- КОРОТКАЯ строка из трёх знаков (' ' ,); в имя команды
             подставляется gCmdList2jj[N] }
           nX := Pos(''''',', TScanThread(T).Msg);
           Insert(gCmdNames2b1[N + 2], TScanThread(T).Msg, nX + 1);
         end
         else
-          TScanThread(T).Msg := 'Не могу найти ''end_switch'', проверьте скрипт' + #0;
+          TScanThread(T).Msg := UTF8ToCP1251('Не могу найти ''end_switch'', проверьте скрипт') + #0;
         ShowScriptMsg(TScanThread(T));
         if TScanThread(T).ToMsgBox then
         begin
@@ -21023,9 +21025,9 @@ begin
     if Length(T.Lines) <= nJ then
     begin
       if gLangOffsety > 0 then
-      T.Msg := LoadStr(gLangOffsety + $1B8) + #0
+      T.Msg := LoadStrCP1251(gLangOffsety + $1B8) + #0
     else
-      T.Msg := 'Не могу найти конец цикла: "End_While", проверьте скрипт'#0;
+      T.Msg := UTF8ToCP1251('Не могу найти конец цикла: "End_While", проверьте скрипт') + #0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -21058,9 +21060,9 @@ begin
     if nJ < 0 then
     begin
       if gLangOffsety > 0 then
-      T.Msg := LoadStr(gLangOffsety + $1B9) + #0
+      T.Msg := LoadStrCP1251(gLangOffsety + $1B9) + #0
     else
-      T.Msg := 'Не могу найти начало цикла: "While", проверьте скрипт'#0;
+      T.Msg := UTF8ToCP1251('Не могу найти начало цикла: "While", проверьте скрипт') + #0;
     ShowScriptMsg(T);
     if T.ToMsgBox then
     begin
@@ -21448,9 +21450,9 @@ begin
       if T.AutoStart then
         T.Synchronize(T.PauseScriptThread);
       if gLangOffsety > 0 then
-        T.Msg := LoadStr(gLangOffsety + $1C0) + #0
+        T.Msg := LoadStrCP1251(gLangOffsety + $1C0) + #0
       else
-        T.Msg := 'Injection v309.05+ не найден.'#0;
+        T.Msg := UTF8ToCP1251('Injection v309.05+ не найден.') + #0;
       ShowScriptMsg(T);
     end
     else
@@ -21764,9 +21766,9 @@ begin
         T.Paused := True;
         T.Synchronize(T.PauseScriptThread);
         if gLangOffsety > 0 then
-          T.Msg := LoadStr(gLangOffsety + $1DE) + T.LogPrefix + #0
+          T.Msg := LoadStrCP1251(gLangOffsety + $1DE) + T.LogPrefix + #0
         else
-          T.Msg := 'Неопознанная команда: ' + T.LogPrefix + #0;
+          T.Msg := UTF8ToCP1251('Неопознанная команда: ') + T.LogPrefix + #0;
         ShowScriptMsg(T);
       end;
   end;
