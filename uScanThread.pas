@@ -99,6 +99,7 @@ type
     procedure Execute; override;
   end;
 
+{$IFnDEF FPC}
   TRxHintWindow = class(THintWindow)
   private
     FImage: Graphics.TBitmap;
@@ -118,9 +119,6 @@ type
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure FillRegion(Rgn: HRgn);
     procedure HookWndProc(var Message: TMessage);
-    {$IFDEF FPC}
-    function DrawTextBiDiModeFlagsReadingOnly: Longint;
-    {$ENDIF}
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
@@ -129,6 +127,10 @@ type
     destructor Destroy; override;
     procedure ActivateHint(Rect: TRect; const AHint: string); override;
   end;
+{$ELSE}
+  TRxHintWindow = class(THintWindow)
+  end;
+{$ENDIF}
 
   { Таймеры-долбилки: пока не вышел срок и не снят FStop, шлют в окно
     клиента клавишу (первый) или строку (второй). FSlot -- адрес ячейки
@@ -199,12 +201,16 @@ type
     держат смещения, поэтому переставлять и вставлять поля нельзя.
     Первые $40 байт занимает сам TThread (FHandle, FSuspended,
     FFreeOnTerminate, OnTerminate), свои поля начинаются с +$40. }
+{$IFnDEF FPC}
   TRxHintWindowRef = class(THintWindow)
   public
     Filler218: array[$218..$24B] of Byte;
     Busy: Boolean;
     Filler24D: array[$24D..$24F] of Byte;
   end;
+{$ELSE}
+  TRxHintWindowRef = TRxHintWindow;
+{$ENDIF}
 
   { Ответ подключаемой функции. Запись упакованная: поля лежат вплотную и
     адресуются прямо по смещению, без арифметики над указателем. Len именно
@@ -1572,9 +1578,11 @@ function EbPWS_2884(A0: string; A1: Integer; A2: string): string; forward;
 function EbWnd(T: TScanThread): Integer; forward;
 function EbSelWnd(T: TScanThread): Integer; forward;
 procedure ScanSplitGuardZ; forward;
+{$IFnDEF FPC}
 procedure StandardHintFont(AFont: TFont); forward;
 function WidthOf(R: TRect): Integer; forward;
 function HeightOf(R: TRect): Integer; forward;
+{$ENDIF}
 
 procedure TScanThread.PrepareScreenBitmap;
 begin
@@ -3920,6 +3928,63 @@ var
   R: TRect;
   I: Integer;
 begin
+{$IFDEF FPC}
+  if HintWnd = nil then
+    HintWnd := TRxHintWindow.Create(fmSecondfj);
+  if Hint.Size >= 0 then
+  begin
+    HintWnd.Font.Size := Hint.Size;
+    HintWnd.Canvas.Font.Size := Hint.Size;
+  end
+  else
+  begin
+    HintWnd.Font.Size := 9;
+    HintWnd.Canvas.Font.Size := 9;
+  end;
+  if Hint.Color >= 0 then
+  begin
+    HintWnd.Font.Color := Hint.Color;
+    HintWnd.Canvas.Font.Color := Hint.Color;
+  end
+  else
+  begin
+    HintWnd.Font.Color := clInfoText;
+    HintWnd.Canvas.Font.Color := clInfoText;
+  end;
+  HintWnd.Font.Style := [];
+  if Hint.Style <> '' then
+    for I := 1 to Length(Hint.Style) do
+      case Hint.Style[I] of
+        'b': HintWnd.Font.Style := HintWnd.Font.Style + [fsBold];
+        'i': HintWnd.Font.Style := HintWnd.Font.Style + [fsItalic];
+        'u': HintWnd.Font.Style := HintWnd.Font.Style + [fsUnderline];
+        's': HintWnd.Font.Style := HintWnd.Font.Style + [fsStrikeOut];
+      end;
+  HintWnd.Canvas.Font.Style := HintWnd.Font.Style;
+  HintWnd.Font.Name := Hint.Font;
+  HintWnd.Canvas.Font.Name := Hint.Font;
+  if Hint.Back < 0 then
+    HintWnd.Color := TColor($00E1FFFF)
+  else
+    HintWnd.Color := Hint.Back;
+  Hint.Text := StringReplace(Hint.Text, '|', #13#10, [rfReplaceAll, rfIgnoreCase]);
+  Hint.Text := StringReplace(Hint.Text, '/n', #13#10, [rfReplaceAll, rfIgnoreCase]);
+  Hint.Text := StringReplace(Hint.Text, '\n', #13#10, [rfReplaceAll, rfIgnoreCase]);
+  R := HintWnd.CalcHintRect(Screen.Width, Hint.Text, nil);
+  if Hint.Width >= 0 then
+    R.Right := R.Left + Hint.Width;
+  if Hint.Height >= 0 then
+    R.Bottom := R.Top + Hint.Height;
+  if Hint.Left <> -1 then
+    Types.OffsetRect(R, Hint.Left - R.Left, 0)
+  else
+    Types.OffsetRect(R, Screen.WorkAreaWidth - (R.Right - R.Left) - 4 - R.Left, 0);
+  if Hint.Top <> -1 then
+    Types.OffsetRect(R, 0, Hint.Top - R.Top)
+  else
+    Types.OffsetRect(R, 0, Screen.WorkAreaHeight - (R.Bottom - R.Top) - 4 - R.Top);
+  HintWnd.ActivateHint(R, Hint.Text);
+{$ELSE}
   if HintWnd = nil then
   begin
     HintWnd := TRxHintWindowRef(uScanThread.TRxHintWindow.Create(fmSecondfj));
@@ -3958,6 +4023,7 @@ begin
   Hint.Text := StringReplace(Hint.Text, '\n', #13#10, [rfReplaceAll, rfIgnoreCase]) + #0;
   HintWnd.ActivateHint(R, Hint.Text);
   HintWnd.Busy := False;
+{$ENDIF}
   Timer.Enabled := False;
   Timer.Enabled := True;
 end;
@@ -4027,6 +4093,7 @@ begin
   DonePlugins(fmSecondfj, Msg);
 end;
 
+{$IFnDEF FPC}
 procedure StandardHintFont(AFont: TFont);
 var
   NonClientMetrics: TNonClientMetrics;
@@ -4064,16 +4131,6 @@ begin
   inherited CreateParams(Params);
   Params.Style := Params.Style and not WS_BORDER;
 end;
-
-{$IFDEF FPC}
-function TRxHintWindow.DrawTextBiDiModeFlagsReadingOnly: Longint;
-begin
-  if UseRightToLeftReading then
-    Result := DT_RTLREADING
-  else
-    Result := 0;
-end;
-{$ENDIF}
 
 procedure TRxHintWindow.WMNCPaint(var Message: TMessage);
 begin
@@ -4195,6 +4252,7 @@ function HeightOf(R: TRect): Integer;
 begin
   Result := R.Bottom - R.Top;
 end;
+{$ENDIF}
 
 procedure TScanThread.SyncGetTabCount;
 begin

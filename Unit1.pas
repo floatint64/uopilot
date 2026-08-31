@@ -9633,20 +9633,18 @@ var
   R: TRect;
 begin
   { Окно подсказки над вкладкой скрипта: создаётся, меряется под текст
-    C.Hint и показывается под вкладкой -- ActivateHint сам делает окно
-    видимым. И Bounds, и OffsetRect обязаны быть квалифицированы как
-    Types: иначе первый уйдёт в Classes.Bounds, второй -- в stdcall
-    из Windows.pas. }
+    C.Hint нативным CalcHintRect и показывается под вкладкой --
+    ActivateHint сам делает окно видимым. OffsetRect обязан быть
+    квалифицирован как Types: иначе резолвится в stdcall из Windows.pas. }
   Result := THintWindow.Create(C);
+  {$IFDEF FPC}
+  Result.Color := RGBToColor(255,255,128);   // классический жёлтый вместо темы
+  {$ENDIF}
   S := C.Hint;
   P := C.ClientOrigin;
   Inc(P.Y, C.Height + 8);
-  R := Types.Bounds(0, 0, Screen.Width, 0);
-  DrawText(Result.Canvas.Handle, PChar(S), -1, R,
-    DT_CALCRECT or DT_WORDBREAK or DT_NOPREFIX);
+  R := Result.CalcHintRect(Screen.Width, S, nil);
   Types.OffsetRect(R, P.X, P.Y);
-  Inc(R.Right, 6);
-  Inc(R.Bottom, 2);
   Result.ActivateHint(R, S);
 end;
 
