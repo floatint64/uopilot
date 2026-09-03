@@ -4549,7 +4549,9 @@ var
   Buf: PChar;
   S: string;
   Tid: DWORD;
-  Buf2: PChar;
+  WBuf: array[0..$FF] of WideChar;
+  WLen: Integer;
+  WS: WideString;
   H: DWORD;
   Ok: Boolean;
   Unused2: Integer;
@@ -4596,11 +4598,12 @@ begin
   if pcAll.ActivePage = tsScript then
   begin
     GetCursorPos(P);
-    Buf2 := StrAlloc(100);
     if miLockOnStartup.Checked then
     begin
       W := WindowFromPoint(P);
-      GetWindowText(W, Buf2, $50);
+      WLen := GetWindowTextW(W, WBuf, Length(WBuf));
+      SetString(WS, WBuf, WLen);
+      S := UTF8Encode(WS);
       N := StrToInt(tScript.Tabs[tScript.TabIndex]);
       if gScriptso3[N].ClientWnd = 0 then
       begin
@@ -4635,7 +4638,9 @@ begin
     begin
       N := StrToInt(tScript.Tabs[tScript.TabIndex]);
       gScriptso3[N].ClientWnd := WindowFromPoint(P);
-      GetWindowText(gScriptso3[N].ClientWnd, Buf2, $50);
+      WLen := GetWindowTextW(gScriptso3[N].ClientWnd, WBuf, Length(WBuf));
+      SetString(WS, WBuf, WLen);
+      S := UTF8Encode(WS);
       if gScriptso3[N].ClientWnd = 0 then
       begin
         if gLangOffsety > 0 then
@@ -4657,8 +4662,7 @@ begin
         gScriptso3[N].ProcessHandle2 := gScriptso3[N].ProcessHandle;
       end;
     end;
-    lWinList.Caption := Buf2;
-    StrDispose(Buf2);
+    lWinList.Caption := S;
     sbWorkwindowHandle.Caption := IntToStr(gScriptso3[N].ClientWnd);
     btXYabs.Caption := IntToStr(P.X) + ', ' + IntToStr(P.Y);
     if CBInsertColor.Checked then
@@ -4719,9 +4723,9 @@ begin
         Ok := TryCaptureImage(gScriptso3[N], H);
         if Ok then
         begin
-          GetMem(Buf, $100);
-          GetWindowText(H, Buf, $FF);
-          S := S + Buf;
+          WLen := GetWindowTextW(H, WBuf, Length(WBuf));
+          SetString(WS, WBuf, WLen);
+          S := S + UTF8Encode(WS);
           if Pos(#10, S) > 0 then
             S := Copy(S, 1, Pos(#10, S) - 1);
           if tcLog.TabIndex > 0 then
@@ -4730,7 +4734,6 @@ begin
             gScriptso3[I].LogView.Lines.Add(S);
           end;
           mLog.Lines.Add(S);
-          FreeMem(Buf);
         end
         else
         begin

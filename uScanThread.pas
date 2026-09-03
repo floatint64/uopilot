@@ -3008,7 +3008,7 @@ end;
 procedure TScanThread.SyncShowWait;
 begin
   fmSecondfj.pRestWait.Visible := ShowWait;
-  fmSecondfj.lRestWait.Caption := Msg;
+  fmSecondfj.lRestWait.Caption := CP1251ToUTF8(Msg);
 end;
 
 {$I-}
@@ -3119,9 +3119,9 @@ begin
       begin
         if (N > 0) and not fmSecondfj.miShowTimerVar.Checked then
           Dec(N);
-        if fmSecondfj.sgVar.Cells[0, N + 1] <> VarName then
-          fmSecondfj.sgVar.Cells[0, N + 1] := VarName;
-        fmSecondfj.sgVar.Cells[1, N + 1] := VarValue;
+        if fmSecondfj.sgVar.Cells[0, N + 1] <> CP1251ToUTF8(VarName) then
+          fmSecondfj.sgVar.Cells[0, N + 1] := CP1251ToUTF8(VarName);
+        fmSecondfj.sgVar.Cells[1, N + 1] := CP1251ToUTF8(VarValue);
       end;
     end;
   except
@@ -3424,7 +3424,7 @@ begin
             S[I] := #13;
             S[I + 1] := #10;
           end;
-        L1.Caption := S;
+        L1.Caption := CP1251ToUTF8(S);
         Y := L1.Height + Y + $11;
         Ed := TEdit.Create(PromptWnd);
         Ed.Parent := PromptWnd;
@@ -3449,7 +3449,7 @@ begin
             Delete(Items[I], 1, 1);
             if I = 1 then
             begin
-              L1.Caption := Items[I];
+              L1.Caption := CP1251ToUTF8(Items[I]);
               D := -$10;
             end
             else
@@ -3460,13 +3460,13 @@ begin
               Lb.Top := I * $10 + Y;
               Lb.AutoSize := True;
               Lb.Height := $C;
-              Lb.Caption := Items[I];
+              Lb.Caption := CP1251ToUTF8(Items[I]);
             end;
           end
           else
           begin
             Inc(C);
-            L2.Caption := Items[I];
+            L2.Caption := CP1251ToUTF8(Items[I]);
             Cb := TCheckBox.Create(PromptWnd);
             Cb.Parent := PromptWnd;
             Cb.Tag := C;
@@ -3474,7 +3474,7 @@ begin
             Cb.Top := I * $10 + Y + D;
             Cb.Width := L2.Width + $14;
             Cb.Height := $C;
-            Cb.Caption := Items[I];
+            Cb.Caption := CP1251ToUTF8(Items[I]);
             PromptWnd.Tag := C;
           end;
         end;
@@ -3490,7 +3490,7 @@ begin
           Delete(Items[I], 1, 1);
           if I = 1 then
           begin
-            L1.Caption := Items[I];
+            L1.Caption := CP1251ToUTF8(Items[I]);
             D := -$10;
           end
           else
@@ -3501,13 +3501,13 @@ begin
             Lr.Top := I * $10 + Y;
             Lr.AutoSize := True;
             Lr.Height := $C;
-            Lr.Caption := Items[I];
+            Lr.Caption := CP1251ToUTF8(Items[I]);
           end;
         end
         else
         begin
           Inc(C);
-          L2.Caption := Items[I];
+          L2.Caption := CP1251ToUTF8(Items[I]);
           Rb := TRadioButton.Create(PromptWnd);
           Rb.Parent := PromptWnd;
           Rb.Tag := C;
@@ -3515,7 +3515,7 @@ begin
           Rb.Top := I * $10 + Y + D;
           Rb.Width := L2.Width + $14;
           Rb.Height := $C;
-          Rb.Caption := Items[I];
+          Rb.Caption := CP1251ToUTF8(Items[I]);
           Rb.OnMouseUp := PromptMouseUp;
           PromptWnd.Tag := C;
         end;
@@ -3671,7 +3671,7 @@ var
 begin
   with fmSecondfj do
   begin
-    tScript.Hint := Self.Msg;
+    tScript.Hint := CP1251ToUTF8(Self.Msg);
     H := CreateTabHint(tScript);
   end;
   Tick := GetTickCount;
@@ -3970,7 +3970,7 @@ begin
   Hint.Text := StringReplace(Hint.Text, '|', #13#10, [rfReplaceAll, rfIgnoreCase]);
   Hint.Text := StringReplace(Hint.Text, '/n', #13#10, [rfReplaceAll, rfIgnoreCase]);
   Hint.Text := StringReplace(Hint.Text, '\n', #13#10, [rfReplaceAll, rfIgnoreCase]);
-  R := HintWnd.CalcHintRect(Screen.Width, Hint.Text, nil);
+  R := HintWnd.CalcHintRect(Screen.Width, CP1251ToUTF8(Hint.Text), nil);
   if Hint.Width >= 0 then
     R.Right := R.Left + Hint.Width;
   if Hint.Height >= 0 then
@@ -3983,7 +3983,7 @@ begin
     Types.OffsetRect(R, 0, Hint.Top - R.Top)
   else
     Types.OffsetRect(R, 0, Screen.WorkAreaHeight - (R.Bottom - R.Top) - 4 - R.Top);
-  HintWnd.ActivateHint(R, Hint.Text);
+  HintWnd.ActivateHint(R, CP1251ToUTF8(Hint.Text));
 {$ELSE}
   if HintWnd = nil then
   begin
@@ -4062,7 +4062,7 @@ begin
     fmSecondfj.sghkScriptHKList.Cells[gHKSela, Row] := ' ';
   fmSecondfj.cbhk1Click(fmSecondfj.sghkScriptHKList);
   gHKEntrieslw[I - 1].Mods := THKMods(HKMods);
-  gHKEntrieslw[I - 1].Text := Msg;
+  gHKEntrieslw[I - 1].Text := CP1251ToUTF8(Msg);
   gHKEntrieslw[I - 1].Sound := fmSecondfj.eSoundFileSelect.Text;
   fmSecondfj.sghkScriptHKList.Cells[gHKSela, Row] := 'X';
   fmSecondfj.cbhk1Click(fmSecondfj.sghkScriptHKList);
