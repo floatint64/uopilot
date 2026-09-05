@@ -9,6 +9,7 @@
         <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
         <MainUnitHasScaledStatement Value="False"/>
+        <AlwaysBuild Value="True"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
@@ -23,11 +24,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <SearchPaths>
-            <IncludeFiles Value="synedit;$(ProjOutDir)"/>
-            <Libraries Value="synedit;lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
-            <OtherUnitFiles Value="synedit"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <Libraries Value="lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
+            <OtherUnitFiles Value=""/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
-            <ObjectPath Value="synedit"/>
+            <ObjectPath Value=""/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -70,11 +71,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <SearchPaths>
-            <IncludeFiles Value="synedit;$(ProjOutDir)"/>
-            <Libraries Value="synedit;lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
-            <OtherUnitFiles Value="synedit"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <Libraries Value="lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
+            <OtherUnitFiles Value=""/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
-            <ObjectPath Value="synedit"/>
+            <ObjectPath Value=""/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -115,13 +116,16 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="3">
       <Item1>
         <PackageName Value="LCL"/>
       </Item1>
       <Item2>
         <PackageName Value="richmemopackage"/>
       </Item2>
+      <Item3>
+        <PackageName Value="SynEdit"/>
+      </Item3>
     </RequiredPackages>
     <Units Count="27">
       <Unit0>
@@ -245,11 +249,11 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="synedit;$(ProjOutDir)"/>
-      <Libraries Value="synedit;lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
-      <OtherUnitFiles Value="synedit"/>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <Libraries Value="lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
+      <OtherUnitFiles Value=""/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
-      <ObjectPath Value="synedit"/>
+      <ObjectPath Value=""/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>

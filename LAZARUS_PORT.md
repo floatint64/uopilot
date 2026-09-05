@@ -222,3 +222,53 @@ Word(Char(WideChar(WParam)))`), где Unicode-код сужается до од
 (undo/redo и подсветка сохраняются); `UTF8Key := ''` помечает символ обработанным и
 отключает fallback-ветку, исключая двойную вставку. Delphi-ветка не затрагивается
 (обёрнута в `{$IFDEF FPC}`).
+
+
+## Окно поиска/замены (TFindDialog) — английские подписи и позиция
+
+При переходе Delphi→Lazarus стандартное окно поиска текста (`fhFindDialog:
+TFindDialog` и `fhReplaceDialog: TReplaceDialog`, `Unit1.pas:724-725`, LFM
+`Unit1.lfm:10955-10964`) стало англоязычным и открывается на сохранённой
+дизайн-тайм позиции (левый верхний угол), а не по центру. Причина не в SynEdit —
+окно не связано с `TCustomSynEdit.SearchEngine`, а обслуживается компонентами
+`Dialogs` (`TFindDialog`/`TReplaceDialog`), у которых в Delphi и Lazarus два
+разных back-end'а:
+
+1. **Язык.** В Delphi 7 `TFindDialog` — нативный системный диалог Windows
+   `FindText`, который русская ОС локализует автоматически. В Lazarus LCL рисует
+   собственную форму `TFindDialogForm`
+   (`D:\Lazarus\lcl\include\finddialog.inc`), все подписи которой задаются
+   английскими resourcestrings LCL в `TFindDialog.CreateForm`
+   (`finddialog.inc:508-523`): `rsFind`, `rsText`, `rsDirection`, `rsForward`,
+   `rsBackward`, `rsWholeWordsOnly`, `rsCaseSensitive`, `rsEntireScope`,
+   `rsMbCancel`, `rsHelp` (`D:\Lazarus\lcl\lclstrconsts.pas:29`, `:59`, `:72`,
+   `:76`, `:332-339`). Перевести их можно только механизмом i18n LCL
+   (`.po`/`.mo`), которого в проекте нет: своя локализация
+   `TfmSecond.ApplyLanguage` (`Unit1.pas:11798`) работает через `LoadStr` и о
+   LCL-диалоге не знает.
+
+2. **Позиция.** В LFM сохранены неотрицательные `Left = 208; Top = 328`
+   (`Unit1.lfm:10957-10958`). `TFindDialog.CalcPosition`
+   (`finddialog.inc:585-599`) центрирует форму только при `(FFormLeft < 0) and
+   (FFormTop < 0)`, поэтому с сохранёнными координатами диалог ставится на
+   дизайн-тайм позицию (левый верхний угол) вместо центра. Delphi центрировал
+   диалог средствами системы.
+
+3. **Почему не подключить `DefaultTranslator`/i18n LCL.** Хук `LRSTranslator`
+   съедает кириллические подписи из LFM (меню, вкладки и пр. становятся пустыми)
+   — см. `MENU_RESEARCH_2.md`. Поэтому собственные LCL-переводы в проекте
+   отсутствуют намеренно.
+
+Обработчик поиска/замены не затрагивается: `ScriptFindDialogFind`
+(`Unit1.pas:12800`) работает через публичные `FindText`/`Options` и
+`Sender is TReplaceDialog`/`TFindDialog`, поэтому любое будущее исправление
+оформления диалога на логику не влияет.
+
+### Варианты исправления (не реализованы)
+
+- **Подкласс `TFindDialog`/`TReplaceDialog`** с переопределением `CreateForm`:
+  после `inherited` переписать подписи на русские и выставить
+  `Position := poScreenCenter`. Точка переопределения готова — `CreateForm`
+  виртуален (`D:\Lazarus\lcl\dialogs.pp:452`) и сам подставляет LCL
+  resourcestrings.
+- **Собственная русская форма поиска/замены** вместо `TFindDialog`.

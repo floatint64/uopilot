@@ -25,3 +25,18 @@
   (`ShowScriptMsg` → `CP1251ToUTF8` для `MsgBox`; `WriteScriptLog` — для LCL-
   мемо и файла лога). Hint-окно (`DrawTextA`) остаётся на cp1251. Полный переход
   на UTF-8 остаётся в этом разделе.
+
+- Подсветка кириллических/Unicode идентификаторов в SynEdit. Сейчас `TSynUOPilotSyn`
+  разбирает текст побайтово (`fProcTable[#0..#255]`, `Identifiers[#0..#255]`,
+  `GetIdentChars: set of AnsiChar`), поэтому не-ASCII символы не являются валидными
+  символами идентификатора: `привет`/`$привет` отображаются (после фикса `UnknownProc`),
+  но красятся как `tkUnknown`, а не `tkIdentifier`. Сделать токенизатор
+  codepoint-ориентированным (декодирование через `LazUTF8`, классификация буква/цифра
+  через `Character.TCharacter.IsLetterOrDigit`): ввести `Utf8Proc` для не-ASCII старта,
+  переписать `IdentProc` на сканирование Unicode-хвоста (с даунгрейдом `tkKey →
+  tkIdentifier` для случая «ключевое слово + кириллица», напр. `forпривет`), а
+  `$`/`%`/`#`-сканеры (`IntegerProc`/`PercentProc`/`AsciiCharProc`) — на сканирование
+  Unicode-букв, чтобы `$привет` стал одним токеном как `$name`. ВАЖНО: двойной клик и
+  `GetWordAtRowCol` уже выделяют кириллицу — `TSynWordBreaker` считает все байты
+  `#$80..#$FF` символами слова (`syneditmiscclasses.pp:1805`), поэтому `GetIdentChars`
+  для этого менять не нужно.

@@ -17,8 +17,8 @@ uses
 {$ENDIF}
   Gauges,
   Types, HotKeyMgr, Keydefs, Recorder, Spin, Grids, mySys,
-  MyIniFiles, geScale, SynMemo, SynHighlighterPas, SynEdit,
-  SynEditCodeFolding, SynEditHighlighter, SynEditTypes, awMachMask,
+  MyIniFiles, geScale, SynHighlighterUOPilot, SynEdit,
+  SynEditHighlighter, SynEditTypes, SynEditMarks, awMachMask,
   uScanThread, PerlRegEx, PngGDIP, GDIPAPI, GDIPOBJ, Unit2,
   LangClipboard, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, FixedTabControl,
   Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, Menus, Messages,
@@ -1575,7 +1575,7 @@ type
     procedure odLoadShow(Sender: TObject);
   public
     // Поля, которых нет в DFM: заводятся кодом в FormCreate.
-    edScript: TSynMemo;
+    edScript: TSynEdit;
     fld_1428: TSynCustomHighlighter;
     FHelpMemo: TMemo;
     fld_1430: Integer;
@@ -1663,8 +1663,8 @@ type
     function CreateTabHint(C: TWinControl): THintWindow;
     procedure CharParamsFormClose(Sender: TObject;
       var Action: TCloseAction);
-    procedure GutterClick(Sender: TObject; Button: TMouseButton;
-      X, Y, Line: Integer; Mark: TSynEditMark);
+    procedure GutterClick(Sender: TObject; X, Y, Line: Integer;
+      Mark: TSynEditMark);
     procedure RedrawAllTabs;
     procedure DrawScriptTabBody(Canvas: TCanvas; IsDesc: Boolean;
       TabIndex: Integer; R: TRect; Active: Boolean);
@@ -1822,6 +1822,7 @@ function LoadStr(Ident: Integer): string;
 function LoadStrCP1251(Ident: Integer): string;
 function UTF8ToCP1251(const S: string): string;
 function CP1251ToUTF8(const S: string): string;
+function IsValidUTF8(const S: string): Boolean;
 
 var
   gStartUOThread: TStartUOThread;
@@ -3959,7 +3960,7 @@ begin
   Caption := S;
   gFontApplyBoth := False;
   { редактор скрипта создаётся кодом и кладётся на вкладку tsScript }
-  edScript := TSynMemo.Create(Self);
+  edScript := TSynEdit.Create(Self);
   with edScript do
   begin
     Parent := tsScript;
@@ -3968,11 +3969,12 @@ begin
     Top := 0;
     Align := alClient;
     Color := $FF000014;
-    Font.Charset := RUSSIAN_CHARSET;
+    Font.Charset := DEFAULT_CHARSET;
     Font.Color := $FF000008;
     Font.Height := -12;
     Font.Name := 'Courier New';
     Font.Style := [];
+    Font.Quality := fqClearType;
     ParentShowHint := False;
     PopupMenu := mnCom;
     ShowHint := False;
@@ -3988,28 +3990,31 @@ begin
     BookMarkOptions.EnableKeys := False;
     BookMarkOptions.GlyphsVisible := False;
     Gutter.AutoSize := True;
-    Gutter.DigitCount := 2;
-    Gutter.Font.Charset := DEFAULT_CHARSET;
-    Gutter.Font.Color := $FF000008;
-    Gutter.Font.Height := -11;
-    Gutter.Font.Name := 'Courier New';
-    Gutter.Font.Style := [];
     Gutter.LeftOffset := 0;
     Gutter.RightOffset := 2;
-    Gutter.ShowLineNumbers := True;
     Gutter.Visible := True;
     Gutter.Width := 10;
-    Gutter.ZeroStart := True;
-    Gutter.LineNumberStart := 0;
+    with Gutter.LineNumberPart do
+    begin
+      AutoSize := True;
+      Visible := True;
+      DigitCount := 2;
+      ZeroStart := True;
+      MarkupInfo.Foreground := $FF000008;
+    end;
+    {$IFDEF FPC}
+    Gutter.MarksPart.Visible := False;
+    Gutter.ChangesPart.Visible := False;
+    Gutter.CodeFoldPart.Visible := False;
+    Gutter.SeparatorPart.Visible := False;
+    {$ENDIF}
     TabWidth := 4;
     WantTabs := True;
-    WordWrap := False;
-    WordWrapGlyph.Visible := False;
     Options := Options - [eoSmartTabs];
   end;
   edScript.SendToBack;
   { подсветка синтаксиса: класс живёт в отдельном юните }
-  fld_1428 := TSynPasSyn.Create(fmSecondfj);
+  fld_1428 := TSynUOPilotSyn.Create(fmSecondfj);
   edScript.Highlighter := fld_1428;
   gCoordCaptureddo := False;
   gLogFileClosedr := False;
@@ -4223,7 +4228,13 @@ begin
     if I > 0 then
       Items[I].ShortCut := ShortCut(Ord('Y'), [ssCtrl])
     else
-      AddKey($25A, Ord('Y'), [ssCtrl]);
+      with Add do
+      begin
+        Command := $25A;
+        Key := Ord('Y');
+        Shift := [ssCtrl];
+        ShiftMask := [];
+      end;
   end;
   LoadLuaLib(Self);
   { первая вкладка скрипта: поток, лог и подмена оконной процедуры лога }
@@ -4863,7 +4874,7 @@ begin
     N := edScript.Lines.Count;
     SetLength(gScriptso3[I].Lines, N);
     for J := 0 to N - 1 do
-      gScriptso3[I].Lines[J] := edScript.Lines[J];
+      gScriptso3[I].Lines[J] := UTF8ToCP1251(edScript.Lines[J]);
     if Length(gScriptso3[I].Lines) = 0 then
     begin
       btStart.Down := False;
@@ -5356,6 +5367,12 @@ begin
   edScript.Clear;
   try
     edScript.Lines.LoadFromFile(FileName);
+    { автоопределение кодировки: новые файлы в UTF-8, старые в cp1251.
+      Если байты не валидный UTF-8, читаем строки как cp1251 и переводим
+      в UTF-8. }
+    if not IsValidUTF8(edScript.Lines.Text) then
+      for I := 0 to edScript.Lines.Count - 1 do
+        edScript.Lines[I] := CP1251ToUTF8(edScript.Lines[I]);
     if Copy(edScript.Lines[0], 1, 5) = '{\rtf' then
     begin
       {$IFDEF FPC}
@@ -5568,7 +5585,7 @@ procedure TfmSecond.miComClick(Sender: TObject);
 var
   S: string;
   I, J, D, K, L: Integer;
-  E: TSynMemo;
+  E: TSynEdit;
 begin
   { Пункты правки буфера уходят прямо в редактор и выходят из метода. }
   if (Sender as TMenuItem).Name = 'miPaste' then
@@ -5829,12 +5846,13 @@ var
   FName: string;
   I: Integer;
   Tab: Integer;
-  M: TMemo;
+  M: TStringList;
   N: Integer;
 begin
   { Сохранение скрипта в его файл. Прежняя версия уезжает в Backup рядом
     с файлом, с меткой времени в имени. Если сохраняется не текущая вкладка,
-    строки берутся из объекта потока через временный TMemo. }
+    строки берутся из объекта потока через TStringList и переводятся из
+    cp1251 в UTF-8. }
   if (Sender as TMenuItem).Name = 'miTabClose' then
     Tab := tScript.IndexOfTabAt(gMouseX, gMouseY)
   else
@@ -5860,12 +5878,14 @@ begin
     edScript.Lines.SaveToFile(gStr59615C)
   else
   begin
-    M := TMemo.Create(fmSecondfj);
-    M.Parent := fmSecondfj;
-    for I := 0 to Length(gScriptso3[N].Lines) - 1 do
-      M.Lines.Add(gScriptso3[N].Lines[I]);
-    M.Lines.SaveToFile(gStr59615C);
-    FreeAndNil(M);
+    M := TStringList.Create;
+    try
+      for I := 0 to Length(gScriptso3[N].Lines) - 1 do
+        M.Add(CP1251ToUTF8(gScriptso3[N].Lines[I]));
+      M.SaveToFile(gStr59615C);
+    finally
+      FreeAndNil(M);
+    end;
   end;
   edScript.Modified := False;
   gScriptso3[N].Modified := False;
@@ -8330,7 +8350,7 @@ begin
     edScript.Visible := False;
   edScript.Lines.Clear;
   for I := 0 to Length(gScriptso3[N].Lines) - 1 do
-    edScript.Lines.Add(gScriptso3[N].Lines[I]);
+    edScript.Lines.Add(CP1251ToUTF8(gScriptso3[N].Lines[I]));
   edScript.Visible := True;
   gScript.MaxValue := Length(gScriptso3[N].Lines);
   gScript.Progress := 0;
@@ -8396,7 +8416,7 @@ begin
         Cnt := edScript.Lines.Count;
         SetLength(gScriptso3[N].Lines, Cnt);
         for I := 0 to Cnt - 1 do
-          gScriptso3[N].Lines[I] := edScript.Lines[I];
+          gScriptso3[N].Lines[I] := UTF8ToCP1251(edScript.Lines[I]);
         gScriptso3[N].PauseCmd := edPause.Text;
       end;
       gScriptso3[N].Modified := edScript.Modified or gScriptso3[N].Modified;
@@ -8581,14 +8601,77 @@ begin
     end;
 end;
 
+{ Позиция начала предыдущего слова относительно точки P (1-based, как в
+  старом SynEdit.PrevWordPosEx): буквами слова считаются ASCII-идентификаторы
+  UO Pilot. Используется в подсказке команды под курсором и в вики-справке. }
+function ScriptPrevWordPos(AEdit: TSynEdit; const P: TPoint): TPoint;
+var
+  CX, CY: Integer;
+  Line: string;
+
+  function IsWordChar(C: Char): Boolean;
+  begin
+    Result := C in ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
+  end;
+
+  function RScan(const L: string; N: Integer; WordChars: Boolean): Integer;
+  begin
+    while (N >= 1) and (IsWordChar(L[N]) <> WordChars) do
+      Dec(N);
+    if N < 1 then
+      Result := 0
+    else
+      Result := N;
+  end;
+
+begin
+  CX := P.X;
+  CY := P.Y;
+  if (CY >= 1) and (CY <= AEdit.Lines.Count) then
+  begin
+    Line := AEdit.Lines[CY - 1];
+    if CX > Length(Line) + 1 then
+      CX := Length(Line) + 1;
+    if CX <= 1 then
+    begin
+      if CY > 1 then
+      begin
+        Dec(CY);
+        Line := AEdit.Lines[CY - 1];
+        CX := Length(Line) + 1;
+      end;
+    end
+    else
+    begin
+      if not IsWordChar(Line[CX - 1]) then
+        CX := RScan(Line, CX - 1, True);
+      if CX > 0 then
+        CX := RScan(Line, CX - 1, False) + 1;
+      if CX = 0 then
+      begin
+        if CY > 1 then
+        begin
+          Dec(CY);
+          Line := AEdit.Lines[CY - 1];
+          CX := Length(Line) + 1;
+        end
+        else
+          CX := 1;
+      end;
+    end;
+  end;
+  Result.X := CX;
+  Result.Y := CY;
+end;
+
 procedure TfmSecond.mmScriptKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   S: string;
   K: Char;
-  P: TBufferCoord;
+  P: TPoint;
   Y: Integer;
   I: Integer;
-  E: TSynMemo;
+  E: TSynEdit;
 
   function ScanMenu(M: TMenuItem): Boolean;
   var
@@ -8638,9 +8721,9 @@ begin
       I := gCmdList2jj.IndexOf(AnsiLowerCase(S));
     if S = '' then
       I := -1;
-    while (I < 0) and (Y = P.Line) and not ((P.Char = 1) and (P.Line = 1)) do
+    while (I < 0) and (Y = P.Y) and not ((P.X = 1) and (P.Y = 1)) do
     begin
-      P := edScript.PrevWordPosEx(P);
+      P := ScriptPrevWordPos(edScript, P);
       S := edScript.GetWordAtRowCol(P);
       I := gCmdListah7.IndexOf(AnsiLowerCase(S));
       if S = '' then
@@ -9075,7 +9158,7 @@ begin
       Cnt := edScript.Lines.Count;
       SetLength(gScriptso3[N].Lines, Cnt);
       for I := 0 to Cnt - 1 do
-        gScriptso3[N].Lines[I] := edScript.Lines[I];
+        gScriptso3[N].Lines[I] := UTF8ToCP1251(edScript.Lines[I]);
     end;
     gScriptso3[N].LineCount := edScript.CaretY - 1;
     gScriptso3[N].Resume;
@@ -11310,7 +11393,7 @@ begin
         begin
           SetLength(gScriptso3[I].Lines, edScript.Lines.Count);
           for J := 0 to edScript.Lines.Count - 1 do
-            gScriptso3[I].Lines[J] := edScript.Lines[J];
+            gScriptso3[I].Lines[J] := UTF8ToCP1251(edScript.Lines[J]);
           if Length(gScriptso3[I].Lines) = 0 then
           begin
             gSZ[I].StopScriptThread;
@@ -11657,6 +11740,59 @@ begin
   SetLength(Result, N);
   if N > 0 then
     WideCharToMultiByte(CP_UTF8, 0, PWideChar(WS), Length(WS), PChar(Result), N, nil, nil);
+end;
+
+function IsValidUTF8(const S: string): Boolean;
+var
+  I, N: Integer;
+  C: Byte;
+begin
+  { побайтовая проверка: строка валидный UTF-8? Используется при чтении
+    файлов скриптов, чтобы отличить новые UTF-8-файлы от старых cp1251. }
+  Result := True;
+  I := 1;
+  N := Length(S);
+  while I <= N do
+  begin
+    C := Byte(S[I]);
+    if C < $80 then
+      Inc(I)
+    else if (C >= $C2) and (C <= $DF) then
+    begin
+      if (I + 1 > N) or ((Byte(S[I + 1]) and $C0) <> $80) then
+      begin
+        Result := False;
+        Exit;
+      end;
+      Inc(I, 2);
+    end
+    else if (C >= $E0) and (C <= $EF) then
+    begin
+      if (I + 2 > N) or ((Byte(S[I + 1]) and $C0) <> $80) or
+         ((Byte(S[I + 2]) and $C0) <> $80) then
+      begin
+        Result := False;
+        Exit;
+      end;
+      Inc(I, 3);
+    end
+    else if (C >= $F0) and (C <= $F4) then
+    begin
+      if (I + 3 > N) or ((Byte(S[I + 1]) and $C0) <> $80) or
+         ((Byte(S[I + 2]) and $C0) <> $80) or
+         ((Byte(S[I + 3]) and $C0) <> $80) then
+      begin
+        Result := False;
+        Exit;
+      end;
+      Inc(I, 4);
+    end
+    else
+    begin
+      Result := False;
+      Exit;
+    end;
+  end;
 end;
 
 procedure TfmSecond.ApplyLanguage(Code: Integer);
@@ -12711,12 +12847,18 @@ begin
   StrPCopy(FindBuf, Dlg.FindText);
   while True do
   begin
-    TextLen := Memo.GetTextLen + 1;
-    GetMem(TextBuf, TextLen);
     if FFlag1438 then
-      Memo.GetTextBuf(TextBuf, TextLen)
+    begin
+      TextLen := Memo.GetTextLen + 1;
+      GetMem(TextBuf, TextLen);
+      Memo.GetTextBuf(TextBuf, TextLen);
+    end
     else
-      Ed.GetTextBuf(TextBuf, TextLen);
+    begin
+      TextLen := Length(Ed.Text) + 1;
+      GetMem(TextBuf, TextLen);
+      StrPLCopy(TextBuf, Ed.Text, TextLen - 1);
+    end;
     { без учёта регистра сравниваем в верхнем: оба буфера прогоняются
       через AnsiStrUpper прямо на месте }
     if not (frMatchCase in Dlg.Options) then
@@ -12750,9 +12892,9 @@ begin
         P := TextBuf + (TextLen - 1) - Memo.SelStart
       else if (Sender is TReplaceDialog) and
         (frReplace in (Sender as TReplaceDialog).Options) then
-        P := TextBuf + (TextLen - 1) - Ed.SelStart - Ed.SelLength
+        P := TextBuf + (TextLen - Ed.SelEnd)
       else
-        P := TextBuf + (TextLen - 1) - Ed.SelStart;
+        P := TextBuf + (TextLen - Ed.SelStart);
     end
     else
     begin
@@ -12760,9 +12902,9 @@ begin
         P := TextBuf + Memo.SelStart + Memo.SelLength
       else if (Sender is TReplaceDialog) and
         (frReplace in (Sender as TReplaceDialog).Options) then
-        P := TextBuf + Ed.SelStart
+        P := TextBuf + (Ed.SelStart - 1)
       else
-        P := TextBuf + Ed.SelStart + Ed.SelLength;
+        P := TextBuf + (Ed.SelEnd - 1);
     end;
     P := StrPos(P, FindBuf);
     { до конца не нашли -- заходим на второй круг от начала текста }
@@ -12775,7 +12917,7 @@ begin
         if FFlag1438 then
           Memo.SelLength := 0
         else
-          Ed.SelLength := 0;
+          Ed.SelEnd := Ed.SelStart;
         MessageBeep(0);
         FreeMem(FindBuf, Length(Dlg.FindText) + 1);
         FreeMem(TextBuf, TextLen);
@@ -12792,8 +12934,8 @@ begin
     end
     else
     begin
-      Ed.SelStart := I;
-      Ed.SelLength := Length(Dlg.FindText);
+      Ed.SelStart := I + 1;
+      Ed.SelEnd := Ed.SelStart + Length(Dlg.FindText);
     end;
     { «заменить всё» -- заменили, встали за заменой и пошли на следующий круг
       уже по изменённому тексту; текстовый буфер перечитывается заново }
@@ -12807,7 +12949,7 @@ begin
       else
       begin
         Ed.SelText := sRepl;
-        Ed.SelStart := Length(sRepl) + I;
+        Ed.SelStart := Length(sRepl) + I + 1;
       end;
       FreeMem(TextBuf, TextLen);
     end
@@ -12823,8 +12965,8 @@ begin
         else
         begin
           Ed.SelText := sRepl;
-          Ed.SelStart := I;
-          Ed.SelLength := Length(sRepl);
+          Ed.SelStart := I + 1;
+          Ed.SelEnd := Ed.SelStart + Length(sRepl);
         end;
       FreeMem(FindBuf, Length(Dlg.FindText) + 1);
       FreeMem(TextBuf, TextLen);
@@ -12934,7 +13076,7 @@ var
   S: string;
   W: string;
   N: Integer;
-  E: TSynMemo;
+  E: TSynEdit;
 begin
   case Key of
     38:
@@ -12994,7 +13136,7 @@ begin
     if Shift = [ssCtrl] then
     begin
       FFlag1438 := False;
-      fld_1434 := Integer(Sender as TSynMemo);
+      fld_1434 := Integer(Sender as TSynEdit);
       fhFindDialog.OnFind := ScriptFindDialogFind;
       fhFindDialog.Execute;
     end;
@@ -13007,7 +13149,7 @@ begin
       Key := 0;
       Shift := [];
       gFlag596A40 := True;
-      fld_1434 := Integer(Sender as TSynMemo);
+      fld_1434 := Integer(Sender as TSynEdit);
       fhReplaceDialog.OnFind := ScriptFindDialogFind;
       fhReplaceDialog.OnReplace := ScriptFindDialogFind;
       fhReplaceDialog.Execute;
@@ -14725,17 +14867,8 @@ end;
 
 procedure TfmSecond.CheckBox1Click(Sender: TObject);
 begin
-  edScript.CodeFolding.CollapsingMarkStyle := msSquare;
-  edScript.CodeFolding.CollapsedCodeHint := True;
-  edScript.CodeFolding.ShowCollapsedLine := True;
-  edScript.CodeFolding.IndentGuides := False;
-  edScript.CodeFolding.FolderBarColor := $20000000;
-  edScript.CodeFolding.HighlighterFoldRegions := False;
-  edScript.CodeFolding.FoldRegions.Add(rtChar, False, False, True, '{', '}');
-  edScript.CodeFolding.FoldRegions.Add(rtKeyword, False, False, True,
-    'for', 'end_for');
-  edScript.InitCodeFolding;
-  edScript.CodeFolding.Enabled := CheckBox1.Checked;
+  { Сворачивание кода отброшено при миграции на Lazarus SynEdit: это была
+    скрытая (невидимый CheckBox1) всегда включённая функция. }
 end;
 
 procedure TfmSecond.seTabSizeChange(Sender: TObject);
@@ -14769,8 +14902,8 @@ begin
     Top := -1;
     if edScript.SelStart <> edScript.SelEnd then
     begin
-      StartRow := edScript.CharIndexToRowCol(edScript.SelStart).Line - 1;
-      EndRow := edScript.CharIndexToRowCol(edScript.SelEnd).Line - 1;
+      StartRow := edScript.CharIndexToRowCol(edScript.SelStart - 1).Y - 1;
+      EndRow := edScript.CharIndexToRowCol(edScript.SelEnd - 1).Y - 1;
       S := edScript.Lines[StartRow];
       I := 0;
       while (Length(S) >= I + 1) and (S[I + 1] in [#9, ' ']) do
@@ -14877,8 +15010,8 @@ begin
   begin
     if edScript.SelStart <> edScript.SelEnd then
     begin
-      StartRow := edScript.CharIndexToRowCol(edScript.SelStart).Line - 1;
-      EndRow := edScript.CharIndexToRowCol(edScript.SelEnd).Line - 1;
+      StartRow := edScript.CharIndexToRowCol(edScript.SelStart - 1).Y - 1;
+      EndRow := edScript.CharIndexToRowCol(edScript.SelEnd - 1).Y - 1;
     end
     else
     begin
@@ -15181,11 +15314,11 @@ end;
 
 procedure TfmSecond.ShowWikiForCommand;
 var
-  P: TBufferCoord;
+  P: TPoint;
   W: string;
   W2: string;
   Suffix: string;
-  P2: TBufferCoord;
+  P2: TPoint;
   M: Integer;
   N: Integer;
   I: Integer;
@@ -15201,10 +15334,10 @@ begin
     case N of
       42, 50, 51, 77, 84:
         begin
-          P2 := edScript.PrevWordPosEx(P);
+          P2 := ScriptPrevWordPos(edScript, P);
           W2 := edScript.GetWordAtRowCol(P2);
           if W2 = W then
-            W2 := edScript.GetWordAtRowCol(edScript.PrevWordPosEx(P2));
+            W2 := edScript.GetWordAtRowCol(ScriptPrevWordPos(edScript, P2));
           M := gCmdList2jj.IndexOf(AnsiLowerCase(W2));
           case M of
             40, 49:
@@ -15240,11 +15373,12 @@ end;
 
 procedure TfmSecond.mnComPopup(Sender: TObject);
 var
-  P: TBufferCoord;
+  P: TPoint;
   W: string;
   W2: string;
   Suffix: string;
-  P2: TBufferCoord;
+  P2: TPoint;
+  Pt: TPoint;
   N: Integer;
   I: Integer;
   Ok: Boolean;
@@ -15255,7 +15389,12 @@ begin
     от него зависит суффикс в ссылке на вики. }
   try
     miWikiHelp.Visible := False;
-    Ok := edScript.GetPositionOfMouse(P);
+    Pt := edScript.ScreenToClient(Mouse.CursorPos);
+    Ok := (Pt.X >= 0) and (Pt.Y >= 0) and (Pt.X <= edScript.Width) and
+      (Pt.Y <= edScript.Height);
+    if not Ok then
+      Exit;
+    P := edScript.PixelsToLogicalPos(Pt);
     W := edScript.GetWordAtRowCol(P);
     if W = '' then
       Exit;
@@ -15263,10 +15402,10 @@ begin
     case N of
       42, 50, 51, 77, 84:
         begin
-          P2 := edScript.PrevWordPosEx(P);
+          P2 := ScriptPrevWordPos(edScript, P);
           W2 := edScript.GetWordAtRowCol(P2);
           if W2 = W then
-            W2 := edScript.GetWordAtRowCol(edScript.PrevWordPosEx(P2));
+            W2 := edScript.GetWordAtRowCol(ScriptPrevWordPos(edScript, P2));
           case gCmdList2jj.IndexOf(AnsiLowerCase(W2)) of
             40, 49:
               W := W2 + '_' + W;
@@ -15879,8 +16018,8 @@ begin
   SysUtils.SetCurrentDir(gTempFilefv);
 end;
 
-procedure TfmSecond.GutterClick(Sender: TObject; Button: TMouseButton;
-      X, Y, Line: Integer; Mark: TSynEditMark);
+procedure TfmSecond.GutterClick(Sender: TObject; X, Y, Line: Integer;
+      Mark: TSynEditMark);
 var
   { Mode и Cm видны вложенной DoComment. J и L -- одни и те же переменные
     в обеих половинах метода: сначала «позиция первого непробела» и
@@ -15962,7 +16101,7 @@ begin
   if not Found then
     Cm := '//';
   Mode := 0;
-  if edScript.SelLength <= 0 then
+  if edScript.SelEnd - edScript.SelStart <= 0 then
   begin
     if cbCommentOnClick.Checked then
     begin
