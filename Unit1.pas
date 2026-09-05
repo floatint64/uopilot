@@ -12332,7 +12332,10 @@ end;
 
 procedure TfmSecond.sbWinListClick(Sender: TObject);
 var
-  Buf: PChar;
+  Buf: array[0..$FF] of WideChar;
+  WLen: Integer;
+  WS: WideString;
+  Title: string;
   IsWin: Boolean;
   Show: Boolean;
   Vis: Boolean;
@@ -12362,16 +12365,17 @@ begin
       W := N;
   until N = 0;
   W := GetWindow(W, GW_HWNDFIRST);
-  Buf := StrAlloc(100);
   SetLength(gWinHandles, 0);
   repeat
-    GetWindowText(W, Buf, $50);
+    WLen := GetWindowTextW(W, Buf, Length(Buf));
+    SetString(WS, Buf, WLen);
+    Title := UTF8Encode(WS);
     IsWin := IsWindow(W);
     Vis := IsWindowVisible(W);
     HasOwn := GetWindow(W, GW_OWNER) <> 0;
     S := '';
     Show := Vis or miShowAllWindows.Checked;
-    if (StrComp(Buf, '') <> 0) and IsWin then
+    if (Title <> '') and IsWin then
       if Show then
       begin
         GetWindowThreadProcessId(W, @Pid);
@@ -12382,8 +12386,8 @@ begin
           S := S + '> ';
         if not Vis then
           S := S + '* ';
-        cbWinList.Items.Add(T + ' ' + S + Buf);
-        if (Buf = Old) and (W = Cur) then
+        cbWinList.Items.Add(T + ' ' + S + Title);
+        if (Title = Old) and (W = Cur) then
         begin
           cbWinList.Tag := 1;
           cbWinList.ItemIndex := cbWinList.Items.Count - 1;
@@ -12396,7 +12400,6 @@ begin
     if N <> 0 then
       W := N;
   until N = 0;
-  StrDispose(Buf);
   SendMessage(cbWinList.Handle, $14F, 1, 0);
 end;
 
