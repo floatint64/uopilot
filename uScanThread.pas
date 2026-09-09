@@ -11307,9 +11307,9 @@ begin
           sAcc := EvalScriptExpr(T, 'calc ' + EvalScriptPoint(T, V, 3), -1);
           s4 := EvalScriptExpr(T, 'calc ' + EvalScriptPoint(T, V, 4), -1);
           if Length(s4) > 0 then
-            V := StringReplace(s3, arg, sAcc, [rfReplaceAll, rfIgnoreCase])
+            V := CP1251StringReplace(s3, arg, sAcc, [rfReplaceAll, rfIgnoreCase])
           else
-            V := StringReplace(s3, arg, sAcc, [rfIgnoreCase]);
+            V := CP1251StringReplace(s3, arg, sAcc, [rfIgnoreCase]);
           end;
         $96: begin { string_count }
           V := 'calc ' + s5;
@@ -11324,10 +11324,10 @@ begin
           V := IntToStr(qq);
           end;
         $97: begin { string_lower }
-          V := AnsiLowerCase(V);
+          V := CP1251LowerCase(V);
           end;
         $98: begin { string_upper }
-          V := AnsiUpperCase(V);
+          V := CP1251UpperCase(V);
           end;
         $99: begin { string_letters }
           arg := '';
@@ -14576,46 +14576,46 @@ var
             if TryStrToInt64(sA, qA) and TryStrToInt64(sB, qB) then
               b := qA < qB
             else
-              b := CompareStr(AnsiLowerCase(sA), AnsiLowerCase(sB)) < 0;
+              b := CompareStr(CP1251LowerCase(sA), CP1251LowerCase(sB)) < 0;
           end
           else if sOp = '>' then
           begin
             if TryStrToInt64(sA, qA) and TryStrToInt64(sB, qB) then
               b := qA > qB
             else
-              b := CompareStr(AnsiLowerCase(sA), AnsiLowerCase(sB)) > 0;
+              b := CompareStr(CP1251LowerCase(sA), CP1251LowerCase(sB)) > 0;
           end
           else if sOp = '<=' then
           begin
             if TryStrToInt64(sA, qA) and TryStrToInt64(sB, qB) then
               b := qA <= qB
             else
-              b := Pos(AnsiLowerCase(sB), AnsiLowerCase(sA)) > 0;
+              b := Pos(CP1251LowerCase(sB), CP1251LowerCase(sA)) > 0;
           end
           else if sOp = '>=' then
           begin
             if TryStrToInt64(sA, qA) and TryStrToInt64(sB, qB) then
               b := qA >= qB
             else
-              b := Pos(AnsiLowerCase(sA), AnsiLowerCase(sB)) > 0;
+              b := Pos(CP1251LowerCase(sA), CP1251LowerCase(sB)) > 0;
           end
           else if sOp = '<-' then
-            b := Pos(AnsiLowerCase(sB), AnsiLowerCase(sA)) > 0
+            b := Pos(CP1251LowerCase(sB), CP1251LowerCase(sA)) > 0
           else if sOp = '->' then
-            b := Pos(AnsiLowerCase(sA), AnsiLowerCase(sB)) > 0
+            b := Pos(CP1251LowerCase(sA), CP1251LowerCase(sB)) > 0
           else if (sOp = '=') or (sOp = '==') then
           begin
             if TryStrToInt64(sA, qA) and TryStrToInt64(sB, qB) then
               b := qA = qB
             else
-              b := CompareStr(AnsiLowerCase(sA), AnsiLowerCase(sB)) = 0;
+              b := CompareStr(CP1251LowerCase(sA), CP1251LowerCase(sB)) = 0;
           end
           else
           begin
             if TryStrToInt64(sA, qA) and TryStrToInt64(sB, qB) then
               b := qA <> qB
             else
-              b := CompareStr(AnsiLowerCase(sA), AnsiLowerCase(sB)) <> 0;
+              b := CompareStr(CP1251LowerCase(sA), CP1251LowerCase(sB)) <> 0;
           end;
           k := 3;
         end

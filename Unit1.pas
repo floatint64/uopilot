@@ -1823,6 +1823,10 @@ function LoadStrCP1251(Ident: Integer): string;
 function UTF8ToCP1251(const S: string): string;
 function CP1251ToUTF8(const S: string): string;
 function IsValidUTF8(const S: string): Boolean;
+function CP1251UpperCase(const S: string): string;
+function CP1251LowerCase(const S: string): string;
+function CP1251StringReplace(const S, OldPattern, NewPattern: string;
+  Flags: TReplaceFlags): string;
 
 var
   gStartUOThread: TStartUOThread;
@@ -11740,6 +11744,102 @@ begin
   SetLength(Result, N);
   if N > 0 then
     WideCharToMultiByte(CP_UTF8, 0, PWideChar(WS), Length(WS), PChar(Result), N, nil, nil);
+end;
+
+function CP1251UpperCase(const S: string): string;
+{$IFDEF FPC}
+var
+  WS: WideString;
+  N: Integer;
+begin
+  Result := S;
+  if S = '' then
+    Exit;
+  N := MultiByteToWideChar(1251, 0, PChar(S), Length(S), nil, 0);
+  SetLength(WS, N);
+  if N > 0 then
+    MultiByteToWideChar(1251, 0, PChar(S), Length(S), PWideChar(WS), N);
+  CharUpperBuffW(PWideChar(WS), N);
+  N := WideCharToMultiByte(1251, 0, PWideChar(WS), Length(WS), nil, 0, nil, nil);
+  SetLength(Result, N);
+  if N > 0 then
+    WideCharToMultiByte(1251, 0, PWideChar(WS), Length(WS), PChar(Result), N, nil, nil);
+end;
+{$ELSE}
+begin
+  Result := AnsiUpperCase(S);
+end;
+{$ENDIF}
+
+function CP1251LowerCase(const S: string): string;
+{$IFDEF FPC}
+var
+  WS: WideString;
+  N: Integer;
+begin
+  Result := S;
+  if S = '' then
+    Exit;
+  N := MultiByteToWideChar(1251, 0, PChar(S), Length(S), nil, 0);
+  SetLength(WS, N);
+  if N > 0 then
+    MultiByteToWideChar(1251, 0, PChar(S), Length(S), PWideChar(WS), N);
+  CharLowerBuffW(PWideChar(WS), N);
+  N := WideCharToMultiByte(1251, 0, PWideChar(WS), Length(WS), nil, 0, nil, nil);
+  SetLength(Result, N);
+  if N > 0 then
+    WideCharToMultiByte(1251, 0, PWideChar(WS), Length(WS), PChar(Result), N, nil, nil);
+end;
+{$ELSE}
+begin
+  Result := AnsiLowerCase(S);
+end;
+{$ENDIF}
+
+function CP1251StringReplace(const S, OldPattern, NewPattern: string;
+  Flags: TReplaceFlags): string;
+var
+  LS, LO, Tail: string;
+  Idx, OldLen, PosInTail: Integer;
+begin
+  { Регистронезависимая замена для cp1251. Штатный StringReplace с
+    rfIgnoreCase в FPC складывает регистр через AnsiUpperCase/AnsiLowerCase,
+    которые без cwstring ASCII-only и не трогают байты 0xC0-0xFF, поэтому
+    кириллицу не заменяет. Здесь обе строки сворачиваются через CP1251LowerCase
+    (cp1251->UTF-16->cp1251), а в результат подставляются исходные подстроки S
+    и NewPattern как есть -- семантика совпадает с Delphi. }
+  if not (rfIgnoreCase in Flags) then
+  begin
+    Result := StringReplace(S, OldPattern, NewPattern, Flags);
+    Exit;
+  end;
+  if OldPattern = '' then
+  begin
+    Result := S;
+    Exit;
+  end;
+  LS := CP1251LowerCase(S);
+  LO := CP1251LowerCase(OldPattern);
+  OldLen := Length(OldPattern);
+  Result := '';
+  Idx := 1;
+  while Idx <= Length(S) do
+  begin
+    Tail := Copy(LS, Idx, Length(LS) - Idx + 1);
+    PosInTail := Pos(LO, Tail);
+    if PosInTail = 0 then
+    begin
+      Result := Result + Copy(S, Idx, Length(S) - Idx + 1);
+      Break;
+    end;
+    Result := Result + Copy(S, Idx, PosInTail - 1) + NewPattern;
+    Idx := Idx + PosInTail - 1 + OldLen;
+    if not (rfReplaceAll in Flags) then
+    begin
+      Result := Result + Copy(S, Idx, Length(S) - Idx + 1);
+      Break;
+    end;
+  end;
 end;
 
 function IsValidUTF8(const S: string): Boolean;

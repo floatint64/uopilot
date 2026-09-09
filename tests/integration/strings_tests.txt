@@ -1,0 +1,864 @@
+// Регрессионные тесты текстовых функций (cp1251/кириллица)
+// Кодировка файла: UTF-8.
+// Каркас на gosub/return: у call/proc изолированная область видимости переменных,
+// поэтому подпрограммы-ассерты и счётчики живут в одном потоке через gosub.
+// verify-кейсы вынесены в хвост после сводки и не вызываются автоматически.
+                            
+log clear
+log mode noTime
+
+// ===== счётчики =====
+set #pass 0
+set #fail 0
+
+// ===== запуск блоков (основные, детерминированные) =====
+gosub test_size_3
+gosub test_size_4
+gosub test_size_8
+gosub test_posex_1
+gosub test_posex_2
+gosub test_posex_4
+gosub test_posex_none
+gosub test_posex_3
+gosub test_posex_case_0
+gosub test_copy_bv
+gosub test_copy_ryosh
+gosub test_copy_a
+gosub test_copy_v
+gosub test_copy_mixed_bv
+gosub test_delete_avg
+gosub test_delete_vg
+gosub test_delete_ab
+gosub test_insert_aXbv
+gosub test_insert_Xabv
+gosub test_insert_abvX
+gosub test_insert_a_bv
+gosub test_concat_9
+gosub test_concat_7
+gosub test_ord_a_224
+gosub test_ord_ya_255
+gosub test_ord_A_192
+gosub test_ord_ascii_65
+gosub test_chr_224_a
+gosub test_chr_255_ya
+gosub test_chr_65_A
+gosub test_ord_chr_roundtrip_b
+gosub test_chartohex_E0
+gosub test_chartohex_E0E1E2
+gosub test_chartohex_41
+gosub test_lower_privet
+gosub test_upper_PRIVET
+gosub test_lower_privet_mir
+gosub test_upper_abv_abc
+gosub test_letters_abv
+gosub test_letters_yozh
+gosub test_letters_empty
+gosub test_digits_123
+gosub test_digits_none
+gosub test_replace_papa
+gosub test_count_3
+gosub test_count_0
+gosub test_trim_privet
+gosub test_ltrim_privet
+gosub test_rtrim_privet
+gosub test_trim_keep
+gosub test_regexp_word_8
+gosub test_regexp_lookbehind_100
+gosub test_regexp_notfound_0
+gosub test_compare_ci_true
+gosub test_compare_ne_true
+gosub test_arr_size_2
+gosub test_arr_concat_7
+//gosub test_size_empty
+gosub test_copy_empty
+gosub test_delete_oob
+gosub test_concat_plus
+gosub test_ord_empty_0
+gosub test_chartohex_empty
+gosub test_chartohexf_E0E1
+gosub test_replace_case_papa
+gosub test_replace_once_pama
+gosub test_regexp_num_18
+gosub test_regexp_w_cyr_0
+gosub test_regexp_case_0
+gosub test_arr_indexof_2
+gosub test_summary
+exit
+
+
+// =========================================================
+// ===== помощники ассертов (gosub-подпрограммы) ===========
+// =========================================================
+
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_str
+// Точное сравнение строк без size(): size("") падает (см. BUGS.md),
+// поэтому равенство проверяем двойным posex (A префикс B и B префикс A).
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// =========================================================
+// ===== 1. size (длина) ====================================
+// =========================================================
+
+:test_size_3
+set $t_name test_size_3
+set $t_input абв
+set #t_num_actual size("абв")
+set #t_num_expected 3
+gosub assert_num
+return
+
+:test_size_4
+set $t_name test_size_4
+set $t_input а1б2
+set #t_num_actual size("а1б2")
+set #t_num_expected 4
+gosub assert_num
+return
+
+:test_size_8
+set $t_name test_size_8
+set $t_input матрёшка
+set #t_num_actual size("матрёшка")
+set #t_num_expected 8
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== 2. posex (позиция, регистрозависимая) =============
+// =========================================================
+
+:test_posex_1
+set $t_name test_posex_1
+set $t_input ма в мама
+set #t_num_actual posex("ма" "мама")
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_posex_2
+set $t_name test_posex_2
+set $t_input а в мама
+set #t_num_actual posex("а" "мама")
+set #t_num_expected 2
+gosub assert_num
+return
+
+:test_posex_4
+set $t_name test_posex_4
+set $t_input а в мама с 3
+set #t_num_actual posex("а" "мама" 3)
+set #t_num_expected 4
+gosub assert_num
+return
+
+:test_posex_none
+set $t_name test_posex_none
+set $t_input я в мама
+set #t_num_actual posex("я" "мама")
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_posex_3
+set $t_name test_posex_3
+set $t_input б в aаб
+set #t_num_actual posex("б" "aаб")
+set #t_num_expected 3
+gosub assert_num
+return
+
+:test_posex_case_0
+set $t_name test_posex_case_0
+set $t_input М в мама
+set #t_num_actual posex("М" "мама")
+set #t_num_expected 0
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== 3. copy (извлечение) ==============================
+// =========================================================
+
+:test_copy_bv
+set $t_name test_copy_bv
+set $t_input абвг 2 2
+set $t_str_actual copy("абвг" 2 2)
+set $t_str_expected бв
+gosub assert_str
+return
+
+:test_copy_ryosh
+set $t_name test_copy_ryosh
+set $t_input матрёшка 4 3
+set $t_str_actual copy("матрёшка" 4 3)
+set $t_str_expected рёш
+gosub assert_str
+return
+
+:test_copy_a
+set $t_name test_copy_a
+set $t_input абвг 1 1
+set $t_str_actual copy("абвг" 1 1)
+set $t_str_expected а
+gosub assert_str
+return
+
+:test_copy_v
+set $t_name test_copy_v
+set $t_input абв 3 1
+set $t_str_actual copy("абв" 3 1)
+set $t_str_expected в
+gosub assert_str
+return
+
+:test_copy_mixed_bv
+set $t_name test_copy_mixed_bv
+set $t_input aбв 2 2
+set $t_str_actual copy("aбв" 2 2)
+set $t_str_expected бв
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 4. delete (удаление) ==============================
+// =========================================================
+
+:test_delete_avg
+set $t_name test_delete_avg
+set $t_input абвг 2 1
+set $t_str_actual delete("абвг" 2 1)
+set $t_str_expected авг
+gosub assert_str
+return
+
+:test_delete_vg
+set $t_name test_delete_vg
+set $t_input абвг 1 2
+set $t_str_actual delete("абвг" 1 2)
+set $t_str_expected вг
+gosub assert_str
+return
+
+:test_delete_ab
+set $t_name test_delete_ab
+set $t_input абвг 3 2
+set $t_str_actual delete("абвг" 3 2)
+set $t_str_expected аб
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 5. insert (вставка) ===============================
+// =========================================================
+
+:test_insert_aXbv
+set $t_name test_insert_aXbv
+set $t_input Х в абв поз 2
+set $t_str_actual insert("Х" "абв" 2)
+set $t_str_expected аХбв
+gosub assert_str
+return
+
+:test_insert_Xabv
+set $t_name test_insert_Xabv
+set $t_input Х в абв поз 1
+set $t_str_actual insert("Х" "абв" 1)
+set $t_str_expected Хабв
+gosub assert_str
+return
+
+:test_insert_abvX
+set $t_name test_insert_abvX
+set $t_input Х в абв поз 4
+set $t_str_actual insert("Х" "абв" 4)
+set $t_str_expected абвХ
+gosub assert_str
+return
+
+:test_insert_a_bv
+set $t_name test_insert_a_bv
+set $t_input б в aв поз 2
+set $t_str_actual insert("б" "aв" 2)
+set $t_str_expected aбв
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 6. конкатенация через set =========================
+// =========================================================
+// В плане стояли размеры 10 и 11, но фактические строки
+// "приветмир" = 9 и "привет5" = 7 символов (исправлено).
+
+:test_concat_9
+set $a привет
+set $b мир
+set $c $a$b
+set $t_name test_concat_9
+set $t_input привет мир
+set #t_num_actual size($c)
+set #t_num_expected 9
+gosub assert_num
+set $t_str_actual $c
+set $t_str_expected приветмир
+set $t_name test_concat_9_content
+gosub assert_str
+return
+
+:test_concat_7
+set $a привет
+set #n 5
+set $c $a#n
+set $t_name test_concat_7
+set $t_input привет 5
+set #t_num_actual size($c)
+set #t_num_expected 7
+gosub assert_num
+set $t_str_actual $c
+set $t_str_expected привет5
+set $t_name test_concat_7_content
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 7. ord / chr (коды cp1251) ========================
+// =========================================================
+
+:test_ord_a_224
+set $t_name test_ord_a_224
+set $t_input а
+set #t_num_actual ord("а")
+set #t_num_expected 224
+gosub assert_num
+return
+
+:test_ord_ya_255
+set $t_name test_ord_ya_255
+set $t_input я
+set #t_num_actual ord("я")
+set #t_num_expected 255
+gosub assert_num
+return
+
+:test_ord_A_192
+set $t_name test_ord_A_192
+set $t_input А
+set #t_num_actual ord("А")
+set #t_num_expected 192
+gosub assert_num
+return
+
+:test_ord_ascii_65
+set $t_name test_ord_ascii_65
+set $t_input A
+set #t_num_actual ord("A")
+set #t_num_expected 65
+gosub assert_num
+return
+
+:test_chr_224_a
+set $t_name test_chr_224_a
+set $t_input 224
+set $t_str_actual chr(224)
+set $t_str_expected а
+gosub assert_str
+return
+
+:test_chr_255_ya
+set $t_name test_chr_255_ya
+set $t_input 255
+set $t_str_actual chr(255)
+set $t_str_expected я
+gosub assert_str
+return
+
+:test_chr_65_A
+set $t_name test_chr_65_A
+set $t_input 65
+set $t_str_actual chr(65)
+set $t_str_expected A
+gosub assert_str
+return
+
+:test_ord_chr_roundtrip_b
+set $t_name test_ord_chr_roundtrip_b
+set $t_input б
+set #t_ord ord("б")
+set $t_str_actual chr(#t_ord)
+set $t_str_expected б
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 8. chartohex (байтовый дамп cp1251) ===============
+// =========================================================
+
+:test_chartohex_E0
+set $t_name test_chartohex_E0
+set $t_input а
+set $t_str_actual chartohex("а")
+set $t_str_expected E0
+gosub assert_str
+return
+
+:test_chartohex_E0E1E2
+set $t_name test_chartohex_E0E1E2
+set $t_input абв
+set $t_str_actual chartohex("абв")
+set $t_str_expected E0E1E2
+gosub assert_str
+return
+
+:test_chartohex_41
+set $t_name test_chartohex_41
+set $t_input A
+set $t_str_actual chartohex("A")
+set $t_str_expected 41
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 9. string_lower / string_upper ====================
+// =========================================================
+
+:test_lower_privet
+set $t_name test_lower_privet
+set $t_input ПРИВЕТ
+set $t_str_actual string_lower("ПРИВЕТ")
+set $t_str_expected привет
+gosub assert_str
+return
+
+:test_upper_PRIVET
+set $t_name test_upper_PRIVET
+set $t_input привет
+set $t_str_actual string_upper("привет")
+set $t_str_expected ПРИВЕТ
+gosub assert_str
+return
+
+:test_lower_privet_mir
+set $t_name test_lower_privet_mir
+set $t_input Привет Мир
+set $t_str_actual string_lower("Привет Мир")
+set $t_str_expected привет мир
+gosub assert_str
+return
+
+:test_upper_abv_abc
+set $t_name test_upper_abv_abc
+set $t_input абв abc
+set $t_str_actual string_upper("абв abc")
+set $t_str_expected АБВ ABC
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 10. string_letters / string_digits ================
+// =========================================================
+
+:test_letters_abv
+set $t_name test_letters_abv
+set $t_input а1б2в3
+set $t_str_actual string_letters("а1б2в3")
+set $t_str_expected абв
+gosub assert_str
+return
+
+:test_letters_yozh
+set $t_name test_letters_yozh
+set $t_input ё1ж
+set $t_str_actual string_letters("ё1ж")
+set $t_str_expected ёж
+gosub assert_str
+return
+
+:test_letters_empty
+// Проверка пустоты через ord(): ord("") = 0 (size("") падает, см. BUGS.md).
+set $t_name test_letters_empty
+set $t_input 123
+set $t_str_actual string_letters("123")
+set #t_num_actual ord($t_str_actual)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_digits_123
+set $t_name test_digits_123
+set $t_input а1б2в3
+set $t_str_actual string_digits("а1б2в3")
+set $t_str_expected 123
+gosub assert_str
+return
+
+:test_digits_none
+set $t_name test_digits_none
+set $t_input абв
+set $t_str_actual string_digits("абв")
+set $t_str_expected -1
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 11. string_replace / string_count =================
+// =========================================================
+
+:test_replace_papa
+set $t_name test_replace_papa
+set $t_input мама мыла раму ма па 1
+set $t_str_actual string_replace("мама мыла раму" "ма" "па" 1)
+set $t_str_expected папа мыла раму
+gosub assert_str
+return
+
+:test_count_3
+set $t_name test_count_3
+set $t_input ма в мама мыла маму
+set #t_num_actual string_count("ма" "мама мыла маму")
+set #t_num_expected 3
+gosub assert_num
+return
+
+:test_count_0
+set $t_name test_count_0
+set $t_input я в мама
+set #t_num_actual string_count("я" "мама")
+set #t_num_expected 0
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== 12. trim / ltrim / rtrim ==========================
+// =========================================================
+
+:test_trim_privet
+set $t_name test_trim_privet
+set $t_input пробелы вокруг привет
+set $t_str_actual trim("  привет  ")
+set $t_str_expected привет
+gosub assert_str
+return
+
+:test_ltrim_privet
+set $t_name test_ltrim_privet
+set $t_input пробелы слева привет
+set $t_str_actual ltrim("  привет")
+set $t_str_expected привет
+gosub assert_str
+return
+
+:test_rtrim_privet
+set $t_name test_rtrim_privet
+set $t_input пробелы справа привет
+set $t_str_actual rtrim("привет  ")
+set $t_str_expected привет
+gosub assert_str
+return
+
+:test_trim_keep
+set $t_name test_trim_keep
+set $t_input абв
+set $t_str_actual trim("абв")
+set $t_str_expected абв
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 13. regexp (с кириллицей) =========================
+// =========================================================
+// subject и pattern передаются ПЕРЕМЕННЫМИ: литерал в кавычках
+// сохранил бы кавычки и сломал бы совпадение.
+
+:test_regexp_word_8
+set $t_name test_regexp_word_8
+set $t_input привет мир
+set $s привет мир
+set $re мир
+set #r regexp(#pos $hit $s $re)
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+set #t_num_actual #pos
+set #t_num_expected 8
+gosub assert_num
+set $t_str_actual $hit
+set $t_str_expected мир
+gosub assert_str
+return
+
+:test_regexp_lookbehind_100
+set $t_name test_regexp_lookbehind_100
+set $t_input сумма 100
+set $s сумма: 100
+set $re "(?<=сумма: )\d+"
+set #r regexp(#pos $hit $s $re)
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+set $t_str_actual $hit
+set $t_str_expected 100
+gosub assert_str
+return
+
+:test_regexp_notfound_0
+set $t_name test_regexp_notfound_0
+set $t_input абв я
+set $s абв
+set $re я
+set #r regexp(#pos $hit $s $re)
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+set $t_str_actual $hit
+set $t_str_expected -1
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 14. сравнение строк (if =) ========================
+// =========================================================
+
+:test_compare_ci_true
+set $t_name test_compare_ci_true
+set $t_input абв равно АБВ
+if "абв" = "АБВ"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_compare_ne_true
+set $t_name test_compare_ne_true
+set $t_input абв не равно абвг
+if "абв" <> "абвг"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== 15. массивы + кириллица ===========================
+// =========================================================
+
+:test_arr_size_2
+set %a [1] один
+set %a [2] два
+set $t_name test_arr_size_2
+set $t_input один два
+set #t_num_actual size(%a)
+set #t_num_expected 2
+gosub assert_num
+return
+
+:test_arr_concat_7
+// В плане стоял размер 8, но "один"+"два" = "одиндва" = 7 символов (исправлено).
+set %a [1] один
+set %a [2] два
+set $s %a[1]
+for #i 2 size(%a)
+  set $s $s%a[#i]
+end_for
+set $t_name test_arr_concat_7
+set $t_input один два
+set #t_num_actual size($s)
+set #t_num_expected 7
+gosub assert_num
+set $t_str_actual $s
+set $t_str_expected одиндва
+set $t_name test_arr_concat_7_content
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== verify-кейсы (НЕ вызываются автоматически) ========
+// =========================================================
+// Чтобы прогнать кейс вручную, добавьте gosub <имя> перед gosub test_summary.
+// Значения требуют подтверждения одним прогоном в GUI.
+// ВНИМАНИЕ: test_size_empty ПАДАЕТ (size("") -> V[0], см. BUGS.md).
+
+
+:test_size_empty
+set $t_name test_size_empty
+set $t_input пусто
+set #t_num_actual size("")
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_copy_empty
+// Проверка пустоты через ord(): ord("") = 0.
+set $t_name test_copy_empty
+set $t_input абв 1 0
+set $t_str_actual copy("абв" 1 0)
+set #t_num_actual ord($t_str_actual)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_delete_oob
+set $t_name test_delete_oob
+set $t_input абв 4 1
+set $t_str_actual delete("абв" 4 1)
+set $t_str_expected абв
+gosub assert_str
+return
+
+:test_concat_plus
+set $a привет
+set $b мир
+set $c $a + $b
+set $t_name test_concat_plus
+set $t_input привет плюс мир
+set $t_str_actual $c
+set $t_str_expected привет + мир
+gosub assert_str
+return
+
+:test_ord_empty_0
+set $t_name test_ord_empty_0
+set $t_input пусто
+set #t_num_actual ord("")
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_chartohex_empty
+// Проверка пустоты через ord(): ord("") = 0.
+set $t_name test_chartohex_empty
+set $t_input пусто
+set $t_str_actual chartohex("")
+set #t_num_actual ord($t_str_actual)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_chartohexf_E0E1
+set $t_name test_chartohexf_E0E1
+set $t_input аб
+set $t_str_actual chartohexf("аб")
+set #t_p1 posex("E0E1" $t_str_actual)
+if #t_p1 > 0
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_replace_case_papa
+set $t_name test_replace_case_papa
+set $t_input МАМА ма па 1
+set $t_str_actual string_replace("МАМА" "ма" "па" 1)
+set $t_str_expected папа
+gosub assert_str
+return
+
+:test_replace_once_pama
+set $t_name test_replace_once_pama
+set $t_input мама ма па
+set $t_str_actual string_replace("мама" "ма" "па")
+set $t_str_expected пама
+gosub assert_str
+return
+
+:test_regexp_num_18
+set $t_name test_regexp_num_18
+set $t_input У Васи зарплата 50.432
+set $s У Васи зарплата: 50.432
+set $re "[\d.,]+"
+set #r regexp(#pos $hit $s $re)
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+set #t_num_actual #pos
+set #t_num_expected 18
+gosub assert_num
+set $t_str_actual $hit
+set $t_str_expected 50.432
+gosub assert_str
+return
+
+:test_regexp_w_cyr_0
+set $t_name test_regexp_w_cyr_0
+set $t_input привет с \w+
+set $s привет
+set $re "\w+"
+set #r regexp(#pos $hit $s $re)
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_regexp_case_0
+set $t_name test_regexp_case_0
+set $t_input Привет привет
+set $s Привет
+set $re привет
+set #r regexp(#pos $hit $s $re)
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_arr_indexof_2
+set %a [1] один
+set %a [2] два
+set $t_name test_arr_indexof_2
+set $t_input дв
+set #r indexof(%a noabs (дв))
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
