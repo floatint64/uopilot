@@ -1,0 +1,556 @@
+// Интеграционные тесты команд отправки текста: send / send217 / say / sendex
+// и их вариантов *_up / *_down.
+// Кодировка файла: UTF-8.
+// Каркас на gosub/return: у call/proc изолированная область видимости переменных,
+// поэтому подпрограммы-ассерты и счётчики живут в одном потоке через gosub.
+// Подопытное окно -- классический notepad (C:\Windows\System32\notepad.exe).
+// Рабочее окно ставим на Edit-контрол: workwindow (#ed).
+//
+// Семантика команд:
+//   send / send217 -- посимвольный WM_KEYDOWN + WM_CHAR(байт cp1251) + WM_KEYUP
+//                    в ClientWnd2, детерминированы (не зависят от раскладки).
+//   say            -- посимвольный WM_CHAR(байт) + Enter ($D) в ClientWnd2.
+//   sendex         -- keybd_event в окно с ФОКУСОМ; зависит от раскладки,
+//                    поэтому перед кейсом форсируем раскладку через setlayout.
+//   *_up / *_down  -- нажатие/отпускание одной клавиши (worker-поток).
+//
+// Раскладка: setlayout (NNNN) шлёт WM_INPUTLANGCHANGEREQUEST в #ed (notepad
+// переключает язык ввода); русская = 0419, US = 0409. getlayout возвращает
+// текущую раскладку 8 hex-цифр. Текущую раскладку сохраняем в начале и
+// восстанавливаем в конце.
+// Если русской раскладки в системе нет (setlayout вернул 0), кириллические
+// sendex-кейсы логируют SKIP и не падают.
+
+log clear
+log mode noTime
+
+// ===== счётчики =====
+set #pass 0
+set #fail 0
+
+// ===== сетап: запуск notepad и поиск по классу =====
+// На медленных машинах классический notepad через WOW64-заглушку создаёт
+// окно с классом "Notepad" не мгновенно, поэтому ждём с повторными попытками.
+exec C:\Windows\System32\notepad.exe
+wait 2000
+set #h findwindow (Notepad)
+if #h = 0
+  wait 1000
+  set #h findwindow (Notepad)
+end_if
+if #h = 0
+  wait 1500
+  set #h findwindow (Notepad)
+end_if
+gosub test_setup_found
+
+set #ed getwindow (#h child)
+gosub test_sel_editfound
+
+showwindow #h
+wait 400
+set workwindow #ed
+set $t_layout getlayout
+
+// ===== send: полная матрица (детерминировано) =====
+gosub test_send_cyr_lower
+gosub test_send_cyr_upper
+gosub test_send_lat_lower
+gosub test_send_lat_upper
+gosub test_send_mixed_lower
+gosub test_send_mixed_upper
+gosub test_send_mixed_case
+gosub test_send_yo
+gosub test_send_with_digits
+gosub test_send_with_space
+
+// ===== send217: полная матрица (детерминировано) =====
+gosub test_send217_cyr_lower
+gosub test_send217_cyr_upper
+gosub test_send217_lat_lower
+gosub test_send217_lat_upper
+gosub test_send217_mixed_lower
+gosub test_send217_mixed_upper
+gosub test_send217_mixed_case
+gosub test_send217_yo
+gosub test_send217_with_digits
+gosub test_send217_with_space
+
+// ===== say: подмножество + проверка хвостового Enter =====
+gosub test_say_cyr_lower
+gosub test_say_cyr_upper
+gosub test_say_mixed_lower
+gosub test_say_mixed_upper
+gosub test_say_mixed_case
+gosub test_say_yo
+
+// ===== sendex: только «чистые» по раскладке строки =====
+// sendex печатает через keybd_event в окно с фокусом, символ зависит от
+// раскладки ЦЕЛЕВОГО окна. Смешанные кириллица+латиница строки (mixed_*,
+// with_digits) в одной раскладке набрать корректно нельзя, поэтому для
+// sendex они не проверяются (см. README).
+gosub test_sendex_lat_lower
+gosub test_sendex_lat_upper
+gosub test_sendex_cyr_lower
+gosub test_sendex_cyr_upper
+gosub test_sendex_yo
+gosub test_sendex_with_space
+
+// ===== *_up / *_down: smoke (одна клавиша) =====
+gosub test_send217_updown
+gosub test_sendex_updown
+gosub test_send_updown
+
+// ===== очистка: закрыть notepad, восстановить раскладку =====
+set #r setlayout ($t_layout)
+set #r setwindowtext (#h UoPilotSendTestDone)
+terminate UoPilotSendTestDone
+
+gosub test_summary
+exit
+
+
+// =========================================================
+// ===== помощники ассертов (gosub-подпрограммы) ===========
+// =========================================================
+
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_str
+// Точное сравнение строк без size(): size("") падает (см. BUGS.md),
+// поэтому равенство проверяем двойным posex (A префикс B и B префикс A).
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_prefix
+// Текст является префиксом фактического содержимого (для say из-за Enter
+// точное сравнение не годится).
+set #t_p1 posex($t_str_expected $t_str_actual)
+if #t_p1 = 1
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// =========================================================
+// ===== помощники команд (gosub-подпрограммы) =============
+// =========================================================
+
+:clear_edit
+// setwindowtext не очищает Edit-контрол notepad, поэтому выделяем всё
+// (EM_SETSEL=177) и удаляем выделение (WM_CLEAR=771) через sendmessage --
+// это детерминировано и не зависит от фокуса.
+set #r sendmessage (#ed 177 0 -1)
+set #r sendmessage (#ed 771 0 0)
+wait 150
+return
+
+
+:verify_gwt
+set $t getwindowtext (#ed)
+set $t_str_actual $t
+set $t_str_expected $t_input
+gosub assert_str
+return
+
+
+:verify_say
+// say шлёт текст + Enter: проверяем префикс и наличие хвостового перевода
+// строки (фактическая длина больше ожидаемой минимум на 1 символ).
+set $t getwindowtext (#ed)
+set $t_str_actual $t
+set $t_str_expected $t_input
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_num_actual size($t_str_actual)
+set #t_num_expected size($t_str_expected)
+if (#t_p1 = 1) and (#t_num_actual > #t_num_expected)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:case_send
+gosub clear_edit
+send $t_input
+wait 250
+gosub verify_gwt
+return
+
+
+:case_send217
+gosub clear_edit
+send217 $t_input
+wait 250
+gosub verify_gwt
+return
+
+
+:case_say
+gosub clear_edit
+say $t_input
+wait 250
+gosub verify_say
+return
+
+
+:case_sendex_us
+set #r setlayout (0409)
+wait 150
+gosub clear_edit
+sendex $t_input
+wait 300
+gosub verify_gwt
+return
+
+
+:case_sendex_ru
+set #ru_ok 0
+set #r setlayout (0419)
+if #r = 1
+  set #ru_ok 1
+end_if
+wait 150
+if #ru_ok = 0
+  log SKIP $t_name (нет русской раскладки 00000419)
+  return
+end_if
+gosub clear_edit
+sendex $t_input
+wait 300
+gosub verify_gwt
+return
+
+
+// =========================================================
+// ===== сетап-кейсы =======================================
+// =========================================================
+
+:test_setup_found
+set $t_name test_setup_found
+set $t_input Notepad
+if #h > 0
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_sel_editfound
+set $t_name test_sel_editfound
+set $t_input child
+if #ed > 0
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== A. send ===========================================
+// =========================================================
+
+:test_send_cyr_lower
+set $t_name test_send_cyr_lower
+set $t_input абвгдежзийклмнопрстуфхцчшщъыьэюя
+gosub case_send
+return
+
+:test_send_cyr_upper
+set $t_name test_send_cyr_upper
+set $t_input АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+gosub case_send
+return
+
+:test_send_lat_lower
+set $t_name test_send_lat_lower
+set $t_input abcdefghijklmnopqrstuvwxyz
+gosub case_send
+return
+
+:test_send_lat_upper
+set $t_name test_send_lat_upper
+set $t_input ABCDEFGHIJKLMNOPQRSTUVWXYZ
+gosub case_send
+return
+
+:test_send_mixed_lower
+set $t_name test_send_mixed_lower
+set $t_input приветworld
+gosub case_send
+return
+
+:test_send_mixed_upper
+set $t_name test_send_mixed_upper
+set $t_input ПРИВЕТWORLD
+gosub case_send
+return
+
+:test_send_mixed_case
+set $t_name test_send_mixed_case
+set $t_input ПрИвЕтWoRlD
+gosub case_send
+return
+
+:test_send_yo
+set $t_name test_send_yo
+set $t_input ёжЁЖ
+gosub case_send
+return
+
+:test_send_with_digits
+set $t_name test_send_with_digits
+set $t_input Тест123_Абв-XYZ
+gosub case_send
+return
+
+:test_send_with_space
+set $t_name test_send_with_space
+set $t_input Привет Мир
+gosub case_send
+return
+
+
+// =========================================================
+// ===== B. send217 ========================================
+// =========================================================
+
+:test_send217_cyr_lower
+set $t_name test_send217_cyr_lower
+set $t_input абвгдежзийклмнопрстуфхцчшщъыьэюя
+gosub case_send217
+return
+
+:test_send217_cyr_upper
+set $t_name test_send217_cyr_upper
+set $t_input АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+gosub case_send217
+return
+
+:test_send217_lat_lower
+set $t_name test_send217_lat_lower
+set $t_input abcdefghijklmnopqrstuvwxyz
+gosub case_send217
+return
+
+:test_send217_lat_upper
+set $t_name test_send217_lat_upper
+set $t_input ABCDEFGHIJKLMNOPQRSTUVWXYZ
+gosub case_send217
+return
+
+:test_send217_mixed_lower
+set $t_name test_send217_mixed_lower
+set $t_input приветworld
+gosub case_send217
+return
+
+:test_send217_mixed_upper
+set $t_name test_send217_mixed_upper
+set $t_input ПРИВЕТWORLD
+gosub case_send217
+return
+
+:test_send217_mixed_case
+set $t_name test_send217_mixed_case
+set $t_input ПрИвЕтWoRlD
+gosub case_send217
+return
+
+:test_send217_yo
+set $t_name test_send217_yo
+set $t_input ёжЁЖ
+gosub case_send217
+return
+
+:test_send217_with_digits
+set $t_name test_send217_with_digits
+set $t_input Тест123_Абв-XYZ
+gosub case_send217
+return
+
+:test_send217_with_space
+set $t_name test_send217_with_space
+set $t_input Привет Мир
+gosub case_send217
+return
+
+
+// =========================================================
+// ===== C. say ============================================
+// =========================================================
+
+:test_say_cyr_lower
+set $t_name test_say_cyr_lower
+set $t_input абвгдежзийклмнопрстуфхцчшщъыьэюя
+gosub case_say
+return
+
+:test_say_cyr_upper
+set $t_name test_say_cyr_upper
+set $t_input АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+gosub case_say
+return
+
+:test_say_mixed_lower
+set $t_name test_say_mixed_lower
+set $t_input приветworld
+gosub case_say
+return
+
+:test_say_mixed_upper
+set $t_name test_say_mixed_upper
+set $t_input ПРИВЕТWORLD
+gosub case_say
+return
+
+:test_say_mixed_case
+set $t_name test_say_mixed_case
+set $t_input ПрИвЕтWoRlD
+gosub case_say
+return
+
+:test_say_yo
+set $t_name test_say_yo
+set $t_input ёжЁЖ
+gosub case_say
+return
+
+
+// =========================================================
+// ===== D. sendex =========================================
+// =========================================================
+
+:test_sendex_lat_lower
+set $t_name test_sendex_lat_lower
+set $t_input abcdefghijklmnopqrstuvwxyz
+gosub case_sendex_us
+return
+
+:test_sendex_lat_upper
+set $t_name test_sendex_lat_upper
+set $t_input ABCDEFGHIJKLMNOPQRSTUVWXYZ
+gosub case_sendex_us
+return
+
+:test_sendex_cyr_lower
+set $t_name test_sendex_cyr_lower
+set $t_input абвгдежзийклмнопрстуфхцчшщъыьэюя
+gosub case_sendex_ru
+return
+
+:test_sendex_cyr_upper
+set $t_name test_sendex_cyr_upper
+set $t_input АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+gosub case_sendex_ru
+return
+
+:test_sendex_yo
+set $t_name test_sendex_yo
+set $t_input ёжЁЖ
+gosub case_sendex_ru
+return
+
+:test_sendex_with_space
+set $t_name test_sendex_with_space
+set $t_input Привет Мир
+gosub case_sendex_ru
+return
+
+
+// =========================================================
+// ===== E. *_up / *_down (smoke) ==========================
+// =========================================================
+
+:test_send217_updown
+// send217_down {a} печатает 'A' (имя клавиши резолвится в VK_A, WM_CHAR
+// несёт 'A') и удерживает с автоповтором, поэтому down+up даёт несколько
+// 'A' -- smoke: проверяем префикс 'A' и что клавиша не «залипла» (скрипт
+// дошёл до конца, а не завис).
+set $t_name test_send217_updown
+set $t_input a
+gosub clear_edit
+send217_down {a}
+wait 200
+send217_up {a}
+wait 300
+set $t getwindowtext (#ed)
+set $t_str_actual $t
+set $t_str_expected A
+gosub assert_prefix
+return
+
+:test_sendex_updown
+// sendex_down/up шлёт keybd_event в окно с фокусом: нужна US-раскладка,
+// чтобы клавиша 'a' дала именно 'a', а не кириллицу.
+set $t_name test_sendex_updown
+set $t_input a
+set #r setlayout (0409)
+wait 150
+gosub clear_edit
+sendex_down {a}
+wait 200
+sendex_up {a}
+wait 300
+set $t getwindowtext (#ed)
+set $t_str_actual $t
+set $t_str_expected a
+gosub assert_prefix
+return
+
+:test_send_updown
+// send_down/up -- удержание клавиши. На RichEdit notepad WM_KEYDOWN {a}
+// сам порождает символ 'a'. Smoke: проверяем префикс 'a' и что клавиша не
+// «залипла» (скрипт дошёл до конца, а не завис).
+set $t_name test_send_updown
+set $t_input a
+gosub clear_edit
+send_down {a}
+wait 200
+send_up {a}
+wait 300
+set $t getwindowtext (#ed)
+set $t_str_actual $t
+set $t_str_expected a
+gosub assert_prefix
+return
