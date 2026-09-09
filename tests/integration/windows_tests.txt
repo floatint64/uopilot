@@ -1,0 +1,332 @@
+// Интеграционные тесты команд работы с окнами:
+// findwindow / getwindowtext / setwindowtext / getselectedtext / setselectedtext
+// Кодировка файла: UTF-8.
+// Каркас на gosub/return: у call/proc изолированная область видимости переменных,
+// поэтому подпрограммы-ассерты и счётчики живут в одном потоке через gosub.
+// Подопытное окно -- классический notepad (C:\Windows\System32\notepad.exe).
+// Порядок важен: B1 ставит уникальный заголовок ДО findwindow-кейсов (A2-A5),
+// а B6 (стирание заголовка) выполняется ПОСЛЕ всех A-кейсов.
+// C-кейсы (selected) зависят от фокуса; допускается флаки (см. README).
+// Выделение всего текста делаем через {home} + ~{end} (Shift+End), а НЕ через
+// Ctrl+A: глобальный хоткей UoPilot "Set work window" (Ctrl+A) перехватывает
+// Ctrl+A и не даёт notepad выделить текст. Возможно поможет опция "прозрачные" хоткеи.
+
+log clear
+log mode noTime
+
+// ===== счётчики =====
+set #pass 0
+set #fail 0
+
+// ===== сетап: запуск notepad и поиск по классу =====
+// На медленных машинах классический notepad через WOW64-заглушку создаёт
+// окно с классом "Notepad" не мгновенно, поэтому ждём с повторными попытками.
+exec C:\Windows\System32\notepad.exe
+wait 2000
+set #h findwindow (Notepad)
+if #h = 0
+  wait 1000
+  set #h findwindow (Notepad)
+end_if
+if #h = 0
+  wait 1500
+  set #h findwindow (Notepad)
+end_if
+gosub test_setup_found
+
+// ===== B1: уникальный заголовок ДО findwindow-кейсов =====
+gosub test_swt_ok
+
+// ===== A: findwindow =====
+gosub test_fw_exact_cyr
+gosub test_fw_prefix_cyr
+gosub test_fw_substr_lat
+gosub test_fw_casefold
+gosub test_fw_notfound
+gosub test_fw_empty
+
+// ===== B: getwindowtext / setwindowtext =====
+gosub test_gwt_roundtrip
+gosub test_gwt_invalid
+gosub test_swt_invalid
+gosub test_swt_null
+gosub test_swt_empty
+
+// ===== C: сетап selected-кейсов (фокус на Edit) =====
+set #r setwindowtext (#h UoPilotSelTest)
+showwindow #h
+wait 400
+set #ed getwindow (#h child)
+gosub test_sel_editfound
+
+gosub test_set_sel_write
+gosub test_sel_write_cross
+gosub test_get_sel_empty
+gosub test_get_sel_full
+gosub test_set_sel_replace
+gosub test_get_sel_replaced
+
+// ===== D: очистка =====
+set #r setwindowtext (#h UoPilotWndTestDone)
+terminate UoPilotWndTestDone
+
+gosub test_summary
+exit
+
+
+// =========================================================
+// ===== помощники ассертов (gosub-подпрограммы) ===========
+// =========================================================
+
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_str
+// Точное сравнение строк без size(): size("") падает (см. BUGS.md),
+// поэтому равенство проверяем двойным posex (A префикс B и B префикс A).
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// =========================================================
+// ===== A. findwindow =====================================
+// =========================================================
+
+:test_setup_found
+set $t_name test_setup_found
+set $t_input Notepad
+if #h > 0
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_fw_exact_cyr
+set $t_name test_fw_exact_cyr
+set $t_input UoPilotWndTest_абвгд_XYZ123
+set #h2 findwindow (UoPilotWndTest_абвгд_XYZ123)
+set #t_num_actual #h2
+set #t_num_expected #h
+gosub assert_num
+return
+
+:test_fw_prefix_cyr
+set $t_name test_fw_prefix_cyr
+set $t_input UoPilotWndTest_абвгд
+set #h2 findwindow (UoPilotWndTest_абвгд)
+set #t_num_actual #h2
+set #t_num_expected #h
+gosub assert_num
+return
+
+:test_fw_substr_lat
+set $t_name test_fw_substr_lat
+set $t_input XYZ123
+set #h2 findwindow (XYZ123)
+set #t_num_actual #h2
+set #t_num_expected #h
+gosub assert_num
+return
+
+:test_fw_casefold
+set $t_name test_fw_casefold
+set $t_input uopilotwndtest_абвгд_xyz123
+set #h2 findwindow (uopilotwndtest_абвгд_xyz123)
+set #t_num_actual #h2
+set #t_num_expected #h
+gosub assert_num
+return
+
+:test_fw_notfound
+set $t_name test_fw_notfound
+set $t_input НеСуществует_zzz_987654321
+set #h2 findwindow (НеСуществует_zzz_987654321)
+set #t_num_actual #h2
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_fw_empty
+set $t_name test_fw_empty
+set $t_input пусто
+set #h2 findwindow ()
+if #h2 > 0
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== B. getwindowtext / setwindowtext ==================
+// =========================================================
+
+:test_swt_ok
+set $t_name test_swt_ok
+set $t_input UoPilotWndTest_абвгд_XYZ123
+set #r setwindowtext (#h UoPilotWndTest_абвгд_XYZ123)
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_gwt_roundtrip
+set $t_name test_gwt_roundtrip
+set $t_input #h
+set $t getwindowtext (#h)
+set $t_str_actual $t
+set $t_str_expected UoPilotWndTest_абвгд_XYZ123
+gosub assert_str
+return
+
+:test_gwt_invalid
+set $t_name test_gwt_invalid
+set $t_input 999999999
+set $t getwindowtext (999999999)
+set #t_num_actual ord($t)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_swt_invalid
+set $t_name test_swt_invalid
+set $t_input 999999999
+set #r setwindowtext (999999999 x)
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_swt_null
+set $t_name test_swt_null
+set $t_input 0
+set #r setwindowtext (0 x)
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_swt_empty
+set $t_name test_swt_empty
+set $t_input пусто
+set #r setwindowtext (#h "")
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+set $t getwindowtext (#h)
+set #t_num_actual ord($t)
+set #t_num_expected 0
+set $t_name test_swt_empty_clear
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== C. getselectedtext / setselectedtext ==============
+// =========================================================
+
+:test_sel_editfound
+set $t_name test_sel_editfound
+set $t_input child
+if #ed > 0
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_set_sel_write
+set $t_name test_set_sel_write
+set $t_input ПриветМир_абвXYZ123
+set #r setselectedtext (ПриветМир_абвXYZ123)
+set #t_num_actual #r
+set #t_num_expected #ed
+gosub assert_num
+return
+
+:test_sel_write_cross
+set $t_name test_sel_write_cross
+set $t_input #ed
+set $t getwindowtext (#ed)
+set $t_str_actual $t
+set $t_str_expected ПриветМир_абвXYZ123
+gosub assert_str
+return
+
+:test_get_sel_empty
+set $t_name test_get_sel_empty
+set $t_input нет выделения
+set $t getselectedtext
+set #t_num_actual ord($t)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_get_sel_full
+set $t_name test_get_sel_full
+set $t_input Home Shift+End
+sendex {home}
+wait 100
+sendex ~{end}
+wait 200
+set $t getselectedtext
+set $t_str_actual $t
+set $t_str_expected ПриветМир_абвXYZ123
+gosub assert_str
+return
+
+:test_set_sel_replace
+set $t_name test_set_sel_replace
+set $t_input Замена_Ёлка45
+set #r setselectedtext (Замена_Ёлка45)
+set #t_num_actual #r
+set #t_num_expected #ed
+gosub assert_num
+return
+
+:test_get_sel_replaced
+set $t_name test_get_sel_replaced
+set $t_input Home Shift+End
+sendex {home}
+wait 100
+sendex ~{end}
+wait 200
+set $t getselectedtext
+set $t_str_actual $t
+set $t_str_expected Замена_Ёлка45
+gosub assert_str
+return
