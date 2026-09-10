@@ -67,6 +67,53 @@ gosub test_regexp_lookbehind_100
 gosub test_regexp_notfound_0
 gosub test_compare_ci_true
 gosub test_compare_ne_true
+gosub test_cmp_eq_same_true
+gosub test_cmp_eq_ne_false
+gosub test_cmp_eqeq_same_true
+gosub test_cmp_eqeq_case_true
+gosub test_cmp_eqeq_ne_false
+gosub test_cmp_eq_numeric_true
+gosub test_cmp_eq_quoted_numeric_true
+gosub test_cmp_eq_empty_true
+gosub test_cmp_eq_empty_ne_false
+gosub test_cmp_ne_same_false
+gosub test_cmp_ne_case_false
+gosub test_cmp_ne_numeric_false
+gosub test_cmp_ne_quoted_numeric_false
+gosub test_cmp_ne_empty_true
+gosub test_cmp_lt_lex_true
+gosub test_cmp_lt_lex_false
+gosub test_cmp_lt_equal_false
+gosub test_cmp_lt_case_true
+gosub test_cmp_lt_numeric_false
+gosub test_cmp_lt_quoted_numeric_false
+gosub test_cmp_gt_lex_true
+gosub test_cmp_gt_lex_false
+gosub test_cmp_gt_equal_false
+gosub test_cmp_gt_case_true
+gosub test_cmp_gt_numeric_true
+gosub test_cmp_gt_quoted_numeric_true
+gosub test_cmp_le_contains_true
+gosub test_cmp_le_contains_false
+gosub test_cmp_le_case_true
+gosub test_cmp_le_word_true
+gosub test_cmp_le_numeric_true
+gosub test_cmp_le_numeric_false
+gosub test_cmp_le_quoted_numeric_false
+gosub test_cmp_ge_contains_true
+gosub test_cmp_ge_contains_false
+gosub test_cmp_ge_case_true
+gosub test_cmp_ge_numeric_true
+gosub test_cmp_ge_numeric_false
+gosub test_cmp_ge_quoted_numeric_false
+gosub test_cmp_larrow_contains_true
+gosub test_cmp_larrow_contains_false
+gosub test_cmp_larrow_case_true
+gosub test_cmp_larrow_no_numeric_false
+gosub test_cmp_rarrow_contains_true
+gosub test_cmp_rarrow_contains_false
+gosub test_cmp_rarrow_case_true
+gosub test_cmp_rarrow_no_numeric_true
 gosub test_arr_size_2
 gosub test_arr_concat_7
 //gosub test_size_empty
@@ -677,6 +724,583 @@ return
 set $t_name test_compare_ne_true
 set $t_input абв не равно абвг
 if "абв" <> "абвг"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+
+// =========================================================
+// ===== 14a. операторы сравнения строк ====================
+// =========================================================
+// Семантика из CheckCompare (uScanThread.pas):
+//   = == <> < > : регистронезависимо; числовая ветка если оба операнда Int64.
+//   <= >=       : вхождение подстроки (<=: правый в левом; >=: левый в правом).
+//   <- ->       : вхождение подстроки без числовой ветки.
+// ВАЖНО: EvalScriptExpr СНИМАЕТ обрамляющие кавычки строкового литерала
+// (uScanThread.pas:13411-13421), поэтому "5" и 5 неразличимы для сравнения:
+// "5" = "05" идёт по числовой ветке (true), "10" <= "0" -- числовое 10<=0
+// (false), а НЕ вхождение "0" в "10".
+
+:test_cmp_eq_same_true
+set $t_name test_cmp_eq_same_true
+set $t_input абв равно абв
+if "абв" = "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_eq_ne_false
+set $t_name test_cmp_eq_ne_false
+set $t_input абв равно абвг
+if "абв" = "абвг"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_eqeq_same_true
+set $t_name test_cmp_eqeq_same_true
+set $t_input абв равно абв два знака
+if "абв" == "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_eqeq_case_true
+set $t_name test_cmp_eqeq_case_true
+set $t_input абв равно АБВ два знака
+if "абв" == "АБВ"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_eqeq_ne_false
+set $t_name test_cmp_eqeq_ne_false
+set $t_input абв равно абвг два знака
+if "абв" == "абвг"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_eq_numeric_true
+set $t_name test_cmp_eq_numeric_true
+set $t_input число 5 равно 05
+if 5 = 05
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_eq_quoted_numeric_true
+set $t_name test_cmp_eq_quoted_numeric_true
+set $t_input кавычки сняты 5 равно 05
+if "5" = "05"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_eq_empty_true
+set $t_name test_cmp_eq_empty_true
+set $t_input пусто равно пусто
+if "" = ""
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_eq_empty_ne_false
+set $t_name test_cmp_eq_empty_ne_false
+set $t_input пусто равно а
+if "" = "а"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ne_same_false
+set $t_name test_cmp_ne_same_false
+set $t_input абв не равно абв
+if "абв" <> "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ne_case_false
+set $t_name test_cmp_ne_case_false
+set $t_input абв не равно АБВ
+if "абв" <> "АБВ"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ne_numeric_false
+set $t_name test_cmp_ne_numeric_false
+set $t_input число 5 не равно 05
+if 5 <> 05
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ne_quoted_numeric_false
+set $t_name test_cmp_ne_quoted_numeric_false
+set $t_input кавычки сняты 5 не равно 05
+if "5" <> "05"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ne_empty_true
+set $t_name test_cmp_ne_empty_true
+set $t_input пусто не равно а
+if "" <> "а"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_lt_lex_true
+set $t_name test_cmp_lt_lex_true
+set $t_input абв меньше абг
+if "абв" < "абг"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_lt_lex_false
+set $t_name test_cmp_lt_lex_false
+set $t_input абг меньше абв
+if "абг" < "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_lt_equal_false
+set $t_name test_cmp_lt_equal_false
+set $t_input абв меньше абв
+if "абв" < "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_lt_case_true
+set $t_name test_cmp_lt_case_true
+set $t_input б меньше В
+if "б" < "В"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_lt_numeric_false
+set $t_name test_cmp_lt_numeric_false
+set $t_input число 10 меньше 9
+if 10 < 9
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_lt_quoted_numeric_false
+set $t_name test_cmp_lt_quoted_numeric_false
+set $t_input кавычки сняты 10 меньше 9
+if "10" < "9"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_gt_lex_true
+set $t_name test_cmp_gt_lex_true
+set $t_input абг больше абв
+if "абг" > "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_gt_lex_false
+set $t_name test_cmp_gt_lex_false
+set $t_input абв больше абг
+if "абв" > "абг"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_gt_equal_false
+set $t_name test_cmp_gt_equal_false
+set $t_input абв больше абв
+if "абв" > "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_gt_case_true
+set $t_name test_cmp_gt_case_true
+set $t_input В больше б
+if "В" > "б"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_gt_numeric_true
+set $t_name test_cmp_gt_numeric_true
+set $t_input число 10 больше 9
+if 10 > 9
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_gt_quoted_numeric_true
+set $t_name test_cmp_gt_quoted_numeric_true
+set $t_input кавычки сняты 10 больше 9
+if "10" > "9"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_le_contains_true
+set $t_name test_cmp_le_contains_true
+set $t_input абв содержит б
+if "абв" <= "б"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_le_contains_false
+set $t_name test_cmp_le_contains_false
+set $t_input абв содержит г
+if "абв" <= "г"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_le_case_true
+set $t_name test_cmp_le_case_true
+set $t_input АБВ содержит б
+if "АБВ" <= "б"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_le_word_true
+set $t_name test_cmp_le_word_true
+set $t_input фраза содержит мыла
+if "мама мыла раму" <= "мыла"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_le_numeric_true
+set $t_name test_cmp_le_numeric_true
+set $t_input число 2 меньше либо равно 3
+if 2 <= 3
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_le_numeric_false
+set $t_name test_cmp_le_numeric_false
+set $t_input число 3 меньше либо равно 2
+if 3 <= 2
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_le_quoted_numeric_false
+set $t_name test_cmp_le_quoted_numeric_false
+set $t_input кавычки сняты 10 меньше либо равно 0
+if "10" <= "0"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ge_contains_true
+set $t_name test_cmp_ge_contains_true
+set $t_input б содержится в абв
+if "б" >= "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_ge_contains_false
+set $t_name test_cmp_ge_contains_false
+set $t_input г содержится в абв
+if "г" >= "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ge_case_true
+set $t_name test_cmp_ge_case_true
+set $t_input б содержится в АБВ
+if "б" >= "АБВ"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_ge_numeric_true
+set $t_name test_cmp_ge_numeric_true
+set $t_input число 3 больше либо равно 2
+if 3 >= 2
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_ge_numeric_false
+set $t_name test_cmp_ge_numeric_false
+set $t_input число 2 больше либо равно 3
+if 2 >= 3
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_ge_quoted_numeric_false
+set $t_name test_cmp_ge_quoted_numeric_false
+set $t_input кавычки сняты 0 больше либо равно 10
+if "0" >= "10"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_larrow_contains_true
+set $t_name test_cmp_larrow_contains_true
+set $t_input абв содержит б стрелка влево
+if "абв" <- "б"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_larrow_contains_false
+set $t_name test_cmp_larrow_contains_false
+set $t_input абв содержит г стрелка влево
+if "абв" <- "г"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_larrow_case_true
+set $t_name test_cmp_larrow_case_true
+set $t_input АБВ содержит б стрелка влево
+if "АБВ" <- "б"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_larrow_no_numeric_false
+set $t_name test_cmp_larrow_no_numeric_false
+set $t_input 2 стрелка влево 23
+if 2 <- 23
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_rarrow_contains_true
+set $t_name test_cmp_rarrow_contains_true
+set $t_input б содержится в абв стрелка вправо
+if "б" -> "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_rarrow_contains_false
+set $t_name test_cmp_rarrow_contains_false
+set $t_input г содержится в абв стрелка вправо
+if "г" -> "абв"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_cmp_rarrow_case_true
+set $t_name test_cmp_rarrow_case_true
+set $t_input б содержится в АБВ стрелка вправо
+if "б" -> "АБВ"
+  set #t_num_actual 1
+else
+  set #t_num_actual 0
+end_if
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_cmp_rarrow_no_numeric_true
+set $t_name test_cmp_rarrow_no_numeric_true
+set $t_input 2 стрелка вправо 23
+if 2 -> 23
   set #t_num_actual 1
 else
   set #t_num_actual 0
