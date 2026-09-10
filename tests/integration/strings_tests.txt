@@ -129,6 +129,21 @@ gosub test_regexp_num_18
 gosub test_regexp_w_cyr_0
 gosub test_regexp_case_0
 gosub test_arr_indexof_2
+gosub test_num_first
+gosub test_num_mid
+gosub test_num_last
+gosub test_num_negative
+gosub test_num_first_of_many
+gosub test_num_hex
+gosub test_num_hex_0x
+gosub test_num_none
+gosub test_word_first
+gosub test_word_mid
+gosub test_word_last
+gosub test_word_oob
+gosub test_word_zero
+gosub test_word_neg1
+gosub test_word_neg2
 gosub test_summary
 exit
 
@@ -1340,6 +1355,186 @@ gosub assert_num
 set $t_str_actual $s
 set $t_str_expected одиндва
 set $t_name test_arr_concat_7_content
+gosub assert_str
+return
+
+
+// =========================================================
+// ===== 16. get number / get word =========================
+// =========================================================
+
+:test_num_first
+set $t_name test_num_first
+set $t_input 42 привет
+set $n_src 42 привет
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 42
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_num_mid
+set $t_name test_num_mid
+set $t_input мама 123 мыла
+set $n_src мама 123 мыла
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 123
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 2
+gosub assert_num
+return
+
+:test_num_last
+set $t_name test_num_last
+set $t_input привет 7
+set $n_src привет 7
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 7
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 2
+gosub assert_num
+return
+
+:test_num_negative
+set $t_name test_num_negative
+set $t_input -5 привет
+set $n_src -5 привет
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected -5
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_num_first_of_many
+set $t_name test_num_first_of_many
+set $t_input мама 1 два 2
+set $n_src мама 1 два 2
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 1
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 2
+gosub assert_num
+return
+
+:test_num_hex
+set $t_name test_num_hex
+set $t_input FF мама
+set $n_src FF мама
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 255
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_num_hex_0x
+set $t_name test_num_hex_0x
+set $t_input 0x1F мама
+set $n_src 0x1F мама
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 31
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 1
+gosub assert_num
+return
+
+:test_num_none
+set $t_name test_num_none
+set $t_input мама мыла раму
+set $n_src мама мыла раму
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected -1
+gosub assert_num
+set #t_num_actual #n_pos
+set #t_num_expected 3
+gosub assert_num
+return
+
+:test_word_first
+set $t_name test_word_first
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res 1 $w_src
+set $t_str_actual $w_res
+set $t_str_expected мама
+gosub assert_str
+return
+
+:test_word_mid
+set $t_name test_word_mid
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res 2 $w_src
+set $t_str_actual $w_res
+set $t_str_expected мыла
+gosub assert_str
+return
+
+:test_word_last
+set $t_name test_word_last
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res 3 $w_src
+set $t_str_actual $w_res
+set $t_str_expected раму
+gosub assert_str
+return
+
+:test_word_oob
+// Пустоту проверяем через ord(): ord("") = 0, size("") падает (BUGS.md).
+set $t_name test_word_oob
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res 4 $w_src
+set #t_num_actual ord($w_res)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_word_zero
+set $t_name test_word_zero
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res 0 $w_src
+set #t_num_actual ord($w_res)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:test_word_neg1
+set $t_name test_word_neg1
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res -1 $w_src
+set $t_str_actual $w_res
+set $t_str_expected мыла раму
+gosub assert_str
+return
+
+:test_word_neg2
+set $t_name test_word_neg2
+set $t_input мама мыла раму
+set $w_src мама мыла раму
+get word $w_res -2 $w_src
+set $t_str_actual $w_res
+set $t_str_expected раму
 gosub assert_str
 return
 
