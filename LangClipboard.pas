@@ -124,9 +124,9 @@ begin
     Exit;
   try
     EmptyClipboard;
-    SetData(CF_UNICODETEXT, AllocUnicodeText);
-    SetData(CF_TEXT, AllocText);
-    SetData(CF_LOCALE, AllocLocale);
+    SetData(Windows.CF_UNICODETEXT, AllocUnicodeText);
+    SetData(Windows.CF_TEXT, AllocText);
+    SetData(Windows.CF_LOCALE, AllocLocale);
     Result := True;
   finally
     CloseClipboard;
@@ -145,7 +145,7 @@ function GetClipboardText(C: TClipboard): string;
     ByteLen: Integer;
   begin
     Result := '';
-    H := GetClipboardData(CF_UNICODETEXT);
+    H := GetClipboardData(Windows.CF_UNICODETEXT);
     if H = 0 then
       Exit;
     P := GlobalLock(H);
@@ -171,7 +171,7 @@ function GetClipboardText(C: TClipboard): string;
     Len: Integer;
   begin
     Result := '';
-    H := GetClipboardData(CF_TEXT);
+    H := GetClipboardData(Windows.CF_TEXT);
     if H = 0 then
       Exit;
     P := GlobalLock(H);
@@ -192,9 +192,9 @@ begin
   if not OpenClipboard(0) then
     Exit;
   try
-    if IsClipboardFormatAvailable(CF_UNICODETEXT) then
+    if IsClipboardFormatAvailable(Windows.CF_UNICODETEXT) then
       Result := ReadUnicode
-    else if IsClipboardFormatAvailable(CF_TEXT) then
+    else if IsClipboardFormatAvailable(Windows.CF_TEXT) then
       Result := ReadAnsi;
   finally
     CloseClipboard;

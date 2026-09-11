@@ -1,0 +1,182 @@
+// Интеграционные тесты команд буфера обмена: set clipboard / get clipboard
+// Кодировка файла: UTF-8.
+// Каркас на gosub/return: у call/proc изолированная область видимости переменных,
+// поэтому подпрограммы-ассерты и счётчики живут в одном потоке через gosub.
+
+log clear
+log mode noTime
+
+set #pass 0
+set #fail 0
+
+gosub test_set_lat_lower
+gosub test_set_lat_upper
+gosub test_set_cyr_lower
+gosub test_set_cyr_upper
+gosub test_set_mixed
+gosub test_set_yo
+gosub test_set_space
+gosub test_set_digits
+gosub test_set_from_var
+gosub test_errorlevel_set
+gosub test_errorlevel_get
+gosub test_summary
+exit
+
+
+// ===== helpers =====
+
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== A. round-trip set/get =====
+
+:test_set_lat_lower
+set $t_name test_set_lat_lower
+set $t_input abcdefghijklmnopqrstuvwxyz
+set clipboard abcdefghijklmnopqrstuvwxyz
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected abcdefghijklmnopqrstuvwxyz
+gosub assert_str
+return
+
+:test_set_lat_upper
+set $t_name test_set_lat_upper
+set $t_input ABCDEFGHIJKLMNOPQRSTUVWXYZ
+set clipboard ABCDEFGHIJKLMNOPQRSTUVWXYZ
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected ABCDEFGHIJKLMNOPQRSTUVWXYZ
+gosub assert_str
+return
+
+:test_set_cyr_lower
+set $t_name test_set_cyr_lower
+set $t_input абвгдежзийклмнопрстуфхцчшщъыьэюя
+set clipboard абвгдежзийклмнопрстуфхцчшщъыьэюя
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected абвгдежзийклмнопрстуфхцчшщъыьэюя
+gosub assert_str
+return
+
+:test_set_cyr_upper
+set $t_name test_set_cyr_upper
+set $t_input АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+set clipboard АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+gosub assert_str
+return
+
+:test_set_mixed
+set $t_name test_set_mixed
+set $t_input Приветworld123_абв-XYZ
+set clipboard Приветworld123_абв-XYZ
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected Приветworld123_абв-XYZ
+gosub assert_str
+return
+
+:test_set_yo
+set $t_name test_set_yo
+set $t_input ёжЁЖ
+set clipboard ёжЁЖ
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected ёжЁЖ
+gosub assert_str
+return
+
+:test_set_space
+set $t_name test_set_space
+set $t_input Привет Мир
+set clipboard Привет Мир
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected Привет Мир
+gosub assert_str
+return
+
+:test_set_digits
+set $t_name test_set_digits
+set $t_input Тест123_Абв-XYZ
+set clipboard Тест123_Абв-XYZ
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected Тест123_Абв-XYZ
+gosub assert_str
+return
+
+:test_set_from_var
+set $t_name test_set_from_var
+set $t_input приветworld
+set $v приветworld
+set clipboard $v
+get clipboard $t
+set $t_str_actual $t
+set $t_str_expected приветworld
+gosub assert_str
+return
+
+
+// ===== B. errorlevel =====
+
+:test_errorlevel_set
+set $t_name test_errorlevel_set
+set $t_input привет
+set clipboard привет
+set #t_num_actual errorlevel
+set #t_num_expected 6
+gosub assert_num
+return
+
+:test_errorlevel_get
+set $t_name test_errorlevel_get
+set $t_input приветмир
+set clipboard приветмир
+get clipboard $t
+set #t_num_actual errorlevel
+set #t_num_expected 9
+gosub assert_num
+return
+
+
+// ===== C. get clipboard в массив (разбивка по словам) =====
+// Тест test_arr_word удалён: get clipboard %a кладёт слова в столбцы, а не
+// в строки массива (см. BUGS.md, «get clipboard %a: слова кладутся в столбцы,
+// а не в строки массива»).

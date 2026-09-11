@@ -3,6 +3,7 @@
 [Тесты команд работы со строками](./strings_tests.txt)
 [Тесты команд работы с окнами](./windows_tests.txt)
 [Тесты команд отправки текста](./sends_tests.txt)
+[Тесты команд буфера обмена](./clipboard_tests.txt)
 [Конфиг пилота для запуска тестов](./uopilot.ini)
 
 ## Запуск
@@ -17,6 +18,10 @@ start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\window
 
 ```shell
 start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\sends_tests.txt /r0
+```
+
+```shell
+start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\clipboard_tests.txt /r0
 ```
 
 ## Примечания к windows_tests.txt
