@@ -2200,6 +2200,7 @@ var
   gAttriClass: TClass;               // ссылка на TAttriFontChange
   gOldHelpProc: TWndMethod;         // прежний WindowProc окна справки
 
+procedure MsgBoxW(Owner: HWND; Text, Caption: PChar; Flags: Integer);
 procedure MsgBox(Text, Caption: PChar; Flags: Integer);
 procedure UnhookHookB;
 procedure UnhookHookA;
@@ -3816,7 +3817,7 @@ begin
     Byte(miLangRus.Checked) shl 1 + Byte(miLangDefault.Checked));
 end;
 
-procedure MsgBox(Text, Caption: PChar; Flags: Integer);
+procedure MsgBoxW(Owner: HWND; Text, Caption: PChar; Flags: Integer);
 {$IFDEF FPC}
 var
   WText, WCaption: WideString;
@@ -3825,14 +3826,19 @@ begin
     Конвертируем в UTF-16 и зовём широкую версию. }
   WText := UTF8Decode(Text);
   WCaption := UTF8Decode(Caption);
-  MessageBoxW(0, PWideChar(WText), PWideChar(WCaption), MB_SYSTEMMODAL);
+  MessageBoxW(Owner, PWideChar(WText), PWideChar(WCaption), Flags);
 end;
 {$ELSE}
 begin
-  // Flags не используется: сообщение всегда MB_SYSTEMMODAL.
-  MessageBox(0, Text, Caption, MB_SYSTEMMODAL);
+  MessageBox(Owner, Text, Caption, Flags);
 end;
 {$ENDIF}
+
+procedure MsgBox(Text, Caption: PChar; Flags: Integer);
+begin
+  // Flags не используется: сообщение всегда MB_SYSTEMMODAL.
+  MsgBoxW(0, Text, Caption, MB_SYSTEMMODAL);
+end;
 
 procedure TfmSecond.TimerKeyAction(Kind: Byte; Value: Integer);
 begin
@@ -15038,12 +15044,12 @@ begin
         if Indent > 0 then
           Dec(Indent, seTabSize.Value)
         else if gLangOffsety > 0 then
-          MessageBox(fmSecondfj.Handle,
+          MsgBoxW(fmSecondfj.Handle,
             PChar(LoadStr(gLangOffsety + $204) + ' ' + IntToStr(Row) + '.' + #13 +
                   LoadStr(gLangOffsety + $205)),
             PChar(miFormat.Caption), 0)
         else
-          MessageBox(fmSecondfj.Handle,
+          MsgBoxW(fmSecondfj.Handle,
             PChar('Подозрительный отступ в строке ' + IntToStr(Row) + '.' + #13 +
                   'Где-то лишний "end".'),
             PChar(miFormat.Caption), 0);
