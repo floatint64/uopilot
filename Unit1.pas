@@ -3908,7 +3908,10 @@ var
   B: Boolean;
   B2: Boolean;
   Buf: array[0..MAX_PATH] of Char;
-  P: PChar;
+  WBuf: array[0..$FF] of WideChar;
+  WLen: Integer;
+  WS: WideString;
+  WinTitle: string;
 
   { Автозапуск скриптов, помеченных ключом /rN: вкладка, открытая сейчас,
     запускается кнопкой (btStartClick), остальные -- напрямую, с поиском
@@ -4308,11 +4311,12 @@ begin
   gScriptso3[tScript.TabIndex].ProcessHandle := OpenProcess($638, False, PID);
   if FTargetWnd <> 0 then
   begin
-    GetMem(P, $FF);
-    GetWindowText(FTargetWnd, P, $FF);
-    I := Pos('-', P) + 1;
-    sbGMPage.Caption := Copy(P, I, Pos('(', P) - I - 1);
-    FreeMem(P);
+    { заголовок окна читаем в wide-буфере и переводим в UTF-8 для LCL }
+    WLen := GetWindowTextW(FTargetWnd, WBuf, Length(WBuf));
+    SetString(WS, WBuf, WLen);
+    WinTitle := UTF8Encode(WS);
+    I := Pos('-', WinTitle) + 1;
+    sbGMPage.Caption := Copy(WinTitle, I, Pos('(', WinTitle) - I - 1);
   end;
   { Списки имён клавиш, версий клиента и команд скрипта. Таблица имён
     берётся из HotKeyMgr. }
@@ -4567,7 +4571,6 @@ var
   Unused1: Integer;
   Pid2: DWORD;
   W: DWORD;
-  Buf: PChar;
   S: string;
   Tid: DWORD;
   WBuf: array[0..$FF] of WideChar;
@@ -4595,12 +4598,13 @@ begin
     GetCursorPos(P);
     FileClose(gClientThread); { *Преобразовано из CloseHandle* }
     gWorkWnd := WindowFromPoint(P);
-    GetMem(Buf, $FF);
-    GetWindowText(gWorkWnd, Buf, $FF);
-    I := Pos('-', Buf) + 1;
-    sbGMPage.Caption := Copy(Buf, I, Pos('(', Buf) - Integer(I) - 1);
+    { заголовок окна читаем в wide-буфере и переводим в UTF-8 для LCL }
+    WLen := GetWindowTextW(gWorkWnd, WBuf, Length(WBuf));
+    SetString(WS, WBuf, WLen);
+    S := UTF8Encode(WS);
+    I := Pos('-', S) + 1;
+    sbGMPage.Caption := Copy(S, I, Pos('(', S) - Integer(I) - 1);
     { приведение обязательно: Integer - Cardinal Delphi считает в Int64 }
-    FreeMem(Buf);
     GetWindowThreadProcessId(gWorkWnd, @Pid);
     gClientThread := OpenProcess($418, False, Pid);
     sbGMPage.Down := False;
