@@ -3164,7 +3164,7 @@ begin
   else if fmSecondfj.miToHint.Checked then
   begin
     T.Msg := T.Name + ': ' + S + #13 + #10 + T.Msg + #0;
-    TScanThread(T).ShowScriptHint;
+    T.Synchronize(T.ShowScriptHint);
   end;
 end;
 
@@ -3669,16 +3669,21 @@ var
   H: TObject;
   Tick: Cardinal;
 begin
-  with fmSecondfj do
-  begin
-    tScript.Hint := CP1251ToUTF8(Self.Msg);
-    H := CreateTabHint(tScript);
+  H := nil;
+  try
+    with fmSecondfj do
+    begin
+      tScript.Hint := CP1251ToUTF8(Self.Msg);
+      H := CreateTabHint(tScript);
+    end;
+    Tick := GetTickCount;
+    repeat
+      Application.ProcessMessages;
+    until GetTickCount - Tick >= 3000;
+  finally
+    if H <> nil then
+      fmSecondfj.HideHintWindow(H);
   end;
-  Tick := GetTickCount;
-  repeat
-    Application.ProcessMessages;
-  until GetTickCount - Tick >= 3000;
-  fmSecondfj.HideHintWindow(H);
 end;
 
 {$I-}
