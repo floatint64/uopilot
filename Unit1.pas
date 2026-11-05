@@ -8001,6 +8001,13 @@ begin
     end
     else
       Cap := (Sender as TStringGrid).Cells[2, (Sender as TStringGrid).Row];
+    { T.Msg -- cp1251, Txt -- ASCII, Cap -- UTF-8 из LCL либо cp1251 из
+      старого ini. Конвертируем только заведомо валидный UTF-8, иначе
+      повторная конвертация испортит уже cp1251-строку. }
+    if IsValidUTF8(Txt) then
+      Txt := UTF8ToCP1251(Txt);
+    if IsValidUTF8(Cap) then
+      Cap := UTF8ToCP1251(Cap);
     T := gScriptso3[StrToInt(tScript.Tabs[tScript.TabIndex])];
     T.Msg := PChar('Set hotkey error. ' + Txt + '  ' + Cap);
     gCoordCaptureddo := True;
