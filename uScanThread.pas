@@ -3132,6 +3132,7 @@ end;
 procedure ShowScriptMsg(T: TScanThread);
 var
   S: string;
+  S1251: string;
   Msg8: string;
   I: Integer;
 begin
@@ -3163,7 +3164,11 @@ begin
   end
   else if fmSecondfj.miToHint.Checked then
   begin
-    T.Msg := T.Name + ': ' + S + #13 + #10 + T.Msg + #0;
+    { Msg - cp1251, а Title из LCL-диалогов приходит в UTF-8; приводим имя файла к cp1251 }
+    S1251 := S;
+    if IsValidUTF8(S1251) then
+      S1251 := UTF8ToCP1251(S1251);
+    T.Msg := T.Name + ': ' + S1251 + #13 + #10 + T.Msg + #0;
     T.Synchronize(T.ShowScriptHint);
   end;
 end;
