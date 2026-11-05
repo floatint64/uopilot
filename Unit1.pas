@@ -11295,6 +11295,25 @@ end;
 
 procedure DrawGridCellText(Grid: TStringGrid; Cv: TCanvas;
       const R: TRect; const S: string; W: Word; B: ShortInt; C: ShortInt);
+{$IFDEF FPC}
+var
+  WS: UnicodeString;
+begin
+  { LCL хранит строки в UTF-8, а ExtTextOut в FPC -- это ExtTextOutA.
+    Декодируем и отдаём GDI широкие символы. }
+  WS := UTF8Decode(S);
+  { Метки 2 и 1 стоят в этом порядке нарочно: W = 1 -- центр,
+    W = 2 -- правый край. }
+  case W of
+    0: Windows.ExtTextOutW(Cv.Handle, R.Left + B, R.Top + C, 6, @R,
+        PWideChar(WS), Length(WS), nil);
+    2: Windows.ExtTextOutW(Cv.Handle, R.Right - Cv.TextWidth(S) - 3, R.Top + C, 6, @R,
+        PWideChar(WS), Length(WS), nil);
+    1: Windows.ExtTextOutW(Cv.Handle, R.Left + (R.Right - R.Left - Cv.TextWidth(S)) div 2,
+        R.Top + C, 6, @R, PWideChar(WS), Length(WS), nil);
+  end;
+end;
+{$ELSE}
 var
   Buf: array[0..255] of Char;
 begin
@@ -11302,13 +11321,14 @@ begin
     W = 2 -- правый край. }
   case W of
     0: ExtTextOut(Cv.Handle, R.Left + B, R.Top + C, 6, @R,
-         StrPCopy(Buf, S), Length(S), nil);
+        StrPCopy(Buf, S), Length(S), nil);
     2: ExtTextOut(Cv.Handle, R.Right - Cv.TextWidth(S) - 3, R.Top + C, 6, @R,
-         StrPCopy(Buf, S), Length(S), nil);
+        StrPCopy(Buf, S), Length(S), nil);
     1: ExtTextOut(Cv.Handle, R.Left + (R.Right - R.Left - Cv.TextWidth(S)) div 2,
-         R.Top + C, 6, @R, StrPCopy(Buf, S), Length(S), nil);
+        R.Top + C, 6, @R, StrPCopy(Buf, S), Length(S), nil);
   end;
 end;
+{$ENDIF}
 
 procedure TfmSecond.sghkScriptHKListDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect;
   State: TGridDrawState);
