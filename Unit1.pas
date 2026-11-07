@@ -1682,7 +1682,12 @@ type
     procedure ScriptTabWndProc(var Message: TMessage);
     procedure WndProc(var Message: TMessage); override;
     procedure AppMessage(var Msg: TMsg; var Handled: Boolean);
+    {$IFDEF FPC}
+    procedure FormDropFiles(Sender: TObject;
+      const FileNames: array of String);
+    {$ELSE}
     procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
+    {$ENDIF}
     procedure WMNCHitTest(var Msg: TMessage); message WM_NCHITTEST;
     procedure WMSize(var Msg: TMessage); message WM_SIZE;
     procedure WMSysCommand(var Msg: TMessage); message WM_SYSCOMMAND;
@@ -4291,7 +4296,15 @@ begin
     SetThreadPriority(gScriptso3[I].Handle, THREAD_PRIORITY_NORMAL);
   end;
   fld_145C := -1;
+  {$IFDEF FPC}
+  { LCL/Win32 перехватывает WM_DROPFILES до message-методов, поэтому
+    работает только AllowDropFiles/OnDropFiles. Путь внутри LCL
+    читается DragQueryFileW и приходит в UTF-8. }
+  OnDropFiles := FormDropFiles;
+  AllowDropFiles := True;
+  {$ELSE}
   DragAcceptFiles(Handle, True);
+  {$ENDIF}
   TheRecorder.SpeedFactor := miSpeed.Tag;
   { поиск окна клиента и открытие его процесса }
   if gLangOffsety > 0 then
@@ -5493,6 +5506,17 @@ begin
   end;
 end;
 
+{$IFDEF FPC}
+procedure TfmSecond.FormDropFiles(Sender: TObject;
+  const FileNames: array of String);
+begin
+  { Перетаскивание файла на окно: LCL читает путь через DragQueryFileW
+    и отдаёт его в UTF-8. DragFinish вызывает сам LCL. Грузим только
+    первый файл — это сохраняет прежнее поведение. }
+  if Length(FileNames) > 0 then
+    LoadScriptFile(FileNames[0]);
+end;
+{$ELSE}
 procedure TfmSecond.WMDropFiles(var Msg: TMessage);
 var
   Buf: array[0..255] of Char;
@@ -5505,6 +5529,7 @@ begin
   LoadScriptFile(Buf);
   DragFinish(H);
 end;
+{$ENDIF}
 
 procedure TfmSecond.btSaveClick(Sender: TObject);
 var
