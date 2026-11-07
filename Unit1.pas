@@ -12505,18 +12505,28 @@ begin
   end
   else
   begin
-    pcAll.Constraints.MaxHeight := pcAll.Constraints.MinHeight;
-    pcAll.Constraints.MaxWidth := pcAll.Constraints.MinWidth;
     Saved := gFlag5969EE;
     if gFlag5969EE then
     begin
       ShowWindow(fmSecondfj.Handle, SW_RESTORE);
       gFlag5969EE := True;
     end;
-    fmSecondfj.Constraints.MaxHeight := fmSecondfj.Constraints.MinHeight;
-    fmSecondfj.Constraints.MaxWidth := fmSecondfj.Constraints.MinWidth;
-    fmSecondfj.Width := fmSecondfj.Constraints.MinWidth;
-    fmSecondfj.Height := fmSecondfj.Constraints.MinHeight;
+    { Окно уже показано, поэтому клиентский размер задаётся с учётом реальной
+      рамки, заголовка и меню. Прежние ограничения снимаются, чтобы не зажать
+      присваивание. Сначала ширина, затем высота. }
+    fmSecondfj.Constraints.MinHeight := 0;
+    fmSecondfj.Constraints.MinWidth := 0;
+    fmSecondfj.Constraints.MaxHeight := 0;
+    fmSecondfj.Constraints.MaxWidth := 0;
+    fmSecondfj.ClientWidth := HorSize.Width;
+    fmSecondfj.ClientHeight := VertSize.Height;
+    pcAll.Constraints.MaxHeight := pcAll.Constraints.MinHeight;
+    pcAll.Constraints.MaxWidth := pcAll.Constraints.MinWidth;
+    { фактический внешний размер фиксируется как минимум и максимум }
+    fmSecondfj.Constraints.MinHeight := fmSecondfj.Height;
+    fmSecondfj.Constraints.MinWidth := fmSecondfj.Width;
+    fmSecondfj.Constraints.MaxHeight := fmSecondfj.Height;
+    fmSecondfj.Constraints.MaxWidth := fmSecondfj.Width;
     gFlag5969EE := Saved;
     gInScriptTab := False;
   end;

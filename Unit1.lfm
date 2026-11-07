@@ -1267,7 +1267,7 @@ object fmSecond: TfmSecond
           Left = 5
           Height = 19
           Hint = 'В имя файла добавить дату и время'
-          Top = 5
+          Top = 4
           Width = 43
           Caption = 'дата'
           Font.Color = clWindowText
@@ -1282,7 +1282,7 @@ object fmSecond: TfmSecond
           Left = 49
           Height = 19
           Hint = 'Занимает много места на диске, зато качественно'
-          Top = 5
+          Top = 4
           Width = 40
           Caption = 'bmp'
           Checked = True
@@ -1299,7 +1299,7 @@ object fmSecond: TfmSecond
           Left = 88
           Height = 19
           Hint = 'Не качественно, зато занимает мало места на диске'
-          Top = 5
+          Top = 4
           Width = 34
           Caption = 'jpg'
           Font.Color = clWindowText
@@ -2124,7 +2124,7 @@ object fmSecond: TfmSecond
           Left = 1
           Height = 17
           Hint = 'Запустить скрипт вместо издавания звукового сигнала'
-          Top = 52
+          Top = 50
           Width = 61
           Caption = 'Скрипт'
           Font.Color = clWindowText
