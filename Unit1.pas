@@ -29,6 +29,13 @@ type
 
   THouseCmdsZ = array[1..16] of string;
 
+{$IFDEF FPC}
+  TTrayNotifyIconData = TNotifyIconDataW;
+{$ELSE}
+  TTrayNotifyIconData = TNotifyIconData;
+{$ENDIF}
+  PTrayNotifyIconData = ^TTrayNotifyIconData;
+
   TLogWinRecZ = packed record               // сохранённая геометрия окна лога
   Shown:   Boolean;
   Left:    Integer;
@@ -2246,7 +2253,7 @@ var
   { Ширина и высота лежат в Right и Bottom, а не координаты угла. }
   gLogRect: TRect;
   gHelpRect: TRect;
-  gTrayIcon: TNotifyIconData;        // структура иконки в трее
+  gTrayIcon: TTrayNotifyIconData;    // структура иконки в трее
   gIconRun: HICON;
   gIconPause: HICON;
   gIconStop: HICON;
@@ -10812,10 +10819,33 @@ begin
   end;
 end;
 
+procedure SetTrayTip(const Tip: string);
+{$IFDEF FPC}
+var
+  WS: UnicodeString;
+{$ENDIF}
+begin
+{$IFDEF FPC}
+  WS := UTF8Decode(Tip);
+  lstrcpynW(@gTrayIcon.szTip[0], PWideChar(WS), High(gTrayIcon.szTip) + 1);
+{$ELSE}
+  StrPLCopy(gTrayIcon.szTip, Tip, High(gTrayIcon.szTip));
+{$ENDIF}
+end;
+
+function TrayNotifyIcon(dwMessage: DWORD; lpData: PTrayNotifyIconData): Boolean;
+begin
+{$IFDEF FPC}
+  Result := Shell_NotifyIconW(dwMessage, lpData);
+{$ELSE}
+  Result := Shell_NotifyIcon(dwMessage, lpData);
+{$ENDIF}
+end;
+
 procedure TfmSecond.FormDestroy(Sender: TObject);
 begin
   try
-    Shell_NotifyIcon(NIM_DELETE, @gTrayIcon);
+    TrayNotifyIcon(NIM_DELETE, @gTrayIcon);
     DestroyIcon(gIconRun);
     DestroyIcon(gIconPause);
     DestroyIcon(gIconStop);
@@ -10895,7 +10925,7 @@ begin
     { Explorer перезапустился -- вернуть иконку в трей. }
     if Message.Msg = gTaskbarMsg then
     begin
-      Shell_NotifyIcon(NIM_ADD, @gTrayIcon);
+      TrayNotifyIcon(NIM_ADD, @gTrayIcon);
       Exit;
     end;
     inherited WndProc(Message);
@@ -10911,8 +10941,6 @@ end;
 
 procedure TfmSecond.MinimizeToTray;
 var
-  S: string;
-  I: Integer;
   L: Cardinal;
 begin
   { Показ/снятие иконки в трее. }
@@ -10921,20 +10949,14 @@ begin
       begin
         if gTaskbarMsg = 0 then
           gTaskbarMsg := RegisterWindowMessage('TaskbarCreated');
-        gTrayIcon.cbSize := SizeOf(TNotifyIconData);
+        gTrayIcon.cbSize := SizeOf(gTrayIcon);
         gTrayIcon.Wnd := fmSecondfj.Handle;
         gTrayIcon.uID := fmSecondfj.Handle;
         gTrayIcon.uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
-        S := fmSecondfj.Caption;
-        I := 0;
-        while I <= Length(S) - 1 do
-        begin
-          gTrayIcon.szTip[I] := S[I + 1];
-          Inc(I);
-        end;
+        SetTrayTip(fmSecondfj.Caption);
         gTrayIcon.hIcon := gIconRun;
         gTrayIcon.uCallbackMessage := $464;
-        Shell_NotifyIcon(NIM_ADD, @gTrayIcon);
+        TrayNotifyIcon(NIM_ADD, @gTrayIcon);
         { Снять WS_EX_APPWINDOW -- убрать кнопку с панели задач; следом тот же
           бит переключается ещё раз через xor: так окно перерисовывает свой
           стиль. }
@@ -10951,7 +10973,7 @@ begin
       end;
     False:
       begin
-        Shell_NotifyIcon(NIM_DELETE, @gTrayIcon);
+        TrayNotifyIcon(NIM_DELETE, @gTrayIcon);
         L := GetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE);
         if (L and WS_EX_APPWINDOW) <= 0 then
           L := L + WS_EX_APPWINDOW;
@@ -11120,7 +11142,7 @@ var
   Title: string;
   Name: string;
   R: TRect;
-  Tip: string[64];
+  Tip: string;
   N: Integer;
   AnyPause: Boolean;
 begin
@@ -11196,7 +11218,7 @@ begin
       AnyPause := AnyPause or (gPausedCache[N] <> False);
     end;
   end;
-  StrPCopy(gTrayIcon.szTip, Tip);
+  SetTrayTip(Tip);
   if AnyRun or AnyPause then
   begin
     gTrayBlink := not gTrayBlink;
@@ -11207,12 +11229,12 @@ begin
         gTrayIcon.hIcon := gIconPause
     else
       gTrayIcon.hIcon := gIconRun;
-    Shell_NotifyIcon(NIM_MODIFY, @gTrayIcon);
+    TrayNotifyIcon(NIM_MODIFY, @gTrayIcon);
   end
   else if Redraw then
   begin
     gTrayIcon.hIcon := gIconRun;
-    Shell_NotifyIcon(NIM_MODIFY, @gTrayIcon);
+    TrayNotifyIcon(NIM_MODIFY, @gTrayIcon);
   end;
   if miShowRuningScriptOnTaskbar.Checked then
   begin
