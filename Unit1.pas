@@ -1457,7 +1457,6 @@ type
     procedure miAboutClick(Sender: TObject);
     procedure IconCallBackMessage(var Msg: TMessage); message WM_USER + $64;
     procedure FormDestroy(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure miMinToTrayClick(Sender: TObject);
     procedure tScriptDrawTab(Control: TCustomTabControl; TabIndex: Integer; const Rect: TRect; Active: Boolean);
     procedure miShowRuningScriptClick(Sender: TObject);
@@ -4474,6 +4473,8 @@ begin
   LoadPlugins(Self, '');
   gNoFocusStealfq := True;
   miMinToTray.Checked := FFlag14E5;
+  if miMinToTray.Checked then
+    MinimizeToTray;
   gNoFocusStealfq := False;
   if FFlag14E6 or miStartMinimized.Checked then
     ShowWindow(fmSecondfj.Handle, SW_SHOWMINNOACTIVE);
@@ -10853,20 +10854,6 @@ begin
   end;
 end;
 
-procedure TfmSecond.FormShow(Sender: TObject);
-var
-  St: Cardinal;
-begin
-  if miMinToTray.Checked then
-  begin
-    St := GetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE);
-    if St and WS_EX_APPWINDOW > 0 then
-      St := St - WS_EX_APPWINDOW;
-    SetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE, St);
-  end;
-  ShowWindow(Application.Handle, SW_HIDE);
-end;
-
 procedure TfmSecond.IconCallBackMessage(var Msg: TMessage);
 var
   P: TPoint;
@@ -10876,7 +10863,7 @@ begin
       begin
         fmSecondfj.Show;
         fmSecondfj.WindowState := wsNormal;
-        SetForegroundWindow(Application.Handle);
+        SetForegroundWindow(fmSecondfj.Handle);
       end;
     WM_RBUTTONDOWN:
       begin
@@ -10899,11 +10886,20 @@ begin
   try
     { «Сворачивать в трей»: SC_MINIMIZE не доходит до предка вовсе,
       форма просто прячется. }
-    if (Message.Msg = WM_SYSCOMMAND) and (Message.WParam = SC_MINIMIZE) and
+    if (Message.Msg = WM_SYSCOMMAND) and
+       ((Message.WParam and $FFF0) = SC_MINIMIZE) and
        miMinToTray.Checked then
     begin
-      if fmSecondfj.Visible then
-        fmSecondfj.Hide;
+      fmSecondfj.Hide;
+      fmSecondfj.WindowState := wsNormal;
+      Message.Result := 0;
+      {$IFDEF FPC}
+      { LCL после доставки сообщения всё равно вызывает DefWindowProc.
+        Обнуляем Msg, чтобы интерфейс не передал WM_SYSCOMMAND дальше и
+        Windows не свернул уже скрытую форму (иначе остаётся кнопка на
+        панели задач и ломается восстановление). }
+      Message.Msg := 0; // WM_NULL
+      {$ENDIF}
       Exit;
     end;
     { Активация: круговое окно поднимается поверх всех, а если «поверх лога»
@@ -10923,7 +10919,7 @@ begin
       Exit;
     end;
     { Explorer перезапустился -- вернуть иконку в трей. }
-    if Message.Msg = gTaskbarMsg then
+    if (gTaskbarMsg <> 0) and (Message.Msg = gTaskbarMsg) then
     begin
       TrayNotifyIcon(NIM_ADD, @gTrayIcon);
       Exit;
@@ -10940,48 +10936,23 @@ begin
 end;
 
 procedure TfmSecond.MinimizeToTray;
-var
-  L: Cardinal;
 begin
   { Показ/снятие иконки в трее. }
-  case miMinToTray.Checked of
-    True:
-      begin
-        if gTaskbarMsg = 0 then
-          gTaskbarMsg := RegisterWindowMessage('TaskbarCreated');
-        gTrayIcon.cbSize := SizeOf(gTrayIcon);
-        gTrayIcon.Wnd := fmSecondfj.Handle;
-        gTrayIcon.uID := fmSecondfj.Handle;
-        gTrayIcon.uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
-        SetTrayTip(fmSecondfj.Caption);
-        gTrayIcon.hIcon := gIconRun;
-        gTrayIcon.uCallbackMessage := $464;
-        TrayNotifyIcon(NIM_ADD, @gTrayIcon);
-        { Снять WS_EX_APPWINDOW -- убрать кнопку с панели задач; следом тот же
-          бит переключается ещё раз через xor: так окно перерисовывает свой
-          стиль. }
-        L := GetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE);
-        if (L and WS_EX_APPWINDOW) > 0 then
-          L := L - WS_EX_APPWINDOW;
-        SetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE, L);
-        SetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE,
-          GetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE) xor WS_EX_APPWINDOW);
-        ShowWindow(fmSecondfj.Handle, SW_HIDE);
-        if not gNoFocusStealfq then
-          ShowWindow(fmSecondfj.Handle, SW_SHOW);
-        ShowWindow(Application.Handle, SW_HIDE);
-      end;
-    False:
-      begin
-        TrayNotifyIcon(NIM_DELETE, @gTrayIcon);
-        L := GetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE);
-        if (L and WS_EX_APPWINDOW) <= 0 then
-          L := L + WS_EX_APPWINDOW;
-        SetWindowLong(fmSecondfj.Handle, GWL_EXSTYLE, L);
-        fmSecondfj.Hide;
-        fmSecondfj.Show;
-      end;
-  end;
+  if miMinToTray.Checked then
+  begin
+    if gTaskbarMsg = 0 then
+      gTaskbarMsg := RegisterWindowMessage('TaskbarCreated');
+    gTrayIcon.cbSize := SizeOf(gTrayIcon);
+    gTrayIcon.Wnd := fmSecondfj.Handle;
+    gTrayIcon.uID := fmSecondfj.Handle;
+    gTrayIcon.uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
+    SetTrayTip(fmSecondfj.Caption);
+    gTrayIcon.hIcon := gIconRun;
+    gTrayIcon.uCallbackMessage := $464;
+    TrayNotifyIcon(NIM_ADD, @gTrayIcon);
+  end
+  else
+    TrayNotifyIcon(NIM_DELETE, @gTrayIcon);
 end;
 
 procedure TfmSecond.tScriptDrawTab(Control: TCustomTabControl; TabIndex: Integer; const Rect: TRect; Active: Boolean);
@@ -12475,7 +12446,7 @@ procedure TfmSecond.miTrayRestoreClick(Sender: TObject);
 begin
   fmSecondfj.Show;
   fmSecondfj.WindowState := wsNormal;
-  SetForegroundWindow(Application.Handle);
+  SetForegroundWindow(fmSecondfj.Handle);
 end;
 
 procedure TfmSecond.pcAllChange(Sender: TObject);

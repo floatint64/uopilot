@@ -45,7 +45,7 @@ begin
   SetWindowLong(Application.Handle, GWL_EXSTYLE,
     GetWindowLong(Application.Handle, GWL_EXSTYLE) or WS_EX_TOOLWINDOW);
   if fmSecondfj.miMinToTray.Checked and fmSecondfj.FFlag14E6 then
-    ShowWindow(fmSecondfj.Handle, SW_HIDE);
+    fmSecondfj.Hide;
   if (fmSecondfj.edScript <> nil) and fmSecondfj.Visible and
      fmSecondfj.edScript.Visible and fmSecondfj.edScript.Enabled and
      (fmSecondfj.pcAll.ActivePage = fmSecondfj.tsScript) then
