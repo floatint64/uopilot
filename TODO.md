@@ -1,11 +1,5 @@
 # TODO
 
-## Миграция VCL → Lazarus/LCL
-
-- В перспективе заменить локальный VCL-SynEdit (`synedit/`) на Lazarus-овый SynEdit
-  из `components/synedit` и перевести код на `TSynEdit`/`TSynMemo` вместо точечных
-  `{$IFNDEF FPC}`-правок вендорных исходников (см. `synedit/SynEditMiscClasses.pas`).
-
 ## Миграция на UTF-8
 
 - Текущий код — гибрид: LCL-строки уже UTF-8, но часть API/логики (WinAPI
