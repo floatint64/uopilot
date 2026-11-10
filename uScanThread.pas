@@ -3633,7 +3633,10 @@ begin
       C := PromptWnd.Components[I];
       if C is TEdit then
       begin
-        Msg := (C as TEdit).Text;
+        S := (C as TEdit).Text;
+        if IsValidUTF8(S) then
+          S := UTF8ToCP1251(S);
+        Msg := S;
         Break;
       end;
     end;
