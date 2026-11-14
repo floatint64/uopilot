@@ -1838,6 +1838,9 @@ function CP1251UpperCase(const S: string): string;
 function CP1251LowerCase(const S: string): string;
 function CP1251StringReplace(const S, OldPattern, NewPattern: string;
   Flags: TReplaceFlags): string;
+{ Заполняет gCmdListah7/gCmdList2jj именами команд. Вынесено из FormCreate,
+  чтобы тестовый раннер мог поднять таблицы без главной формы. }
+procedure InitScriptCommandTables;
 
 var
   gStartUOThread: TStartUOThread;
@@ -3906,6 +3909,19 @@ begin
   end;
 end;
 
+procedure InitScriptCommandTables;
+var
+  I: Integer;
+begin
+  if gCmdListah7.Count = 0 then
+    for I := 0 to $120 do
+      gCmdListah7.Add(gCmdNamesdd[I]);
+  if gCmdList2jj.Count = 0 then
+    for I := 0 to $87 do
+      gCmdList2jj.Add(gCmdNames2b1[I]);
+  gCmdCounteh := $120;
+end;
+
 procedure TfmSecond.FormCreate(Sender: TObject);
 const
   MShift = [hkAlt];
@@ -4358,11 +4374,7 @@ begin
   cbNtUserPM.Items.Clear;
   for I := 0 to 2 do
     cbNtUserPM.Items.Add(gNtUserNames[I]);
-  gCmdCounteh := $120;
-  for I := 0 to $120 do
-    gCmdListah7.Add(gCmdNamesdd[I]);
-  for I := 0 to $87 do
-    gCmdList2jj.Add(gCmdNames2b1[I]);
+  InitScriptCommandTables;
   gTrayBlink := False;
   gIconRun := LoadIcon(HInstance, 'MICON');
   gIconPause := LoadIcon(HInstance, 'MICONRUN');

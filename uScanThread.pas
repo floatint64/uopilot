@@ -433,11 +433,13 @@ type
     HintWnd: TRxHintWindowRef;            // окно подсказки
     Hint: TmsgHintParam;
     Timer: TTimer;                     // интервал $FA0
+    FForTest: Boolean;                 // тестовый экземпляр без UI
   protected
     procedure Execute; override;
   public
     procedure LogWndProc(var Message: TMessage);
     destructor Destroy; override;
+    procedure ReleaseOwnedResources;
     procedure CaptureWindowBits;
     procedure ShowScriptHint;
     procedure SyncShowRunLine;
@@ -457,6 +459,9 @@ type
     procedure PrepareScreenBitmap;
     function ScriptStrToInt(S: string): Integer;
     constructor NewScriptTab(CreateSuspended: Boolean);
+{$IFDEF UOPILOT_UNIT_TESTS}
+    constructor CreateForTest;
+{$ENDIF}
     procedure SyncLogMsg;
     procedure WriteScriptLog;
     procedure SyncShowWait;
@@ -3856,18 +3861,38 @@ begin
   LineBase := 0;
 end;
 
-destructor TScanThread.Destroy;
+{$IFDEF UOPILOT_UNIT_TESTS}
+constructor TScanThread.CreateForTest;
+begin
+  inherited Create(True);
+  FForTest := True;
+  AutoStart := False;
+  ShowRun := False;
+  LogLevel := 0;
+  LineBase := 0;
+  VarNames := TStringList.Create;
+  VarNames.Add('timer');
+  if not QueryPerformanceFrequency(PerfFreq) then
+    PerfFreq := 0;
+end;
+{$ENDIF}
+
+procedure TScanThread.ReleaseOwnedResources;
 var
   i: Integer;
 begin
   FreeAndNil(ScreenBmp);
-  Timer.Enabled := False;
-  Synchronize(SyncHideHint);
-  FreeAndNil(Timer);
+  if Timer <> nil then
+  begin
+    Timer.Enabled := False;
+    if not FForTest then
+      Synchronize(SyncHideHint);
+    FreeAndNil(Timer);
+  end;
   SetLength(Arr104898, 0);
   SetLength(Vars, 0);
   SetLength(Timers, 0);
-  VarNames.Free;
+  FreeAndNil(VarNames);
   SetLength(Arr50, 0);
   SetLength(Arr54, 0);
   SetLength(Arr58, 0);
@@ -3878,22 +3903,29 @@ begin
     Blocks[i].Handle := 0;
   end;
   SetLength(Blocks, 0);
-  VarTimer.Free;
+  FreeAndNil(VarTimer);
   SetLength(Lines, 0);
   SetLength(Arr43F0, 0);
-  Obj43FC.Free;
-  Masks.Free;
-  Obj4468.Free;
-  Obj446C.Free;
+  FreeAndNil(Obj43FC);
+  FreeAndNil(Masks);
+  FreeAndNil(Obj4468);
+  FreeAndNil(Obj446C);
   SetLength(ImgPts, 0);
   SetLength(ImgTol, 0);
   SetLength(ImgList, 0);
-  TabList.Free;
+  FreeAndNil(TabList);
   if LogView <> nil then
+  begin
     LogView.WindowProc := OldLogProc;
-  LogView.Free;
-  SubScript.Free;
-  HintWnd.Free;
+    FreeAndNil(LogView);
+  end;
+  FreeAndNil(SubScript);
+  FreeAndNil(HintWnd);
+end;
+
+destructor TScanThread.Destroy;
+begin
+  ReleaseOwnedResources;
   inherited Destroy;
 end;
 
@@ -13035,28 +13067,33 @@ begin
       end;
             end;
           end;
-          { общий хвост: галки группы miErrorReadCP }
-          if fmSecondfj.miStopSErrorRead.Checked and err then
-            T.StopRequested := True;
-          if fmSecondfj.miPauseSErrorRead.Checked and err then
+          { общий хвост: галки группы miErrorReadCP; в тестах формы нет }
+{$IFDEF UOPILOT_UNIT_TESTS}
+          if fmSecondfj <> nil then
+{$ENDIF}
           begin
-            if T.AutoStart then
-              TScanThread(T).Synchronize(TScanThread(T).PauseScriptThread);
-            T.Paused := True;
-          end;
-          if fmSecondfj.miInformErrorRead.Checked and err then
-            if not bErrShown then
+            if fmSecondfj.miStopSErrorRead.Checked and err then
+              T.StopRequested := True;
+            if fmSecondfj.miPauseSErrorRead.Checked and err then
             begin
-              bErrShown := True;
-              SetForegroundWindow(TScanThread(T).ClientWnd2);
-              SetForegroundWindow(Application.Handle);
-              if gLangOffsety > 0 then
-                MsgBox(PChar(LoadStr(gLangOffsety + $1C8)),
-                       'UOPilot Error Message', $40000)
-              else
-                MsgBox('Ошибка чтения параметров чара',
-                       'UOPilot Error Message', $40000);
+              if T.AutoStart then
+                TScanThread(T).Synchronize(TScanThread(T).PauseScriptThread);
+              T.Paused := True;
             end;
+            if fmSecondfj.miInformErrorRead.Checked and err then
+              if not bErrShown then
+              begin
+                bErrShown := True;
+                SetForegroundWindow(TScanThread(T).ClientWnd2);
+                SetForegroundWindow(Application.Handle);
+                if gLangOffsety > 0 then
+                  MsgBox(PChar(LoadStr(gLangOffsety + $1C8)),
+                         'UOPilot Error Message', $40000)
+                else
+                  MsgBox('Ошибка чтения параметров чара',
+                         'UOPilot Error Message', $40000);
+              end;
+          end;
         end
         { Это ветка `else` того же `if not quo`, а не отдельная проверка.
           Цикл -- сложное условие, вход через проверку внизу. }
