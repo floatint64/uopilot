@@ -1,0 +1,22 @@
+name	kind	target	script	expected	note
+flow_if_true	script	#r	if 1 = 1\nset #r 1\nelse\nset #r 0\nend_if	1	
+flow_if_false	script	#r	if 1 = 2\nset #r 1\nelse\nset #r 0\nend_if	0	
+flow_if_not_true	script	#r	if_not 1 = 2\nset #r 1\nelse\nset #r 0\nend_if	1	
+flow_if_not_false	script	#r	if_not 1 = 1\nset #r 1\nelse\nset #r 0\nend_if	0	
+flow_nested_if	script	#r	set #r 0\nif 1 = 2\nif 1 = 1\nset #r 1\nend_if\nelse\nset #r 2\nend_if	2	
+flow_for_sum	script	#r	set #r 0\nfor #i 1 5\nset #r #r + #i\nend_for	15	
+flow_for_down	script	#r	set #r 0\nfor #i 5 1 -1\nset #r #r + #i\nend_for	15	
+flow_for_step2	script	#r	set #r 0\nfor #i 1 5 2\nset #r #r + #i\nend_for	9	
+flow_for_zero_iterations	script	#r	set #r 0\nfor #i 5 1\nset #r #r + 1\nend_for	0	
+flow_while_count	script	#r	set #i 0\nwhile #i < 3\nset #i #i + 1\nend_while\nset #r #i	3	
+flow_while_not_count	script	#r	set #i 0\nwhile_not #i = 3\nset #i #i + 1\nend_while\nset #r #i	3	
+flow_repeat_count	script	#r	set #r 0\nrepeat 3\nset #r #r + 1\nend_repeat	3	
+flow_repeat_zero	script	#r	set #r 0\nrepeat 0\nset #r #r + 1\nend_repeat	0	
+flow_gosub_return	script	#r	set #r 0\ngosub add_one\nset #r #r + 10\nend_script\n:add_one\nset #r #r + 1\nreturn	11	
+flow_goto_forward	script	#r	set #r 0\ngoto skip\nset #r 1\n:skip\nset #r 2	2	
+flow_goto_backward	script	#r	set #i 0\n:loop\nset #i #i + 1\nif #i < 3\ngoto loop\nend_if\nset #r #i	3	
+flow_break	script	#r	set #r 0\nfor #i 1 5\nset #r #r + 1\nif #i = 2\nbreak\nend_if\nend_for	2	
+flow_continue	script	#r	set #r 0\nfor #i 1 5\nif #i = 3\ncontinue\nend_if\nset #r #r + 1\nend_for	4	
+flow_switch_match	script	#r	set #r 0\nswitch 2\ncase 1: set #r 1\ncase 2: set #r 2\nend_switch	2	
+flow_switch_no_match	script	#r	set #r 0\nswitch 9\ncase 1: set #r 1\ncase 2: set #r 2\nend_switch\nset #r #r + 10	10	
+flow_end_script	script	#r	set #r 1\nend_script\nset #r 2	1	

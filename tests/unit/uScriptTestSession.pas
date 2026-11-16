@@ -9,13 +9,19 @@ uses
 type
   TScriptBackend = (sbLegacy, sbRuntime);
 
+  { Ошибка тестового драйвера: неподдерживаемая конструкция, неизвестная
+    команда или превышение лимита шагов. }
+  EScriptDriverError = class(Exception);
+
   IScriptSession = interface
     ['{6F1C7D2A-6C2B-4A4E-9A7F-2C5E1B8D3A41}']
     procedure Reset;
     function  Eval(const Expr: string): string;
+    procedure RunScript(const Script: string);
     function  NumVar(const Name: string): Int64;
     function  StrVar(const Name: string): string;
     function  ArrCell(const Name: string; Row, Col: Integer): string;
+    function  LastError: string;
   end;
 
 function CreateSession(ABackend: TScriptBackend): IScriptSession;

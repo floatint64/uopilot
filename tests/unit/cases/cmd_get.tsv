@@ -1,0 +1,21 @@
+name	kind	target	script	expected	note
+get_num_first_value	script	#n_num	set $n_src 42 привет\nget number #n_num #n_pos $n_src	42	
+get_num_first_pos	script	#n_pos	set $n_src 42 привет\nget number #n_num #n_pos $n_src	1	
+get_num_mid_value	script	#n_num	set $n_src мама 123 мыла\nget number #n_num #n_pos $n_src	123	
+get_num_mid_pos	script	#n_pos	set $n_src мама 123 мыла\nget number #n_num #n_pos $n_src	2	
+get_num_last_value	script	#n_num	set $n_src привет 7\nget number #n_num #n_pos $n_src	7	
+get_num_last_pos	script	#n_pos	set $n_src привет 7\nget number #n_num #n_pos $n_src	2	
+get_num_negative_value	script	#n_num	set $n_src -5 привет\nget number #n_num #n_pos $n_src	-5	
+get_num_negative_pos	script	#n_pos	set $n_src -5 привет\nget number #n_num #n_pos $n_src	1	
+get_num_first_of_many_pos	script	#n_pos	set $n_src мама 1 два 2\nget number #n_num #n_pos $n_src	2	
+get_num_hex_value	script	#n_num	set $n_src FF мама\nget number #n_num #n_pos $n_src	255	
+get_num_hex_0x_value	script	#n_num	set $n_src 0x1F мама\nget number #n_num #n_pos $n_src	31	
+get_num_none_value	script	#n_num	set $n_src мама мыла раму\nget number #n_num #n_pos $n_src	-1	
+get_num_none_pos	script	#n_pos	set $n_src мама мыла раму\nget number #n_num #n_pos $n_src	3	
+get_word_first	script	$w_res	set $w_src мама мыла раму\nget word $w_res 1 $w_src	мама	
+get_word_mid	script	$w_res	set $w_src мама мыла раму\nget word $w_res 2 $w_src	мыла	
+get_word_last	script	$w_res	set $w_src мама мыла раму\nget word $w_res 3 $w_src	раму	
+get_word_out_of_range	script	$w_res	set $w_src мама мыла раму\nget word $w_res 4 $w_src		
+get_word_zero	script	$w_res	set $w_src мама мыла раму\nget word $w_res 0 $w_src		
+get_word_neg1	script	$w_res	set $w_src мама мыла раму\nget word $w_res -1 $w_src	мыла раму	
+get_word_neg2	script	$w_res	set $w_src мама мыла раму\nget word $w_res -2 $w_src	раму	

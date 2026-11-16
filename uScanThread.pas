@@ -566,6 +566,12 @@ function EvalScriptPoint(T: TScanThread; S: string; N: Integer): string;
 { Вычислитель выражений скрипта. }
 function EvalScriptExpr(T: TScanThread; sv: string;
                         nv: Integer): string;
+{ Отрезает от строки скрипта однострочный комментарий `//`, не трогая `//`
+  внутри кавычек. Общая для Execute и тестового драйвера. }
+function StripScriptComment(const S: string): string;
+{ Хвост подготовки строки команды: вставка пробела перед первой `(` и
+  обрезка LogPrefix по `:`. Общая для Execute и тестового драйвера. }
+procedure PrepareScriptCommandLine(T: TScanThread);
 { Диспетчер команд скрипта: по номеру N выполняет тело команды.
   Зовётся из Execute на каждом шаге. }
 procedure ExecScriptCommand(T: TScanThread; var N: Integer;
@@ -2086,6 +2092,65 @@ begin
   Result := A0;
 end;
 
+function StripScriptComment(const S: string): string;
+var
+  { Тип `L` здесь ЗНАКОВЫЙ -- единственное отличие от близнеца
+    `CutComment`, где он Cardinal: там сравнение уходит в Int64, здесь
+    остаётся одной командой. }
+  L: Integer;
+  P, N, I: Integer;      { перестановка объявлений раскладку не меняет:
+                           I и N живут в регистрах, а не в кадре }
+  { Позиция последней кавычки: запоминается и нигде не читается --
+    недоделанный остаток. Команд от неё не выходит ни одной, зато второе
+    чтение `I` в теле цикла перевешивает скрытый счётчик `for`: без него
+    счётчик забирает регистр, а `I` уезжает в другой. }
+  J: Integer;
+begin
+  Result := S;
+  P := Pos('//', Result);
+  L := Length(Result);
+  while (P > 0) and (P <= L - 1) do
+  begin
+    if Pos('"', Result) > 0 then
+    begin
+      N := 0;
+      for I := 1 to P - 1 do
+        if Result[I] = '"' then
+        begin
+          Inc(N);
+          J := I;
+        end;
+      if N mod 2 = 0 then
+      begin
+        Result := Copy(Result, 1, P - 1);
+        Break;
+      end
+      else
+        P := PosEx('//', Result, P + 2);
+    end
+    else
+    begin
+      Result := Copy(Result, 1, P - 1);
+      Break;
+    end;
+  end;
+end;
+
+procedure PrepareScriptCommandLine(T: TScanThread);
+var
+  P: Integer;
+begin
+  P := Pos('(', T.LogPrefix);
+  if P > 0 then
+  begin
+    Insert(' ', T.Line, P);
+    T.LogPrefix := EvalScriptExpr(T, T.Line, 0);
+  end;
+  P := Pos(':', T.LogPrefix);
+  if P > 1 then
+    T.LogPrefix := Copy(T.LogPrefix, 1, P - 1);
+end;
+
 
 procedure TScanThread.Execute;
 var
@@ -2465,54 +2530,6 @@ label
       Self.Synchronize(Self.SyncShowWait);
     end;
   end;
-  { Вложенная, а не юнитовая, и стоит ПОСЛЕ `DoWait`: вложенные тела
-    выпускаются перед телом родителя, и порядок здесь важен.
-    Статической ссылки не заводит -- тело не трогает ни одного локала
-    родителя. }
-
-  function StripComment(S: string): string;
-  var
-    { Тип `L` здесь ЗНАКОВЫЙ -- единственное отличие от близнеца
-      `CutComment`, где он Cardinal: там сравнение уходит в Int64, здесь
-      остаётся одной командой. }
-    L: Integer;
-    P, N, I: Integer;      { перестановка объявлений раскладку не меняет:
-                             I и N живут в регистрах, а не в кадре }
-    { Позиция последней кавычки: запоминается и нигде не читается --
-      недоделанный остаток. Команд от неё не выходит ни одной, зато второе
-      чтение `I` в теле цикла перевешивает скрытый счётчик `for`: без него
-      счётчик забирает регистр, а `I` уезжает в другой. }
-    J: Integer;
-  begin
-    P := Pos('//', S);
-    L := Length(S);
-    while (P > 0) and (P <= L - 1) do
-    begin
-      if Pos('"', S) > 0 then
-      begin
-        N := 0;
-        for I := 1 to P - 1 do
-          if S[I] = '"' then
-          begin
-            Inc(N);
-            J := I;
-          end;
-        if N mod 2 = 0 then
-        begin
-          S := Copy(S, 1, P - 1);
-          Break;
-        end
-        else
-          P := PosEx('//', S, P + 2);
-      end
-      else
-      begin
-        S := Copy(S, 1, P - 1);
-        Break;
-      end;
-    end;
-    Result := S;
-  end;
 
 
   { Никем не вызывается. Держит кадр и ЗАДАЁТ ПОРЯДОК слотов: локалы,
@@ -2861,7 +2878,7 @@ NoLua:
             Inc(Self.CurLine);
             Continue;
           end;
-          Self.Line := StripComment(Self.Line);
+          Self.Line := StripScriptComment(Self.Line);
           K := Length(Self.Line);
           while (K > 0) and ((Self.Line[K] = ' ') or (Self.Line[K] = #9)) do
             Dec(K);
@@ -2959,15 +2976,7 @@ NoLua:
               goto NextLine;
             end;
           end;
-          P := Pos('(', Self.LogPrefix);
-          if P > 0 then
-          begin
-            Insert(' ', Self.Line, P);
-            Self.LogPrefix := EvalScriptExpr(Self, Self.Line, 0);
-          end;
-          P := Pos(':', Self.LogPrefix);
-          if P > 1 then
-            Self.LogPrefix := Copy(Self.LogPrefix, 1, P - 1);
+          PrepareScriptCommandLine(Self);
           Cmd := gCmdList2jj.IndexOf(Self.LogPrefix);
 RunCmd:
           ExecScriptCommand(TScanThread(Self), Cmd, Self.Line);
@@ -3141,6 +3150,8 @@ var
   Msg8: string;
   I: Integer;
 begin
+  if T.FForTest then
+    Exit;
   if T.ClientWnd2 <> 0 then
     SetForegroundWindow(T.ClientWnd2);
   SysUtils.Sleep(1);
@@ -3870,6 +3881,26 @@ begin
   ShowRun := False;
   LogLevel := 0;
   LineBase := 0;
+  PauseCmd := '0';
+  PauseStr := '0';
+  SendDelay := 0;
+  ClickDelay := 0;
+  ClVerIdx := 0;
+  NtUserIdx := 0;
+  StartTick := GetTickCount;
+  LineCount := 0;
+  Name := 'test';
+  Title := 'test';
+  StopRequested := False;
+  Paused := False;
+  Flag91 := False;
+  RestartFlag := False;
+  RepeatLine := False;
+  RepeatCmd := False;
+  LogPrefix := '';
+  Msg := '';
+  CmdLine := 0;
+  ParenPos := 0;
   VarNames := TStringList.Create;
   VarNames.Add('timer');
   if not QueryPerformanceFrequency(PerfFreq) then

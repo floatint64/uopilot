@@ -1,0 +1,14 @@
+name	kind	target	script	expected	note
+regexp_word_r	script	#r	set $s привет мир\nset $re мир\nset #r regexp(#pos $hit $s $re)	1	
+regexp_word_pos	script	#pos	set $s привет мир\nset $re мир\nset #r regexp(#pos $hit $s $re)	8	
+regexp_word_hit	script	$hit	set $s привет мир\nset $re мир\nset #r regexp(#pos $hit $s $re)	мир	
+regexp_lookbehind_r	script	#r	set $s сумма: 100\nset $re "(?<=сумма: )\d+"\nset #r regexp(#pos $hit $s $re)	1	
+regexp_lookbehind_pos	script	#pos	set $s сумма: 100\nset $re "(?<=сумма: )\d+"\nset #r regexp(#pos $hit $s $re)	8	
+regexp_lookbehind_hit	script	$hit	set $s сумма: 100\nset $re "(?<=сумма: )\d+"\nset #r regexp(#pos $hit $s $re)	100	
+regexp_notfound_r	script	#r	set $s абв\nset $re я\nset #r regexp(#pos $hit $s $re)	0	
+regexp_notfound_hit	script	$hit	set $s абв\nset $re я\nset #r regexp(#pos $hit $s $re)	-1	
+regexp_num_r	script	#r	set $s У Васи зарплата: 50.432\nset $re "[\d.,]+"\nset #r regexp(#pos $hit $s $re)	1	
+regexp_num_pos	script	#pos	set $s У Васи зарплата: 50.432\nset $re "[\d.,]+"\nset #r regexp(#pos $hit $s $re)	18	
+regexp_num_hit	script	$hit	set $s У Васи зарплата: 50.432\nset $re "[\d.,]+"\nset #r regexp(#pos $hit $s $re)	50.432	
+regexp_w_cyr_none	script	#r	set $s привет\nset $re "\w+"\nset #r regexp(#pos $hit $s $re)	0	
+regexp_case_sensitive	script	#r	set $s Привет\nset $re привет\nset #r regexp(#pos $hit $s $re)	0	

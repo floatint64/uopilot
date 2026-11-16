@@ -1,0 +1,7 @@
+name	kind	target	script	expected	note
+array_cell_first	script	%a[1][1]	set %a [1] один\nset %a [2] два	один	
+array_cell_second	script	%a[2][1]	set %a [1] один\nset %a [2] два	два	
+array_size	script	#r	set %a [1] один\nset %a [2] два\nset #r size(%a)	2	
+array_overwrite	script	%a[2][1]	set %a [1] один\nset %a [2] два\nset %a [2] три	три	
+array_size_after_overwrite	script	#r	set %a [1] один\nset %a [2] два\nset %a [2] три\nset #r size(%a)	2	
+array_indexof	script	#r	set %a [1] один\nset %a [2] два\nset #r indexof(%a noabs (дв))	2	

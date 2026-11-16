@@ -39,7 +39,7 @@
         <PackageName Value="SynEdit"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="8">
       <Unit0>
         <Filename Value="ScriptTests.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -60,6 +60,26 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uLegacyScriptSession"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="TestScriptParser.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptParser"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="TestScriptDriver.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptDriver"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="TestScriptCases.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptCases"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="uScriptTestCases.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uScriptTestCases"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,8 +1,13 @@
 # Юнит-тесты
 
 Консольное приложение на FPCUnit (`ScriptTests.lpi`). Линкует движок скриптов
-(`Unit1`, `uScanThread`), но не показывает окон: проверяются выражения и
-команды без GUI.
+(`Unit1`, `uScanThread`), но не показывает окон: проверяются выражения, команды
+и control-flow без GUI.
+
+Эти тесты **не заменяют** интеграционный прогон
+`tests/integration/strings_tests.txt`. Интеграционный скрипт остаётся
+регрессией реального GUI-цикла (`Execute`) и не переносится сюда целиком:
+здесь каждый кейс проверяет один контракт, а не сценарий.
 
 ## Сборка
 
@@ -42,34 +47,110 @@ tests\unit\ScriptTests.exe --all --sparse
 echo %ERRORLEVEL%
 ```
 
-## Полный прогон (с выводом информации)
+## Наборы
+
+| Suite | Файл кейсов | Что проверяется |
+|---|---|---|
+| `ScriptsExprStrings` | `cases/expr_strings.tsv` | `size`, `posex`, `copy`, `delete`, `insert`, `ord`, `chr`, `chartohex`, `chartohexf`, `string_*`, `trim`/`ltrim`/`rtrim`, пустые строки |
+| `ScriptsExprRegexp` | `cases/expr_regexp.tsv` | `regexp` через скрипт; `#r`, `#pos`, `$hit` — отдельные кейсы |
+| `ScriptsExprCompare` | `cases/expr_compare.tsv` | `=`, `==`, `<>`, `<`, `>`, `<=`, `>=`, `<-`, `->` в `if`/`else` |
+| `ScriptsCmdSet` | `cases/cmd_set.tsv` | скалярные `set #`/`set $`: кавычки, подстановка, перезапись, регистр, арифметика |
+| `ScriptsCmdGet` | `cases/cmd_get.tsv` | `get number`, `get word` |
+| `ScriptsArray` | `cases/arrays.tsv` | `set %a [N]`, `size(%a)`, `indexof`, доступ к ячейке |
+| `ScriptsFlow` | `cases/flow.tsv` | `if`/`if_not`/`else`, вложенный `if`, `for`, `while`, `repeat`, `gosub`/`return`, `goto`, `break`, `continue`, `switch`/`case`, `end_script` |
+
+Остальные unit-тесты:
+
+- `TestScriptExpressions` — smoke/white-box выражения и таблицы команд;
+- `TestScriptParser` — `StripScriptComment`, `PrepareScriptCommandLine`,
+  `EvalScriptPoint`;
+- `TestScriptDriver` — ошибки драйвера: неизвестная/внешняя команда, `--lua`,
+  `(* *)`, лимит шагов, `end_script`, успешный `set`.
+
+Один suite:
+
+```powershell
+.\tests\unit\ScriptTests.exe --suite=ScriptsFlow --sparse
+```
+
+## Формат TSV
+
+Файл — UTF-8, ровно 6 колонок через TAB:
+
+```text
+name	kind	target	script	expected	note
+set_scalar_num	script	#r	set #r 42	42	
+copy_ryosh	eval		copy("матрёшка" 4 3)	рёш	
+flow_for_sum	script	#r	set #r 0\nfor #i 1 5\nset #r #r + #i\nend_for	15	
+```
+
+- `kind`: `eval` (одно выражение), `script` (многострочный скрипт), `skip`
+  (игнорируемый кейс, `note` обязателен).
+- `target`: для `script` — `#name`, `$name`, `%name[row][col]`
+  (без индексов — `1,1`); для `eval` — пусто.
+- Экранирование: `\n`, `\r`, `\t`, `\\`. Остальные `\x` сохраняются как есть,
+  поэтому regexp-паттерны (`\d`, `\w`) не нужно удваивать.
+- Ожидаемая пустая строка — пустое поле `expected` (строка TSV при этом
+  заканчивается двумя TAB).
+- Для числового target (`#...`) ожидание и факт сравниваются через `Int64`,
+  с fallback на строку.
+- Строки, начинающиеся с `//`, и необязательная строка заголовка
+  `name<TAB>kind...` пропускаются.
+
+Файлы кейсов читаются с диска из `tests\unit\cases\`; в `.lpi` они не входят.
+Если файла нет, прогон падает с `EFOpenError`, а не становится «зелёным» без
+данных. Дубли имён внутри файла и неверный `kind` — ошибка загрузки с номером
+строки.
+
+## Кодировка
+
+Движок работает с cp1251. Исходники и TSV хранятся в UTF-8, поэтому
+`TestScriptCases` переводит скрипт и ожидание через `ToScript()`
+(`uScriptTestSession.pas`). Без этого кириллические кейсы падают.
+
+## Что умеет тестовый драйвер
+
+`TLegacyScriptSession.RunScript` повторяет flow-цикл `TScanThread.Execute`, но
+без UI, пауз и логов. Общие с `Execute` функции — `StripScriptComment` и
+`PrepareScriptCommandLine`. Драйвер исполняет только allowlist команд:
+
+`continue`, `break`, `for`/`end_for`, `goto`, `gosub`, `return`, `else`,
+`repeat`/`end_repeat`, `end_script`, `set`, `if`/`if_not`/`end_if`,
+`while`/`while_not`/`end_while`, `get`, `init_arr`, `eval`, `switch`, `case`,
+`end_switch`, `sort_array`, `delete_array`.
+
+Явно **не поддерживается** и поднимает `EScriptDriverError`:
+
+- блоки `--lua ... --endlua`;
+- block-комментарии `(* ... *)` (разбор в `Execute` привязан к его циклу и
+  содержит выход за границу строки; это отдельная bug-first задача);
+- внешние команды: `send`/`mouse`/`clipboard`/`window`/`memory`/`file`/
+  `plugin`/`macro`, а также `wait`, `log`, `msg`, `hint`, `exit`,
+  `proc`/`call`, `exec`, `load_script`, `restart_script`;
+- `set logging ...` (меняет глобальное состояние лога и в test-режиме
+  подмешивает служебный текст в `Msg`);
+- неизвестная команда (кроме меток `:name`).
+
+Лимит шагов — `MaxSteps` (по умолчанию `100000`); считаются все выполнения
+команд, включая повторные итерации `RepeatCmd`. Зацикленный `goto` или
+самоссылающийся `eval` даёт `EScriptDriverError`, а не зависание.
+
+## Полный прогон
 
 ```powershell
 .\tests\unit\ScriptTests.exe --all --format=plain
 ```
 
 Выводит каждый тест; при падении — сообщение, класс исключения и место
-(`at TestScriptExpressions.pas:42`), в конце — итог:
+(`at TestScriptCases.pas:119`), в конце — итог. `N` — выполнено, `E` — errors,
+`F` — failures, `I` — ignored.
 
-```text
-TScriptExprTest Time:00.003 N:6 E:0 F:0 I:1
-...
-Number of run tests: 6
-Number of errors:    0
-Number of failures:  0
-```
-
-- `N` — выполнено, `E` — errors, `F` — failures, `I` — ignored.
-- `Ignored` — тесты, помеченные `EIgnoredTest` (например, известный баг
-  `size("")` из `BUGS.md`); на код возврата не влияют, в выводе попадают в
-  `List of ignored tests`.
+`size("")` остаётся известным багом (`BUGS.md`) и помечен `EIgnoredTest`:
+на код возврата он не влияет.
 
 Полезные варианты:
 
 ```powershell
-# один набор
-.\tests\unit\ScriptTests.exe --suite=TScriptExprTest --format=plain
-
 # список зарегистрированных наборов/тестов
 .\tests\unit\ScriptTests.exe --list
 
@@ -81,12 +162,14 @@ Number of failures:  0
 ```
 
 `plain` — формат по умолчанию (задан в `ScriptTests.lpr`), а запуск без
-аргументов уже прогоняет все тесты, поэтому `ScriptTests.exe` равнозначен
-`ScriptTests.exe --all --format=plain`.
+аргументов уже прогоняет все тесты.
 
 ## Примечания
 
 - Бинарник линкует движок и LCL: окно не создаётся, но для сборки нужны
   установленные в Lazarus пакеты, перечисленные в `.lpi`.
-- Движок работает с cp1251, поэтому UTF-8 литералы в тестах переводятся через
-  `ToScript()` (`uScriptTestSession.pas`), иначе кириллические кейсы падают.
+- Тестовый экземпляр `TScanThread.CreateForTest` имеет `FForTest = True`;
+  `ShowScriptMsg` в этом режиме не трогает `Application`/`fmSecondfj`, поэтому
+  ошибки доступны через `LastError`, а не через message box.
+- Каждый кейс получает свежую сессию в `SetUp`; `Vars`/`Timers`/`Arr48` между
+  кейсами не переиспользуются.

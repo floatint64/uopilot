@@ -1,0 +1,56 @@
+name	kind	target	script	expected	note
+size_cyr	eval		size("абв")	3	
+size_mixed	eval		size("а1б2")	4	
+size_matryoshka	eval		size("матрёшка")	8	
+posex_first	eval		posex("ма" "мама")	1	
+posex_second	eval		posex("а" "мама")	2	
+posex_from_3	eval		posex("а" "мама" 3)	4	
+posex_none	eval		posex("я" "мама")	0	
+posex_third	eval		posex("б" "aаб")	3	
+posex_case	eval		posex("М" "мама")	0	
+copy_mid	eval		copy("абвг" 2 2)	бв	
+copy_matryoshka	eval		copy("матрёшка" 4 3)	рёш	
+copy_first	eval		copy("абвг" 1 1)	а	
+copy_last	eval		copy("абв" 3 1)	в	
+copy_mixed	eval		copy("aбв" 2 2)	бв	
+copy_zero_len	eval		copy("абв" 1 0)		
+delete_mid	eval		delete("абвг" 2 1)	авг	
+delete_prefix	eval		delete("абвг" 1 2)	вг	
+delete_suffix	eval		delete("абвг" 3 2)	аб	
+delete_out_of_range	eval		delete("абв" 4 1)	абв	
+insert_mid	eval		insert("Х" "абв" 2)	аХбв	
+insert_prefix	eval		insert("Х" "абв" 1)	Хабв	
+insert_suffix	eval		insert("Х" "абв" 4)	абвХ	
+insert_mixed	eval		insert("б" "aв" 2)	aбв	
+ord_a	eval		ord("а")	224	
+ord_ya	eval		ord("я")	255	
+ord_A	eval		ord("А")	192	
+ord_ascii	eval		ord("A")	65	
+ord_empty	eval		ord("")	0	
+chr_a	eval		chr(224)	а	
+chr_ya	eval		chr(255)	я	
+chr_ascii	eval		chr(65)	A	
+ch_to_hex_a	eval		chartohex("а")	E0	
+ch_to_hex_abv	eval		chartohex("абв")	E0E1E2	
+ch_to_hex_ascii	eval		chartohex("A")	41	
+ch_to_hex_empty	eval		chartohex("")		
+ch_to_hexf_copy	eval		copy(chartohexf("аб") 3 4)	E0E1	
+lower_upper	eval		string_lower("ПРИВЕТ")	привет	
+upper_lower	eval		string_upper("привет")	ПРИВЕТ	
+lower_phrase	eval		string_lower("Привет Мир")	привет мир	
+upper_mixed	eval		string_upper("абв abc")	АБВ ABC	
+letters_cyr	eval		string_letters("а1б2в3")	абв	
+letters_yo	eval		string_letters("ё1ж")	ёж	
+letters_empty	eval		string_letters("123")		
+digits_mixed	eval		string_digits("а1б2в3")	123	
+digits_none	eval		string_digits("абв")	-1	
+replace_first	eval		string_replace("мама мыла раму" "ма" "па" 1)	папа мыла раму	
+replace_case	eval		string_replace("МАМА" "ма" "па" 1)	папа	
+replace_once_default	eval		string_replace("мама" "ма" "па")	пама	
+count_present	eval		string_count("ма" "мама мыла маму")	3	
+count_absent	eval		string_count("я" "мама")	0	
+trim_spaces	eval		trim("  привет  ")	привет	
+ltrim_spaces	eval		ltrim("  привет")	привет	
+rtrim_spaces	eval		rtrim("привет  ")	привет	
+trim_noop	eval		trim("абв")	абв	
+trim_empty	eval		trim("")		

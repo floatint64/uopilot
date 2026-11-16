@@ -1,0 +1,16 @@
+name	kind	target	script	expected	note
+set_scalar_num	script	#r	set #r 42	42	
+set_scalar_str	script	$r	set $r привет	привет	
+set_quoted_spaces	script	$r	set $r "hello world"	hello world	
+set_concat_subst	script	$r	set $a привет\nset $b мир\nset $r $a$b	приветмир	
+set_concat_num	script	$r	set #n 5\nset $r привет#n	привет5	
+set_concat_plus	script	$r	set $a привет\nset $b мир\nset $r $a + $b	привет + мир	
+set_overwrite_num	script	#r	set #r 1\nset #r 2	2	
+set_overwrite_str	script	$r	set $r a\nset $r b	b	
+set_case_insensitive_str	script	$abc	set $Abc 5	5	
+set_case_insensitive_num	script	#count	set #Count 9	9	
+set_empty_quoted	script	$r	set $r ""		
+set_num_to_num	script	#r	set #a 7\nset #r #a	7	
+set_str_to_str	script	$r	set $a мир\nset $r $a	мир	
+set_arithmetic	script	#r	set #r 2 + 3	5	
+set_negative	script	#r	set #r -5	-5	
