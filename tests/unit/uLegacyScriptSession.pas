@@ -4,12 +4,13 @@ unit uLegacyScriptSession;
 interface
 
 uses
-  uScanThread, uScriptTestSession;
+  uScanThread, uScriptTestSession, uScriptDriver;
 
 type
   TLegacyScriptSession = class(TInterfacedObject, IScriptSession)
   private
     FT: TScanThread;
+    FDriver: TScriptDriver;
     FMaxSteps: Integer;
   public
     constructor Create;
@@ -45,6 +46,235 @@ begin
   end;
 end;
 
+{ ShowScriptMsg в тестовом режиме не дописывает завершающий #0, но многие
+  ветки ошибок ставят его сами -- снимаем ровно один. }
+function StripMsgNul(const S: string): string;
+begin
+  Result := S;
+  if (Length(Result) > 0) and (Result[Length(Result)] = #0) then
+    Delete(Result, Length(Result), 1);
+end;
+
+type
+  { Адаптеры тестового драйвера: те же поля TScanThread, что и у production. }
+  TLegacyDriverState = class(TInterfacedObject, IScriptDriverState)
+  private
+    FT: TScanThread;
+  public
+    constructor Create(AT: TScanThread);
+    function GetLinesCount: Integer;
+    function GetLine(Index: Integer): string;
+    function GetCurLine: Integer;
+    procedure SetCurLine(Value: Integer);
+    function GetLineText: string;
+    procedure SetLineText(const Value: string);
+    function GetLogPrefix: string;
+    procedure SetLogPrefix(const Value: string);
+    function GetRestartFlag: Boolean;
+    procedure SetRestartFlag(Value: Boolean);
+    function GetRepeatLine: Boolean;
+    procedure SetRepeatLine(Value: Boolean);
+    function GetRepeatCmd: Boolean;
+    procedure SetRepeatCmd(Value: Boolean);
+  end;
+
+  TLegacyDriverHost = class(TInterfacedObject, IScriptDriverHost)
+  private
+    FT: TScanThread;
+  public
+    constructor Create(AT: TScanThread);
+    function BeforeLine: TScriptStepResult;
+    function EvalLine(const S: string): string;
+    function ResolveCommand(const AName: string): Integer;
+    procedure ExecuteCommand(var ACmd: Integer);
+    function HandleLuaBlock(out AConsumed: Boolean): TScriptStepResult;
+    function HandleBlockComment(out AConsumed: Boolean): TScriptStepResult;
+    function WaitEmptyLine: TScriptStepResult;
+    function WaitEmptyPrefix: TScriptStepResult;
+    function WaitBeforeCommand: TScriptStepResult;
+  end;
+
+constructor TLegacyDriverState.Create(AT: TScanThread);
+begin
+  inherited Create;
+  FT := AT;
+end;
+
+function TLegacyDriverState.GetLinesCount: Integer;
+begin
+  Result := Length(FT.Lines);
+end;
+
+function TLegacyDriverState.GetLine(Index: Integer): string;
+begin
+  Result := FT.Lines[Index];
+end;
+
+function TLegacyDriverState.GetCurLine: Integer;
+begin
+  Result := FT.CurLine;
+end;
+
+procedure TLegacyDriverState.SetCurLine(Value: Integer);
+begin
+  FT.CurLine := Value;
+end;
+
+function TLegacyDriverState.GetLineText: string;
+begin
+  Result := FT.Line;
+end;
+
+procedure TLegacyDriverState.SetLineText(const Value: string);
+begin
+  FT.Line := Value;
+end;
+
+function TLegacyDriverState.GetLogPrefix: string;
+begin
+  Result := FT.LogPrefix;
+end;
+
+procedure TLegacyDriverState.SetLogPrefix(const Value: string);
+begin
+  FT.LogPrefix := Value;
+end;
+
+function TLegacyDriverState.GetRestartFlag: Boolean;
+begin
+  Result := FT.RestartFlag;
+end;
+
+procedure TLegacyDriverState.SetRestartFlag(Value: Boolean);
+begin
+  FT.RestartFlag := Value;
+end;
+
+function TLegacyDriverState.GetRepeatLine: Boolean;
+begin
+  Result := FT.RepeatLine;
+end;
+
+procedure TLegacyDriverState.SetRepeatLine(Value: Boolean);
+begin
+  FT.RepeatLine := Value;
+end;
+
+function TLegacyDriverState.GetRepeatCmd: Boolean;
+begin
+  Result := FT.RepeatCmd;
+end;
+
+procedure TLegacyDriverState.SetRepeatCmd(Value: Boolean);
+begin
+  FT.RepeatCmd := Value;
+end;
+
+constructor TLegacyDriverHost.Create(AT: TScanThread);
+begin
+  inherited Create;
+  FT := AT;
+end;
+
+function TLegacyDriverHost.BeforeLine: TScriptStepResult;
+begin
+  if FT.StopRequested then
+    Result := srStop
+  else
+    Result := srNext;
+end;
+
+function TLegacyDriverHost.EvalLine(const S: string): string;
+begin
+  Result := EvalScriptExpr(FT, S, 0);
+end;
+
+function TLegacyDriverHost.ResolveCommand(const AName: string): Integer;
+begin
+  Result := gCmdList2jj.IndexOf(AName);
+end;
+
+procedure TLegacyDriverHost.ExecuteCommand(var ACmd: Integer);
+var
+  CmdName: string;
+  SubCmd: string;
+begin
+  { Метка `:name`: в Execute её молча пропускает else-ветка
+    ExecScriptCommand (LogPrefix начинается с ':'). }
+  if ACmd < 0 then
+  begin
+    if Copy(FT.LogPrefix, 1, 1) = ':' then
+      Exit;
+    raise EScriptDriverError.CreateFmt(
+      'unknown command "%s" (line %d)', [FT.LogPrefix, FT.CurLine]);
+  end;
+
+  if not IsAllowedCommand(ACmd) then
+  begin
+    if (ACmd >= 0) and (ACmd < gCmdList2jj.Count) then
+      CmdName := gCmdList2jj[ACmd]
+    else
+      CmdName := FT.LogPrefix;
+    raise EScriptDriverError.CreateFmt(
+      'command "%s" is not supported (line %d)',
+      [CmdName, FT.CurLine]);
+  end;
+
+  { `set logging` меняет глобальное состояние и в test-режиме пишет
+    служебный текст в Msg, который драйвер считает ошибкой. }
+  if ACmd = 40 then
+  begin
+    SubCmd := AnsiLowerCase(EvalScriptPoint(FT, FT.Line, 1));
+    if (Length(SubCmd) >= 2) and (SubCmd[1] = '"') and
+       (SubCmd[Length(SubCmd)] = '"') then
+      SubCmd := Copy(SubCmd, 2, Length(SubCmd) - 2);
+    if SubCmd = 'logging' then
+      raise EScriptDriverError.CreateFmt(
+        'set logging is not supported (line %d)', [FT.CurLine]);
+  end;
+
+  FT.Msg := '';
+  ExecScriptCommand(FT, ACmd, FT.Line);
+  if FT.Msg <> '' then
+    raise EScriptDriverError.Create('script error: ' + StripMsgNul(FT.Msg));
+end;
+
+function TLegacyDriverHost.HandleLuaBlock(out AConsumed: Boolean): TScriptStepResult;
+var
+  S: string;
+begin
+  AConsumed := False;
+  S := AnsiLowerCase(FT.Line);
+  if (S = '--lua') or (S = '-- lua') then
+    raise EScriptDriverError.CreateFmt(
+      'lua blocks are not supported (line %d)', [FT.CurLine]);
+  Result := srNext;
+end;
+
+function TLegacyDriverHost.HandleBlockComment(out AConsumed: Boolean): TScriptStepResult;
+begin
+  AConsumed := False;
+  if Pos('(*', FT.Line) > 0 then
+    raise EScriptDriverError.CreateFmt(
+      'block comments are not supported (line %d)', [FT.CurLine]);
+  Result := srNext;
+end;
+
+function TLegacyDriverHost.WaitEmptyLine: TScriptStepResult;
+begin
+  Result := srNext;
+end;
+
+function TLegacyDriverHost.WaitEmptyPrefix: TScriptStepResult;
+begin
+  Result := srNext;
+end;
+
+function TLegacyDriverHost.WaitBeforeCommand: TScriptStepResult;
+begin
+  Result := srNext;
+end;
+
 constructor TLegacyScriptSession.Create;
 begin
   inherited Create;
@@ -54,6 +284,7 @@ end;
 
 destructor TLegacyScriptSession.Destroy;
 begin
+  FreeAndNil(FDriver);
   FreeAndNil(FT);
   inherited Destroy;
 end;
@@ -62,9 +293,12 @@ end;
   каждом создании сессии. }
 procedure TLegacyScriptSession.Reset;
 begin
+  FreeAndNil(FDriver);
   FreeAndNil(FT);
   InitScriptCommandTables;
   FT := TScanThread.CreateForTest;
+  FDriver := TScriptDriver.Create(
+    TLegacyDriverState.Create(FT), TLegacyDriverHost.Create(FT));
 end;
 
 { Внутренний вычислитель ожидает 'calc ' перед выражением и nv = -1:
@@ -76,19 +310,11 @@ begin
   Result := EvalScriptExpr(FT, 'calc ' + Expr, -1);
 end;
 
-{ Минимальный драйвер legacy-цикла: повторяет порядок Execute, но без UI,
-  пауз, логов и внешних команд. }
+{ Загрузка сценария и сброс состояния; сам line-loop -- в uScriptDriver. }
 procedure TLegacyScriptSession.RunScript(const Script: string);
-label
-  NoLua;
 var
-  Cmd: Integer;
-  Steps: Integer;
   I: Integer;
   LinesList: TStringList;
-  S: string;
-  CmdName: string;
-  SubCmd: string;
 begin
   if FT = nil then
     Reset;
@@ -125,105 +351,8 @@ begin
   FT.AutoStart := False;
   FT.ShowRun := False;
 
-  Steps := 0;
-  while FT.CurLine < Length(FT.Lines) do
-  begin
-    FT.Line := FT.Lines[FT.CurLine];
-    S := AnsiLowerCase(FT.Line);
-    if (S = '--lua') or (S = '-- lua') then
-      raise EScriptDriverError.CreateFmt(
-        'lua blocks are not supported (line %d)', [FT.CurLine]);
-
-  NoLua:
-    FT.RepeatLine := False;
-    if FT.Line = '' then
-    begin
-      Inc(FT.CurLine);
-      Continue;
-    end;
-
-    FT.Line := StripScriptComment(FT.Line);
-    I := Length(FT.Line);
-    while (I > 0) and ((FT.Line[I] = ' ') or (FT.Line[I] = #9)) do
-      Dec(I);
-    FT.Line := Copy(FT.Line, 1, I);
-
-    if FT.Line = '' then
-    begin
-      Inc(FT.CurLine);
-      Continue;
-    end;
-
-    if Pos('(*', FT.Line) > 0 then
-      raise EScriptDriverError.CreateFmt(
-        'block comments are not supported (line %d)', [FT.CurLine]);
-
-    FT.LogPrefix := EvalScriptExpr(FT, FT.Line, 0);
-    if FT.LogPrefix = '' then
-    begin
-      Inc(FT.CurLine);
-      Continue;
-    end;
-
-    PrepareScriptCommandLine(FT);
-    Cmd := gCmdList2jj.IndexOf(FT.LogPrefix);
-    if Cmd < 0 then
-    begin
-      { Метка `:name`: в Execute её молча пропускает else-ветка
-        ExecScriptCommand (LogPrefix начинается с ':'). }
-      if Copy(FT.LogPrefix, 1, 1) <> ':' then
-        raise EScriptDriverError.CreateFmt(
-          'unknown command "%s" (line %d)', [FT.LogPrefix, FT.CurLine]);
-      Inc(FT.CurLine);
-      Continue;
-    end;
-
-    { `eval` и `set logging` переписывают Cmd и ставят RepeatCmd, поэтому
-      allowlist перепроверяется на каждой итерации. }
-    repeat
-      if not IsAllowedCommand(Cmd) then
-      begin
-        if (Cmd >= 0) and (Cmd < gCmdList2jj.Count) then
-          CmdName := gCmdList2jj[Cmd]
-        else
-          CmdName := FT.LogPrefix;
-        raise EScriptDriverError.CreateFmt(
-          'command "%s" is not supported (line %d)',
-          [CmdName, FT.CurLine]);
-      end;
-
-      { `set logging` меняет глобальное состояние и в test-режиме пишет
-        служебный текст в Msg, который драйвер считает ошибкой. }
-      if Cmd = 40 then
-      begin
-        SubCmd := AnsiLowerCase(EvalScriptPoint(FT, FT.Line, 1));
-        if (Length(SubCmd) >= 2) and (SubCmd[1] = '"') and
-           (SubCmd[Length(SubCmd)] = '"') then
-          SubCmd := Copy(SubCmd, 2, Length(SubCmd) - 2);
-        if SubCmd = 'logging' then
-          raise EScriptDriverError.CreateFmt(
-            'set logging is not supported (line %d)', [FT.CurLine]);
-      end;
-
-      Inc(Steps);
-      if Steps > FMaxSteps then
-        raise EScriptDriverError.CreateFmt(
-          'step limit (%d) exceeded at line %d', [FMaxSteps, FT.CurLine]);
-
-      FT.Msg := '';
-      ExecScriptCommand(FT, Cmd, FT.Line);
-      if FT.Msg <> '' then
-        raise EScriptDriverError.Create('script error: ' + LastError);
-      if FT.StopRequested then
-        Exit;
-      if FT.RestartFlag then
-        raise EScriptDriverError.Create('restart_script is not supported');
-    until not FT.RepeatCmd;
-
-    if FT.RepeatLine then
-      goto NoLua;
-    Inc(FT.CurLine);
-  end;
+  FDriver.MaxSteps := FMaxSteps;
+  FDriver.Run;
 end;
 
 function TLegacyScriptSession.NumVar(const Name: string): Int64;
@@ -262,15 +391,11 @@ begin
   Result := FT.Arr48[Idx].Data[Row - 1][Col - 1];
 end;
 
-{ ShowScriptMsg в тестовом режиме не дописывает завершающий #0, но многие
-  ветки ошибок ставят его сами -- снимаем ровно один. }
 function TLegacyScriptSession.LastError: string;
 begin
   if FT = nil then
     Exit('');
-  Result := FT.Msg;
-  if (Length(Result) > 0) and (Result[Length(Result)] = #0) then
-    Delete(Result, Length(Result), 1);
+  Result := StripMsgNul(FT.Msg);
 end;
 
 end.

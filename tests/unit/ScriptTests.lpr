@@ -3,7 +3,8 @@ program ScriptTests;
 
 uses
   Interfaces, Classes, consoletestrunner,
-  TestScriptExpressions, TestScriptParser, TestScriptDriver, TestScriptCases;
+  TestScriptExpressions, TestScriptParser, TestScriptDriver,
+  TestScriptDriverFlow, TestScriptCases;
 
 var
   App: TTestRunner;

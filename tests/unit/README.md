@@ -62,10 +62,15 @@ echo %ERRORLEVEL%
 Остальные unit-тесты:
 
 - `TestScriptExpressions` — smoke/white-box выражения и таблицы команд;
-- `TestScriptParser` — `StripScriptComment`, `PrepareScriptCommandLine`,
+- `TestScriptParser` — `StripScriptComment`, `TrimRightScriptLine`,
+  `InsertSpaceBeforeParen`, `CutCommandAtColon`, `PrepareScriptCommandLine`,
   `EvalScriptPoint`;
 - `TestScriptDriver` — ошибки драйвера: неизвестная/внешняя команда, `--lua`,
-  `(* *)`, лимит шагов, `end_script`, успешный `set`.
+  `(* *)`, лимит шагов, `end_script`, успешный `set`;
+- `TestScriptDriverFlow` — сам `TScriptDriver.Step`/`Run` на fake
+  state/host: комментарии, пустые строки, `(`/`:`, `RepeatLine`/`RepeatCmd`,
+  `RestartFlag`, `srEnd`/`srScanLoop`/`srAgain`/`srRetry`, `MaxSteps`,
+  `rpError`/`rpReset`.
 
 Один suite:
 
@@ -110,9 +115,23 @@ flow_for_sum	script	#r	set #r 0\nfor #i 1 5\nset #r #r + #i\nend_for	15
 
 ## Что умеет тестовый драйвер
 
-`TLegacyScriptSession.RunScript` повторяет flow-цикл `TScanThread.Execute`, но
-без UI, пауз и логов. Общие с `Execute` функции — `StripScriptComment` и
-`PrepareScriptCommandLine`. Драйвер исполняет только allowlist команд:
+Line-loop скрипта живёт в `core/uScriptDriver.pas` (`TScriptDriver`), а чистые
+текстовые хелперы — в `core/uScriptParser.pas`. Core не зависит от `Unit1`,
+`uScanThread` и LCL: окружение приходит через `IScriptDriverState` и
+`IScriptDriverHost`.
+
+- `Step` — один проход по строке; на нём будет работать production
+  `TScanThread.Execute`;
+- `Run` — выполнить скрипт один раз (`srEnd`/`srScanLoop`/`srStop` — выход,
+  `srRestart` — `rpError`/`rpReset`);
+- `MaxSteps = 0` — без лимита (production), тесты выставляют конечный лимит.
+
+Адаптеры production будут в `uScanThread.pas`, тестовые —
+в `uLegacyScriptSession.pas` (`TLegacyDriverState`/`TLegacyDriverHost`).
+`TLegacyScriptSession.RunScript` только загружает строки, сбрасывает состояние
+и вызывает `FDriver.Run`; собственного line-loop в нём нет.
+
+Драйвер исполняет только allowlist команд:
 
 `continue`, `break`, `for`/`end_for`, `goto`, `gosub`, `return`, `else`,
 `repeat`/`end_repeat`, `end_script`, `set`, `if`/`if_not`/`end_if`,

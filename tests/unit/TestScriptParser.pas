@@ -4,7 +4,7 @@ unit TestScriptParser;
 interface
 
 uses
-  fpcunit, testregistry, uScanThread;
+  fpcunit, testregistry, uScanThread, uScriptParser;
 
 type
   TScriptParserTest = class(TTestCase)
@@ -19,6 +19,9 @@ type
     procedure TestStripCommentInsideQuotes;
     procedure TestStripCommentWholeLine;
     procedure TestStripCommentNoComment;
+    procedure TestTrimRightScriptLine;
+    procedure TestInsertSpaceBeforeParen;
+    procedure TestCutCommandAtColon;
     procedure TestPrepareCommandParen;
     procedure TestPrepareCommandColon;
     procedure TestPrepareCommandUnchanged;
@@ -43,29 +46,51 @@ end;
 
 procedure TScriptParserTest.TestStripCommentTrailing;
 begin
-  AssertEquals('set $a 1 ', StripScriptComment('set $a 1 // comment'));
+  AssertEquals('set $a 1 ',
+    uScriptParser.StripScriptComment('set $a 1 // comment'));
 end;
 
 procedure TScriptParserTest.TestStripCommentQuotedUrl;
 begin
   AssertEquals('set $a "http://x" ',
-    StripScriptComment('set $a "http://x" // c'));
+    uScriptParser.StripScriptComment('set $a "http://x" // c'));
 end;
 
 procedure TScriptParserTest.TestStripCommentInsideQuotes;
 begin
   AssertEquals('set $a "a // b"',
-    StripScriptComment('set $a "a // b"'));
+    uScriptParser.StripScriptComment('set $a "a // b"'));
 end;
 
 procedure TScriptParserTest.TestStripCommentWholeLine;
 begin
-  AssertEquals('', StripScriptComment('// whole line'));
+  AssertEquals('', uScriptParser.StripScriptComment('// whole line'));
 end;
 
 procedure TScriptParserTest.TestStripCommentNoComment;
 begin
-  AssertEquals('set $a 1', StripScriptComment('set $a 1'));
+  AssertEquals('set $a 1', uScriptParser.StripScriptComment('set $a 1'));
+end;
+
+procedure TScriptParserTest.TestTrimRightScriptLine;
+begin
+  AssertEquals('set $a 1', uScriptParser.TrimRightScriptLine('set $a 1 '#9' '));
+  AssertEquals('', uScriptParser.TrimRightScriptLine(' '#9' '));
+end;
+
+procedure TScriptParserTest.TestInsertSpaceBeforeParen;
+begin
+  AssertEquals('if (1)', uScriptParser.InsertSpaceBeforeParen('if(1)', 3));
+  AssertEquals('if(1)', uScriptParser.InsertSpaceBeforeParen('if(1)', 0));
+  AssertEquals('if(1) ', uScriptParser.InsertSpaceBeforeParen('if(1)', 6));
+  AssertEquals('if(1)', uScriptParser.InsertSpaceBeforeParen('if(1)', 7));
+end;
+
+procedure TScriptParserTest.TestCutCommandAtColon;
+begin
+  AssertEquals('foo', uScriptParser.CutCommandAtColon('foo:bar'));
+  AssertEquals(':bar', uScriptParser.CutCommandAtColon(':bar'));
+  AssertEquals('foo', uScriptParser.CutCommandAtColon('foo'));
 end;
 
 procedure TScriptParserTest.TestPrepareCommandParen;

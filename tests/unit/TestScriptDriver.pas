@@ -4,7 +4,7 @@ unit TestScriptDriver;
 interface
 
 uses
-  fpcunit, testregistry, uScriptTestSession, uLegacyScriptSession;
+  fpcunit, testregistry, uLegacyScriptSession, uScriptDriver;
 
 type
   TScriptDriverTest = class(TTestCase)

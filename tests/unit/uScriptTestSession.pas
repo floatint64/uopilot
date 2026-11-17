@@ -9,10 +9,6 @@ uses
 type
   TScriptBackend = (sbLegacy, sbRuntime);
 
-  { Ошибка тестового драйвера: неподдерживаемая конструкция, неизвестная
-    команда или превышение лимита шагов. }
-  EScriptDriverError = class(Exception);
-
   IScriptSession = interface
     ['{6F1C7D2A-6C2B-4A4E-9A7F-2C5E1B8D3A41}']
     procedure Reset;

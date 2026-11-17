@@ -19,7 +19,7 @@ unit uScanThread;
 
 interface
 
-uses LangClipboard, Types, geScale, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows{$IFDEF FPC}, LCLType{$ENDIF};
+uses LangClipboard, Types, geScale, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows, uScriptParser{$IFDEF FPC}, LCLType{$ENDIF};
 type
   { Пользовательская переменная: одна строка. Создаётся в
     Unit1.AfterOptionsLoaded по секции CustomVariables. }
@@ -2093,47 +2093,8 @@ begin
 end;
 
 function StripScriptComment(const S: string): string;
-var
-  { Тип `L` здесь ЗНАКОВЫЙ -- единственное отличие от близнеца
-    `CutComment`, где он Cardinal: там сравнение уходит в Int64, здесь
-    остаётся одной командой. }
-  L: Integer;
-  P, N, I: Integer;      { перестановка объявлений раскладку не меняет:
-                           I и N живут в регистрах, а не в кадре }
-  { Позиция последней кавычки: запоминается и нигде не читается --
-    недоделанный остаток. Команд от неё не выходит ни одной, зато второе
-    чтение `I` в теле цикла перевешивает скрытый счётчик `for`: без него
-    счётчик забирает регистр, а `I` уезжает в другой. }
-  J: Integer;
 begin
-  Result := S;
-  P := Pos('//', Result);
-  L := Length(Result);
-  while (P > 0) and (P <= L - 1) do
-  begin
-    if Pos('"', Result) > 0 then
-    begin
-      N := 0;
-      for I := 1 to P - 1 do
-        if Result[I] = '"' then
-        begin
-          Inc(N);
-          J := I;
-        end;
-      if N mod 2 = 0 then
-      begin
-        Result := Copy(Result, 1, P - 1);
-        Break;
-      end
-      else
-        P := PosEx('//', Result, P + 2);
-    end
-    else
-    begin
-      Result := Copy(Result, 1, P - 1);
-      Break;
-    end;
-  end;
+  Result := uScriptParser.StripScriptComment(S);
 end;
 
 procedure PrepareScriptCommandLine(T: TScanThread);
@@ -2143,12 +2104,10 @@ begin
   P := Pos('(', T.LogPrefix);
   if P > 0 then
   begin
-    Insert(' ', T.Line, P);
+    T.Line := InsertSpaceBeforeParen(T.Line, P);
     T.LogPrefix := EvalScriptExpr(T, T.Line, 0);
   end;
-  P := Pos(':', T.LogPrefix);
-  if P > 1 then
-    T.LogPrefix := Copy(T.LogPrefix, 1, P - 1);
+  T.LogPrefix := CutCommandAtColon(T.LogPrefix);
 end;
 
 

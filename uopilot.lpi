@@ -26,9 +26,8 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <Libraries Value="lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
-            <OtherUnitFiles Value=""/>
+            <OtherUnitFiles Value="core"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
-            <ObjectPath Value=""/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -73,9 +72,8 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <Libraries Value="lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
-            <OtherUnitFiles Value=""/>
+            <OtherUnitFiles Value="core"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
-            <ObjectPath Value=""/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -251,9 +249,8 @@
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <Libraries Value="lib\$(TargetCPU)-$(TargetOS);pcre\coff"/>
-      <OtherUnitFiles Value=""/>
+      <OtherUnitFiles Value="core"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
-      <ObjectPath Value=""/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
