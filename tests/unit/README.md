@@ -63,8 +63,7 @@ echo %ERRORLEVEL%
 
 - `TestScriptExpressions` — smoke/white-box выражения и таблицы команд;
 - `TestScriptParser` — `StripScriptComment`, `TrimRightScriptLine`,
-  `InsertSpaceBeforeParen`, `CutCommandAtColon`, `PrepareScriptCommandLine`,
-  `EvalScriptPoint`;
+  `InsertSpaceBeforeParen`, `CutCommandAtColon`, `EvalScriptPoint`;
 - `TestScriptDriver` — ошибки драйвера: неизвестная/внешняя команда, `--lua`,
   `(* *)`, лимит шагов, `end_script`, успешный `set`;
 - `TestScriptDriverFlow` — сам `TScriptDriver.Step`/`Run` на fake
@@ -120,16 +119,18 @@ Line-loop скрипта живёт в `core/uScriptDriver.pas` (`TScriptDriver`
 `uScanThread` и LCL: окружение приходит через `IScriptDriverState` и
 `IScriptDriverHost`.
 
-- `Step` — один проход по строке; на нём будет работать production
+- `Step` — один проход по строке; на нём работает production
   `TScanThread.Execute`;
 - `Run` — выполнить скрипт один раз (`srEnd`/`srScanLoop`/`srStop` — выход,
   `srRestart` — `rpError`/`rpReset`);
 - `MaxSteps = 0` — без лимита (production), тесты выставляют конечный лимит.
 
-Адаптеры production будут в `uScanThread.pas`, тестовые —
-в `uLegacyScriptSession.pas` (`TLegacyDriverState`/`TLegacyDriverHost`).
-`TLegacyScriptSession.RunScript` только загружает строки, сбрасывает состояние
-и вызывает `FDriver.Run`; собственного line-loop в нём нет.
+Адаптеры production живут в `uScanThread.pas` (`TScanDriverState`/
+`TScanDriverHost`), тестовые — в `uLegacyScriptSession.pas`
+(`TLegacyDriverState`/`TLegacyDriverHost`). `TScanThread.Execute` только
+вызывает `FDriver.Step` и маппит результат в `goto`/`Suspend`; собственного
+line-loop там нет. `TLegacyScriptSession.RunScript` только загружает строки,
+сбрасывает состояние и вызывает `FDriver.Run`.
 
 Драйвер исполняет только allowlist команд:
 

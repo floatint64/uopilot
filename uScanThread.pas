@@ -19,7 +19,7 @@ unit uScanThread;
 
 interface
 
-uses LangClipboard, Types, geScale, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows, uScriptParser{$IFDEF FPC}, LCLType{$ENDIF};
+uses LangClipboard, Types, geScale, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows, uScriptParser, uScriptDriver{$IFDEF FPC}, LCLType{$ENDIF};
 type
   { Пользовательская переменная: одна строка. Создаётся в
     Unit1.AfterOptionsLoaded по секции CustomVariables. }
@@ -434,12 +434,14 @@ type
     Hint: TmsgHintParam;
     Timer: TTimer;                     // интервал $FA0
     FForTest: Boolean;                 // тестовый экземпляр без UI
+    FDriver: TScriptDriver;            // line-loop скрипта (core/uScriptDriver)
   protected
     procedure Execute; override;
   public
     procedure LogWndProc(var Message: TMessage);
     destructor Destroy; override;
     procedure ReleaseOwnedResources;
+    procedure DoWait(S: string);
     procedure CaptureWindowBits;
     procedure ShowScriptHint;
     procedure SyncShowRunLine;
@@ -566,12 +568,6 @@ function EvalScriptPoint(T: TScanThread; S: string; N: Integer): string;
 { Вычислитель выражений скрипта. }
 function EvalScriptExpr(T: TScanThread; sv: string;
                         nv: Integer): string;
-{ Отрезает от строки скрипта однострочный комментарий `//`, не трогая `//`
-  внутри кавычек. Общая для Execute и тестового драйвера. }
-function StripScriptComment(const S: string): string;
-{ Хвост подготовки строки команды: вставка пробела перед первой `(` и
-  обрезка LogPrefix по `:`. Общая для Execute и тестового драйвера. }
-procedure PrepareScriptCommandLine(T: TScanThread);
 { Диспетчер команд скрипта: по номеру N выполняет тело команды.
   Зовётся из Execute на каждом шаге. }
 procedure ExecScriptCommand(T: TScanThread; var N: Integer;
@@ -2092,22 +2088,504 @@ begin
   Result := A0;
 end;
 
-function StripScriptComment(const S: string): string;
+type
+  { Адаптеры production-драйвера: line-loop живёт в core/uScriptDriver, а
+    состояние и UI-хуки берутся прямо из TScanThread. }
+  TScanDriverState = class(TInterfacedObject, IScriptDriverState)
+  private
+    FT: TScanThread;
+  public
+    constructor Create(AT: TScanThread);
+    function GetLinesCount: Integer;
+    function GetLine(Index: Integer): string;
+    function GetCurLine: Integer;
+    procedure SetCurLine(Value: Integer);
+    function GetLineText: string;
+    procedure SetLineText(const Value: string);
+    function GetLogPrefix: string;
+    procedure SetLogPrefix(const Value: string);
+    function GetRestartFlag: Boolean;
+    procedure SetRestartFlag(Value: Boolean);
+    function GetRepeatLine: Boolean;
+    procedure SetRepeatLine(Value: Boolean);
+    function GetRepeatCmd: Boolean;
+    procedure SetRepeatCmd(Value: Boolean);
+  end;
+
+  TScanDriverHost = class(TInterfacedObject, IScriptDriverHost)
+  private
+    FT: TScanThread;
+  public
+    constructor Create(AT: TScanThread);
+    function BeforeLine: TScriptStepResult;
+    function EvalLine(const S: string): string;
+    function ResolveCommand(const AName: string): Integer;
+    procedure ExecuteCommand(var ACmd: Integer);
+    function HandleLuaBlock(out AConsumed: Boolean): TScriptStepResult;
+    function HandleBlockComment(out AConsumed: Boolean): TScriptStepResult;
+    function WaitEmptyLine: TScriptStepResult;
+    function WaitEmptyPrefix: TScriptStepResult;
+    function WaitBeforeCommand: TScriptStepResult;
+  end;
+
+constructor TScanDriverState.Create(AT: TScanThread);
 begin
-  Result := uScriptParser.StripScriptComment(S);
+  inherited Create;
+  FT := AT;
 end;
 
-procedure PrepareScriptCommandLine(T: TScanThread);
-var
-  P: Integer;
+function TScanDriverState.GetLinesCount: Integer;
 begin
-  P := Pos('(', T.LogPrefix);
-  if P > 0 then
+  Result := Length(FT.Lines);
+end;
+
+function TScanDriverState.GetLine(Index: Integer): string;
+begin
+  Result := FT.Lines[Index];
+end;
+
+function TScanDriverState.GetCurLine: Integer;
+begin
+  Result := FT.CurLine;
+end;
+
+procedure TScanDriverState.SetCurLine(Value: Integer);
+begin
+  FT.CurLine := Value;
+end;
+
+function TScanDriverState.GetLineText: string;
+begin
+  Result := FT.Line;
+end;
+
+procedure TScanDriverState.SetLineText(const Value: string);
+begin
+  FT.Line := Value;
+end;
+
+function TScanDriverState.GetLogPrefix: string;
+begin
+  Result := FT.LogPrefix;
+end;
+
+procedure TScanDriverState.SetLogPrefix(const Value: string);
+begin
+  FT.LogPrefix := Value;
+end;
+
+function TScanDriverState.GetRestartFlag: Boolean;
+begin
+  Result := FT.RestartFlag;
+end;
+
+procedure TScanDriverState.SetRestartFlag(Value: Boolean);
+begin
+  FT.RestartFlag := Value;
+end;
+
+function TScanDriverState.GetRepeatLine: Boolean;
+begin
+  Result := FT.RepeatLine;
+end;
+
+procedure TScanDriverState.SetRepeatLine(Value: Boolean);
+begin
+  FT.RepeatLine := Value;
+end;
+
+function TScanDriverState.GetRepeatCmd: Boolean;
+begin
+  Result := FT.RepeatCmd;
+end;
+
+procedure TScanDriverState.SetRepeatCmd(Value: Boolean);
+begin
+  FT.RepeatCmd := Value;
+end;
+
+constructor TScanDriverHost.Create(AT: TScanThread);
+begin
+  inherited Create;
+  FT := AT;
+end;
+
+{ UI-пролог строки: то, что в старом Execute стояло в начале внутреннего
+  цикла до загрузки самой строки. }
+function TScanDriverHost.BeforeLine: TScriptStepResult;
+var
+  K: Cardinal;
+begin
+  FT.ClientWnd2 := FT.ClientWnd;
+  FT.ProcessHandle2 := FT.ProcessHandle;
+  FT.ShowRun := fmSecondfj.sbScriptProcessing.Down;
+  if FT.StopRequested then
   begin
-    T.Line := InsertSpaceBeforeParen(T.Line, P);
-    T.LogPrefix := EvalScriptExpr(T, T.Line, 0);
+    StartScriptThread(FT);
+    FT.Flag91 := False;
+    Result := srRestart;
+    Exit;
   end;
-  T.LogPrefix := CutCommandAtColon(T.LogPrefix);
+  if not FT.Flag91 then
+  begin
+    FT.Suspend;
+    Result := srAgain;
+    Exit;
+  end;
+  FT.LineCount := FT.CurLine;
+  if FT.AutoStart and fmSecondfj.miShowScriptProcessing.Checked then
+    FT.Synchronize(FT.SyncShowRunLine);
+  if FT.Paused then
+  begin
+    if FT.SubScript <> nil then
+      FT.SubScript.Paused := True;
+    FT.Suspend;
+    if FT.SubScript <> nil then
+    begin
+      FT.SubScript.Paused := False;
+      FT.SubScript.Resume;
+    end;
+    FT.ShowRemainingWait := fmSecondfj.miShowRemainingWait.Checked;
+    FT.SendDelay := fmSecondfj.seSendExDelayDef.Value;
+    FT.CurLine := FT.LineCount;
+    if FT.StopRequested then
+    begin
+      Result := srScanLoop;
+      Exit;
+    end;
+  end;
+  if FT.ShowRun and FT.AutoStart and (GetTickCount > FT.NextVarGrid)
+    and fmSecondfj.miShowTimerVar.Checked then
+  begin
+    FT.NextVarGrid := GetTickCount + $80;
+    FT.VarGridBusy := False;
+    FT.VarName := 'timer';
+    K := GetTickCount;
+    FT.VarValue := IntToStr(Integer(K) - FT.StartTick);
+    FT.Synchronize(FT.SyncUpdateVarGrid);
+  end;
+  Result := srNext;
+end;
+
+function TScanDriverHost.EvalLine(const S: string): string;
+begin
+  Result := EvalScriptExpr(FT, S, 0);
+end;
+
+function TScanDriverHost.ResolveCommand(const AName: string): Integer;
+begin
+  Result := gCmdList2jj.IndexOf(AName);
+end;
+
+procedure TScanDriverHost.ExecuteCommand(var ACmd: Integer);
+begin
+  ExecScriptCommand(FT, ACmd, FT.Line);
+end;
+
+{ Lua-блок: создание виртуальной машины, собирание тела до --endlua и запуск.
+  Consumed = был переход на строку после --endlua (как goto NextLine). }
+function TScanDriverHost.HandleLuaBlock(out AConsumed: Boolean): TScriptStepResult;
+var
+  S: string;
+  Fin: Boolean;
+  I: Integer;
+begin
+  AConsumed := False;
+  S := AnsiLowerCase(FT.Line);
+  if (S = '--lua') or (S = '-- lua') then
+  begin
+    if FT.DebugForm = nil then
+    begin
+      try
+        FT.DebugForm := TForm(TLua.Create);
+        if gLuaErrorCcl <> '' then
+        begin
+          FT.Msg := gLuaErrorCcl + #0;
+          FT.Synchronize(FT.SyncLogMsg);
+          gLuaErrorCcl := '';
+        end;
+      except
+        FT.Msg := 'Error while creating Lua virtual mashine'#13#10 +
+          gLuaErrorCcl + #0;
+        ShowScriptMsg(FT);
+      end;
+    end;
+    if gLuaAvail7 then
+    begin
+      FT.ClientWnd2 := FT.ClientWnd;
+      FT.ProcessHandle2 := FT.ProcessHandle;
+      FT.Line := '';
+      Fin := False;
+      for I := FT.CurLine to Length(FT.Lines) - 1 do
+      begin
+        FT.CurLine := I;
+        S := AnsiLowerCase(FT.Lines[I]);
+        if (S = '--endlua') or (S = '-- endlua') then
+        begin
+          Fin := True;
+          Break;
+        end;
+        FT.Line := FT.Line + FT.Lines[I] + #13#10;
+      end;
+      FT.LuaUnclosed := not Fin;
+      FT.InLua := True;
+      RunLuaScript(FT);
+      FT.InLua := False;
+    end;
+    FT.Line := '';
+    if not FT.LuaUnclosed then
+    begin
+      AConsumed := True;
+      Result := srNext;
+      Exit;
+    end;
+    FT.StopRequested := True;
+    if FT.AutoStart then
+    begin
+      FT.CaretY := FT.StartLine;
+      FT.Synchronize(FT.SyncRestoreCaret);
+    end;
+  end;
+  Result := srNext;
+end;
+
+{ Блочный комментарий `(* ... *)`. Поведение сохранено как в старом Execute,
+  включая чтение Self.Line[K] из строки, где комментарий ОТКРЫЛСЯ. }
+function TScanDriverHost.HandleBlockComment(out AConsumed: Boolean): TScriptStepResult;
+var
+  K: Integer;
+  Fin: Boolean;
+begin
+  AConsumed := False;
+  K := Pos('(*', FT.Line);
+  if K > 0 then
+  begin
+    Fin := False;
+    Dec(K);
+    while K > 0 do
+    begin
+      if not (FT.Line[K] in [#9, ' ']) then
+      begin
+        Fin := True;
+        Break;
+      end;
+      Dec(K);
+    end;
+    if not Fin then
+    begin
+      Inc(FT.CurLine);
+      while Length(FT.Lines) > FT.CurLine do
+      begin
+        K := Pos('*)', FT.Lines[FT.CurLine]);
+        if K > 0 then
+        begin
+          Fin := False;
+          Dec(K);
+          while K > 0 do
+          begin
+            { Кривовато: позиция K найдена в Lines[CurLine] -- в строке, ГДЕ
+              КОММЕНТАРИЙ ЗАКРЫВАЕТСЯ, а символы берутся из FT.Line, то есть
+              из строки, где он ОТКРЫЛСЯ. }
+            if not (FT.Line[K] in [#9, ' ']) then
+            begin
+              Fin := True;
+              Break;
+            end;
+            Dec(K);
+          end;
+          if not Fin then
+          begin
+            AConsumed := True;
+            Result := srNext;
+            Exit;
+          end;
+          Break;
+        end;
+        Inc(FT.CurLine);
+      end;
+    end;
+  end;
+  Result := srNext;
+end;
+
+function TScanDriverHost.WaitEmptyLine: TScriptStepResult;
+begin
+  FT.DoWait(FT.PauseStr);
+  if FT.StopRequested then
+    Result := srScanLoop
+  else
+    Result := srNext;
+end;
+
+function TScanDriverHost.WaitEmptyPrefix: TScriptStepResult;
+begin
+  if not (FT.AutoStart and FT.Debug and FT.Paused) then
+    FT.DoWait(FT.PauseStr);
+  if FT.StopRequested then
+    Result := srScanLoop
+  else
+    Result := srNext;
+end;
+
+function TScanDriverHost.WaitBeforeCommand: TScriptStepResult;
+var
+  K: Cardinal;
+begin
+  if not (FT.AutoStart and FT.Debug and FT.Paused) then
+    FT.DoWait(FT.PauseCmd);
+  if FT.StopRequested then
+  begin
+    Result := srScanLoop;
+    Exit;
+  end;
+  if fmSecondfj.miPauseSOnClientClose.Checked then
+  begin
+    K := WaitForInputIdle(FT.ProcessHandle2, 0);
+    if K <> 0 then
+    begin
+      if K = WAIT_TIMEOUT then
+      begin
+        FT.Paused := True;
+        if gLangOffsety > 0 then
+          FT.Msg := LoadStrCP1251(gLangOffsety + $1DC) + #0
+        else
+          FT.Msg := UTF8ToCP1251('Клиент скорее мертв, чем жив...') + #0;
+      end
+      else
+      begin
+        FT.Paused := True;
+        if gLangOffsety > 0 then
+          FT.Msg := LoadStrCP1251(gLangOffsety + $1DD) + #0
+        else
+          FT.Msg := UTF8ToCP1251('Клиент мертв...') + #0;
+      end;
+      if FT.AutoStart then
+        FT.Synchronize(FT.PauseScriptThread);
+      ShowScriptMsg(FT);
+      { Старый код делал Dec(CurLine) + goto NextLine + Inc(CurLine), то есть
+        повторял ту же строку с самого начала. }
+      Result := srRetry;
+      Exit;
+    end;
+  end;
+  Result := srNext;
+end;
+
+{ Пауза между строками скрипта. Перенесена из вложенной процедуры Execute
+  без изменения кода; локальная WaitStart теперь принадлежит методу. }
+procedure TScanThread.DoWait(S: string);
+var
+  Ms: Integer;
+  Big: array[0..0] of Boolean;
+  Mul: Integer;
+  Cnt: Integer;
+  BigR: Boolean;
+  WaitStart: Cardinal;
+begin
+  if S = '' then
+    Exit;
+  if S = '0' then
+    Exit;
+  if S = '1' then
+  begin
+    SysUtils.Sleep(1);
+    Exit;
+  end;
+  WaitStart := GetTickCount;
+  if not TryStrToInt(S, Ms) then
+  begin
+    if gLangOffsety > 0 then
+      Self.Msg := LoadStrCP1251(PWord(@gLangOffsety)^ + $1A9)
+    else
+      Self.Msg := UTF8ToCP1251('Неправильно указана задержка между строк.');
+    case UpCase(S[Length(S)]) of
+      'S':
+        begin
+          Mul := 1000;
+          Delete(S, Length(S), 1);
+        end;
+      'M':
+        begin
+          Mul := 60000;
+          Delete(S, Length(S), 1);
+        end;
+      'H':
+        begin
+          Mul := 3600000;
+          Delete(S, Length(S), 1);
+        end;
+      'C':
+        begin
+          Mul := 1000;
+          Delete(S, Length(S) - 2, 3);
+        end;
+      'N':
+        begin
+          Mul := 60000;
+          Delete(S, Length(S) - 2, 3);
+        end;
+      'R':
+        begin
+          Mul := 3600000;
+          Delete(S, Length(S) - 3, 4);
+        end;
+    else
+      begin
+        Self.StopRequested := True;
+        ShowScriptMsg(TScanThread(Self));
+        Exit;
+      end;
+    end;
+    try
+      Ms := StrToInt(S) * Mul;
+    except
+      Self.StopRequested := True;
+      ShowScriptMsg(TScanThread(Self));
+      Exit;
+    end;
+  end;
+  Cnt := 0;
+  BigR := Ms > 1000;
+  Big[0] := BigR and Self.ShowRemainingWait;
+  if Big[0] and Self.AutoStart then
+  begin
+    Self.ShowWait := True;
+    Self.Msg := IntToStr(Ms);
+    Self.Synchronize(Self.SyncShowWait);
+  end;
+  Inc(Ms, WaitStart);
+  repeat
+    if Self.StopRequested then
+    begin
+      if Big[0] and Self.AutoStart then
+      begin
+        Self.ShowWait := False;
+        Self.Msg := '';
+        Self.Synchronize(Self.SyncShowWait);
+      end;
+      Exit;
+    end;
+    SysUtils.Sleep(1);
+    if Self.AutoStart and BigR then
+      if Self.ShowRemainingWait then
+      begin
+        if Cnt = 10 then
+          if GetTickCount + 150 < Cardinal(Ms) then
+          begin
+            Self.ShowWait := True;
+            Self.Msg := IntToStr(Cardinal(Ms) - GetTickCount);
+            Self.Synchronize(Self.SyncShowWait);
+            Cnt := 0;
+          end;
+        Cnt := Cnt + 1;
+      end;
+  until GetTickCount >= Cardinal(Ms);
+  if Big[0] and Self.AutoStart then
+  begin
+    Self.ShowWait := False;
+    Self.Msg := '';
+    Self.Synchronize(Self.SyncShowWait);
+  end;
 end;
 
 
@@ -2372,124 +2850,6 @@ label
     Res := Pfx + IntToStr(Cnt + A + n1 + n2 + X + Y);
   end;
 
-  { Пауза между строками скрипта. Две булевы, а не одна: BigR живёт в
-    регистре и выталкивает Cnt в ESI, а Big[0] -- массив из одного
-    элемента, чтобы наверняка встать в кадр. Приведение
-    `PWord(@gLangOffsety)^` во втором чтении убирает кэш gLangOffsety. }
-  procedure DoWait(S: string);
-  var
-    Ms: Integer;
-    Big: array[0..0] of Boolean;
-    Mul: Integer;
-    Cnt: Integer;
-    BigR: Boolean;
-  begin
-    if S = '' then
-      Exit;
-    if S = '0' then
-      Exit;
-    if S = '1' then
-    begin
-      SysUtils.Sleep(1);
-      Exit;
-    end;
-    WaitStart := GetTickCount;
-    if not TryStrToInt(S, Ms) then
-    begin
-      if gLangOffsety > 0 then
-        Self.Msg := LoadStrCP1251(PWord(@gLangOffsety)^ + $1A9)
-      else
-        Self.Msg := UTF8ToCP1251('Неправильно указана задержка между строк.');
-      case UpCase(S[Length(S)]) of
-        'S':
-          begin
-            Mul := 1000;
-            Delete(S, Length(S), 1);
-          end;
-        'M':
-          begin
-            Mul := 60000;
-            Delete(S, Length(S), 1);
-          end;
-        'H':
-          begin
-            Mul := 3600000;
-            Delete(S, Length(S), 1);
-          end;
-        'C':
-          begin
-            Mul := 1000;
-            Delete(S, Length(S) - 2, 3);
-          end;
-        'N':
-          begin
-            Mul := 60000;
-            Delete(S, Length(S) - 2, 3);
-          end;
-        'R':
-          begin
-            Mul := 3600000;
-            Delete(S, Length(S) - 3, 4);
-          end;
-      else
-        begin
-          Self.StopRequested := True;
-          ShowScriptMsg(TScanThread(Self));
-          Exit;
-        end;
-      end;
-      try
-        Ms := StrToInt(S) * Mul;
-      except
-        Self.StopRequested := True;
-        ShowScriptMsg(TScanThread(Self));
-        Exit;
-      end;
-    end;
-    Cnt := 0;
-    BigR := Ms > 1000;
-    Big[0] := BigR and Self.ShowRemainingWait;
-    if Big[0] and Self.AutoStart then
-    begin
-      Self.ShowWait := True;
-      Self.Msg := IntToStr(Ms);
-      Self.Synchronize(Self.SyncShowWait);
-    end;
-    Inc(Ms, WaitStart);
-    repeat
-      if Self.StopRequested then
-      begin
-        if Big[0] and Self.AutoStart then
-        begin
-          Self.ShowWait := False;
-          Self.Msg := '';
-          Self.Synchronize(Self.SyncShowWait);
-        end;
-        Exit;
-      end;
-      SysUtils.Sleep(1);
-      if Self.AutoStart and BigR then
-        if Self.ShowRemainingWait then
-        begin
-          if Cnt = 10 then
-            if GetTickCount + 150 < Cardinal(Ms) then
-            begin
-              Self.ShowWait := True;
-              Self.Msg := IntToStr(Cardinal(Ms) - GetTickCount);
-              Self.Synchronize(Self.SyncShowWait);
-              Cnt := 0;
-            end;
-          Cnt := Cnt + 1;
-        end;
-    until GetTickCount >= Cardinal(Ms);
-    if Big[0] and Self.AutoStart then
-    begin
-      Self.ShowWait := False;
-      Self.Msg := '';
-      Self.Synchronize(Self.SyncShowWait);
-    end;
-  end;
-
 
   { Никем не вызывается. Держит кадр и ЗАДАЁТ ПОРЯДОК слотов: локалы,
     видимые вложенным процедурам, раздаются в порядке ПЕРВОГО УПОМИНАНИЯ,
@@ -2730,223 +3090,27 @@ ScanLoop:
         end;
         SysUtils.Sleep(0);
         Self.CurLine := 0;
-        while Length(Self.Lines) > Self.CurLine do
+        if Self.FDriver = nil then
+          Self.FDriver := TScriptDriver.Create(
+            TScanDriverState.Create(Self), TScanDriverHost.Create(Self));
+        while True do
         begin
-          Self.ClientWnd2 := Self.ClientWnd;
-          Self.ProcessHandle2 := Self.ProcessHandle;
-          Self.ShowRun := fmSecondfj.sbScriptProcessing.Down;
-          if Self.StopRequested then
-          begin
-            StartScriptThread(Self);
-            Self.Flag91 := False;
-            goto Restart;
-          end;
-          if not Self.Flag91 then
-          begin
-            Suspend;
-            goto Again;
-          end;
-          Self.LineCount := Self.CurLine;
-          if Self.AutoStart and fmSecondfj.miShowScriptProcessing.Checked then
-            Synchronize(TScanThread(Self).SyncShowRunLine);
-          if Self.Paused then
-          begin
-            if Self.SubScript <> nil then
-              Self.SubScript.Paused := True;
-            Suspend;
-            if Self.SubScript <> nil then
-            begin
-              Self.SubScript.Paused := False;
-              Self.SubScript.Resume;
-            end;
-            Self.ShowRemainingWait := fmSecondfj.miShowRemainingWait.Checked;
-            Self.SendDelay := fmSecondfj.seSendExDelayDef.Value;
-            Self.CurLine := Self.LineCount;
-            if Self.StopRequested then
+          case Self.FDriver.Step of
+            srNext:
+              ;
+            srEnd:
+              Break;
+            srRestart:
+              goto Restart;
+            srScanLoop:
               goto ScanLoop;
+            srAgain:
+              goto Again;
+            srStop:
+              Break;
+            srRetry:
+              ;
           end;
-          if Self.ShowRun and Self.AutoStart and (GetTickCount > Self.NextVarGrid)
-            and fmSecondfj.miShowTimerVar.Checked then
-          begin
-            Self.NextVarGrid := GetTickCount + $80;
-            Self.VarGridBusy := False;
-            Self.VarName := 'timer';
-            K := GetTickCount;
-            Self.VarValue := IntToStr(Integer(K) - Self.StartTick);
-            Synchronize(TScanThread(Self).SyncUpdateVarGrid);
-          end;
-          Self.Line := Self.Lines[Self.CurLine];
-          S := AnsiLowerCase(Self.Line);
-          if (S = '--lua') or (S = '-- lua') then
-          begin
-            if Self.DebugForm = nil then
-            begin
-              try
-                Self.DebugForm := TForm(TLua.Create);
-                if gLuaErrorCcl <> '' then
-                begin
-                  Self.Msg := gLuaErrorCcl + #0;
-                  Synchronize(SyncLogMsg);
-                  gLuaErrorCcl := '';
-                end;
-              except
-                Self.Msg := 'Error while creating Lua virtual mashine'#13#10 +
-                  gLuaErrorCcl + #0;
-                ShowScriptMsg(TScanThread(Self));
-              end;
-            end;
-            if gLuaAvail7 then
-            begin
-              Self.ClientWnd2 := Self.ClientWnd;
-              Self.ProcessHandle2 := Self.ProcessHandle;
-              Self.Line := '';
-              Fin := False;
-              for I := Self.CurLine to Length(Self.Lines) - 1 do
-              begin
-                Self.CurLine := I;
-                S := AnsiLowerCase(Self.Lines[I]);
-                if (S = '--endlua') or (S = '-- endlua') then
-                begin
-                  Fin := True;
-                  Break;
-                end;
-                Self.Line := Self.Line + Self.Lines[I] + #13#10;
-              end;
-              Self.LuaUnclosed := not Fin;
-              Self.InLua := True;
-              RunLuaScript(Self);
-              Self.InLua := False;
-            end;
-            Self.Line := '';
-            if not Self.LuaUnclosed then
-              goto NextLine;
-            Self.StopRequested := True;
-            if Self.AutoStart then
-            begin
-              Self.CaretY := Self.StartLine;
-              Synchronize(TScanThread(Self).SyncRestoreCaret);
-            end;
-          end;
-NoLua:
-          Self.RepeatLine := False;
-          if Self.Line = '' then
-          begin
-            DoWait(Self.PauseStr);
-            if Self.StopRequested then
-              goto ScanLoop;
-            Inc(Self.CurLine);
-            Continue;
-          end;
-          Self.Line := StripScriptComment(Self.Line);
-          K := Length(Self.Line);
-          while (K > 0) and ((Self.Line[K] = ' ') or (Self.Line[K] = #9)) do
-            Dec(K);
-          Self.Line := Copy(Self.Line, 1, K);
-          K := Pos('(*', Self.Line);
-          if K > 0 then
-          begin
-            Fin := False;
-            Dec(K);
-            while K > 0 do
-            begin
-              if not (Self.Line[K] in [#9, ' ']) then
-              begin
-                Fin := True;
-                Break;
-              end;
-              Dec(K);
-            end;
-            if not Fin then
-            begin
-              Inc(Self.CurLine);
-              while Length(Self.Lines) > Self.CurLine do
-              begin
-                K := Pos('*)', Self.Lines[Self.CurLine]);
-                if K > 0 then
-                begin
-                  Fin := False;
-                  Dec(K);
-                  while K > 0 do
-                  begin
-                    { Кривовато: позиция K найдена в Lines[CurLine] -- в
-                      строке, ГДЕ КОММЕНТАРИЙ ЗАКРЫВАЕТСЯ, а символы берутся из
-                      Self.Line, то есть из строки, где он ОТКРЫЛСЯ. }
-                    if not (Self.Line[K] in [#9, ' ']) then
-                    begin
-                      Fin := True;
-                      Break;
-                    end;
-                    Dec(K);
-                  end;
-                  if not Fin then
-                    goto NextLine;
-                  Break;
-                end;
-                Inc(Self.CurLine);
-              end;
-            end;
-          end;
-          if Self.Line = '' then
-          begin
-            DoWait(Self.PauseStr);
-            if Self.StopRequested then
-              goto ScanLoop;
-            Inc(Self.CurLine);
-            Continue;
-          end;
-          Self.LogPrefix := EvalScriptExpr(Self, Self.Line, 0);
-          if Self.LogPrefix = '' then
-          begin
-            if not (Self.AutoStart and Self.Debug and Self.Paused) then
-              DoWait(Self.PauseStr);
-            if Self.StopRequested then
-              goto ScanLoop;
-            goto NextLine;
-          end;
-          if not (Self.AutoStart and Self.Debug and Self.Paused) then
-            DoWait(Self.PauseCmd);
-          if Self.StopRequested then
-            goto ScanLoop;
-          if fmSecondfj.miPauseSOnClientClose.Checked then
-          begin
-            K := WaitForInputIdle(Self.ProcessHandle2, 0);
-            if K <> 0 then
-            begin
-              if K = WAIT_TIMEOUT then
-              begin
-                Self.Paused := True;
-                if gLangOffsety > 0 then
-                  Self.Msg := LoadStrCP1251(gLangOffsety + $1DC) + #0
-                else
-                  Self.Msg := UTF8ToCP1251('Клиент скорее мертв, чем жив...') + #0;
-              end
-              else
-              begin
-                Self.Paused := True;
-                if gLangOffsety > 0 then
-                  Self.Msg := LoadStrCP1251(gLangOffsety + $1DD) + #0
-                else
-                  Self.Msg := UTF8ToCP1251('Клиент мертв...') + #0;
-              end;
-              if Self.AutoStart then
-                Synchronize(TScanThread(Self).PauseScriptThread);
-              ShowScriptMsg(TScanThread(Self));
-              Dec(Self.CurLine);
-              goto NextLine;
-            end;
-          end;
-          PrepareScriptCommandLine(Self);
-          Cmd := gCmdList2jj.IndexOf(Self.LogPrefix);
-RunCmd:
-          ExecScriptCommand(TScanThread(Self), Cmd, Self.Line);
-NextLine:
-          if Self.RestartFlag then
-            goto Restart;
-          if Self.RepeatLine then
-            goto NoLua;
-          if Self.RepeatCmd then
-            goto RunCmd;
-          Inc(Self.CurLine);
         end;
         Self.CurLine := 0;
       end;
@@ -3871,6 +4035,7 @@ procedure TScanThread.ReleaseOwnedResources;
 var
   i: Integer;
 begin
+  FreeAndNil(FDriver);
   FreeAndNil(ScreenBmp);
   if Timer <> nil then
   begin

@@ -22,9 +22,6 @@ type
     procedure TestTrimRightScriptLine;
     procedure TestInsertSpaceBeforeParen;
     procedure TestCutCommandAtColon;
-    procedure TestPrepareCommandParen;
-    procedure TestPrepareCommandColon;
-    procedure TestPrepareCommandUnchanged;
     procedure TestEvalScriptPointWords;
   end;
 
@@ -91,33 +88,6 @@ begin
   AssertEquals('foo', uScriptParser.CutCommandAtColon('foo:bar'));
   AssertEquals(':bar', uScriptParser.CutCommandAtColon(':bar'));
   AssertEquals('foo', uScriptParser.CutCommandAtColon('foo'));
-end;
-
-procedure TScriptParserTest.TestPrepareCommandParen;
-begin
-  FT.Line := 'if(1)';
-  FT.LogPrefix := 'if(';
-  PrepareScriptCommandLine(FT);
-  AssertEquals('if (1)', FT.Line);
-  AssertEquals('if', FT.LogPrefix);
-end;
-
-procedure TScriptParserTest.TestPrepareCommandColon;
-begin
-  FT.Line := 'foo:bar';
-  FT.LogPrefix := 'foo:bar';
-  PrepareScriptCommandLine(FT);
-  AssertEquals('foo:bar', FT.Line);
-  AssertEquals('foo', FT.LogPrefix);
-end;
-
-procedure TScriptParserTest.TestPrepareCommandUnchanged;
-begin
-  FT.Line := 'set #r 1';
-  FT.LogPrefix := 'set';
-  PrepareScriptCommandLine(FT);
-  AssertEquals('set #r 1', FT.Line);
-  AssertEquals('set', FT.LogPrefix);
 end;
 
 { Слово 0 -- первое слово в нижнем регистре, слово 1 -- второе как есть.
