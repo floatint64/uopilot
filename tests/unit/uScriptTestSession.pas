@@ -4,10 +4,27 @@ unit uScriptTestSession;
 interface
 
 uses
-  SysUtils;
+  SysUtils, uScriptSettings;
 
 type
   TScriptBackend = (sbLegacy, sbRuntime);
+
+  TScriptErrorKind = (
+    sekNone,
+    sekUnknownCommand,
+    sekUnsupportedCommand,
+    sekScriptError,
+    sekStepLimit,
+    sekRestart,
+    sekSuspended,
+    sekOther
+  );
+
+  TScriptError = record
+    Kind: TScriptErrorKind;
+    Line: Integer;
+    Message: string;
+  end;
 
   IScriptSession = interface
     ['{6F1C7D2A-6C2B-4A4E-9A7F-2C5E1B8D3A41}']
@@ -17,10 +34,19 @@ type
     function  NumVar(const Name: string): Int64;
     function  StrVar(const Name: string): string;
     function  ArrCell(const Name: string; Row, Col: Integer): string;
+    { Try-варианты не создают переменную: False означает, что её нет. }
+    function  TryNumVar(const Name: string; out Value: Int64): Boolean;
+    function  TryStrVar(const Name: string; out Value: string): Boolean;
+    function  TryArrCell(const Name: string; Row, Col: Integer;
+      out Value: string): Boolean;
+    function  LogText: string;
+    function  HostCallText: string;
     function  LastError: string;
+    function  LastErrorInfo: TScriptError;
   end;
 
-function CreateSession(ABackend: TScriptBackend): IScriptSession;
+function CreateSession(ABackend: TScriptBackend;
+  const ASettings: IScriptSettings = nil): IScriptSession;
 function ToScript(const Utf8: string): string;
 
 implementation
@@ -28,10 +54,11 @@ implementation
 uses
   Windows, uLegacyScriptSession;
 
-function CreateSession(ABackend: TScriptBackend): IScriptSession;
+function CreateSession(ABackend: TScriptBackend;
+  const ASettings: IScriptSettings): IScriptSession;
 begin
   case ABackend of
-    sbLegacy: Result := TLegacyScriptSession.Create;
+    sbLegacy: Result := TLegacyScriptSession.Create(ASettings);
     sbRuntime: raise ENotImplemented.Create('runtime backend is not implemented yet');
   end;
 end;

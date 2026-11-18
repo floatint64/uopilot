@@ -4,6 +4,7 @@
 [Тесты команд работы с окнами](./windows_tests.txt)
 [Тесты команд отправки текста](./sends_tests.txt)
 [Тесты команд буфера обмена](./clipboard_tests.txt)
+[Проверки production-адаптера TScanDriverHost](./driver_host_tests.txt)
 [Конфиг пилота для запуска тестов](./uopilot.ini)
 
 ## Запуск
@@ -23,6 +24,39 @@ start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\sends_
 ```shell
 start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\clipboard_tests.txt /r0
 ```
+
+```shell
+start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\driver_host_tests.txt /r0
+```
+
+## Результаты прогона 2026-11-18
+
+Прогон на текущем `TScanThread.Execute` (после перехода на
+`TScriptDriver.Step`), бинарник собран из `uopilot.lpi`:
+
+| Набор | PASS | FAIL | Итог |
+|---|---:|---:|---|
+| `strings_tests.txt` | 148 | 0 | PASS |
+| `clipboard_tests.txt` | 11 | 0 | PASS |
+| `windows_tests.txt` | 21 | 0 | PASS |
+| `sends_tests.txt` | 37 | 0 | PASS |
+| `driver_host_tests.txt` | 3 | 0 | PASS |
+
+Регрессий production-перехода на этих наборах не обнаружено, старый line-loop
+под флагом не возвращался.
+
+## Примечания к driver_host_tests.txt
+
+- Набор идёт через реальный `TScanThread.Execute`, поэтому проверяет
+  `TScanDriverHost`, а не тестовый `TLegacyDriverHost`.
+- Покрыты `BeforeLine` (обычный `/r`-запуск), `WaitEmptyLine`/`WaitEmptyPrefix`
+  (пустые строки и строка из пробелов), `WaitBeforeCommand` (пауза перед
+  каждой командой задана `ScriptDelayDef=100` в `uopilot.ini`),
+  `HandleBlockComment` (многострочный `(* ... *)`) и `HandleLuaBlock`
+  (пустой `--lua`/`--endlua`).
+- Непустой Lua-код и `WaitForInputIdle`/`PauseSOnClientClose` автоматически
+  не проверяются: первому нужен стабильный Lua-стенд, второму — управляемое
+  закрытие внешнего окна клиента.
 
 ## Примечания к windows_tests.txt
 

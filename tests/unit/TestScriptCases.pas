@@ -48,6 +48,7 @@ function TScriptCaseTest.ReadArrayCell(const Target: string): string;
 var
   Rest, Name: string;
   P1, P2, Row, Col: Integer;
+  Value: string;
 begin
   Result := '';
   Name := Copy(Target, 2, Length(Target) - 1);
@@ -73,19 +74,36 @@ begin
     end;
   end;
 
-  Result := FSession.ArrCell(ToScript(Name), Row, Col);
+  if not FSession.TryArrCell(ToScript(Name), Row, Col, Value) then
+    raise EAssertionFailed.CreateFmt('array target %s does not exist', [Target]);
+  Result := Value;
 end;
 
 function TScriptCaseTest.ReadTarget(const Target: string): string;
+var
+  Value: string;
+  Num: Int64;
 begin
   Result := '';
   if Target = '' then
     Exit;
   case Target[1] of
     '#':
-      Result := IntToStr(FSession.NumVar(ToScript(Copy(Target, 2, Length(Target) - 1))));
+      begin
+        if not FSession.TryNumVar(ToScript(Copy(Target, 2, Length(Target) - 1)),
+          Num) then
+          raise EAssertionFailed.CreateFmt('numeric target %s does not exist',
+            [Target]);
+        Result := IntToStr(Num);
+      end;
     '$':
-      Result := FSession.StrVar(ToScript(Copy(Target, 2, Length(Target) - 1)));
+      begin
+        if not FSession.TryStrVar(ToScript(Copy(Target, 2, Length(Target) - 1)),
+          Value) then
+          raise EAssertionFailed.CreateFmt('string target %s does not exist',
+            [Target]);
+        Result := Value;
+      end;
     '%':
       Result := ReadArrayCell(Target);
   end;

@@ -69,7 +69,36 @@ echo %ERRORLEVEL%
 - `TestScriptDriverFlow` — сам `TScriptDriver.Step`/`Run` на fake
   state/host: комментарии, пустые строки, `(`/`:`, `RepeatLine`/`RepeatCmd`,
   `RestartFlag`, `srEnd`/`srScanLoop`/`srAgain`/`srRetry`, `MaxSteps`,
-  `rpError`/`rpReset`.
+  `rpError`/`rpReset`;
+- `TestScriptSession` — наблюдаемость сессии: `TryNumVar`/`TryStrVar`/
+  `TryArrCell` (не создают переменную), `HostCallText`, `LogText`,
+  структурированный `LastErrorInfo`.
+
+## Контракт `IScriptSession`
+
+Помимо значений переменных, сессия отдаёт наблюдения:
+
+- `TryNumVar`/`TryStrVar`/`TryArrCell` — `False`, если цели нет; в отличие
+  от `NumVar`/`StrVar` не вызывают `FindScriptVar` и не создают переменную;
+- `LogText` — строки, попавшие в лог (`log <text>` в тестовом драйвере пишет
+  в наблюдаемый буфер, а не в UI);
+- `HostCallText` — какие команды и на каких строках выполнял драйвер;
+- `LastErrorInfo` — `Kind`/`Line`/`Message`; `LastError` оставлен для
+  совместимости и читает `Msg`.
+
+Data-driven наборы читают target через `Try...`: если скрипт не создал
+переменную, кейс падает, а не получает `0`/`''` из несуществующей переменной.
+
+## Настройки и сброс глобального состояния
+
+`core/uScriptSettings.pas` содержит `IScriptSettings`/`TScriptSettings` и
+`FastTestProfile` — прежний жёсткий профиль `CreateForTest` (`PauseCmd='0'`,
+`PauseStr='0'`, нулевые задержки, `LogLevel=0`). `CreateForTest` принимает
+профиль параметром; `nil` означает `FastTestProfile`.
+
+`TLegacyScriptSession.Reset` вызывает `ResetGlobals` (`Unit1`):
+обнуляет `gScriptso3`/`gProcScript`, кэши запуска, `Randomize`, очищает и
+заново заполняет таблицы команд.
 
 Один suite:
 
@@ -136,8 +165,12 @@ line-loop там нет. `TLegacyScriptSession.RunScript` только загр�
 
 `continue`, `break`, `for`/`end_for`, `goto`, `gosub`, `return`, `else`,
 `repeat`/`end_repeat`, `end_script`, `set`, `if`/`if_not`/`end_if`,
-`while`/`while_not`/`end_while`, `get`, `init_arr`, `eval`, `switch`, `case`,
-`end_switch`, `sort_array`, `delete_array`.
+`while`/`while_not`/`end_while`, `get`, `init_arr`, `eval`, `log <text>`,
+`switch`, `case`, `end_switch`, `sort_array`, `delete_array`.
+
+`log <text>` в тестовом драйвере не трогает UI: текст складывается в
+`TestLog` и доступен через `LogText`. UI-подкоманды (`log clear`, `log mode`,
+`log save`, `log open`/`close`) по-прежнему отклоняются.
 
 Явно **не поддерживается** и поднимает `EScriptDriverError`:
 
@@ -145,8 +178,9 @@ line-loop там нет. `TLegacyScriptSession.RunScript` только загр�
 - block-комментарии `(* ... *)` (разбор в `Execute` привязан к его циклу и
   содержит выход за границу строки; это отдельная bug-first задача);
 - внешние команды: `send`/`mouse`/`clipboard`/`window`/`memory`/`file`/
-  `plugin`/`macro`, а также `wait`, `log`, `msg`, `hint`, `exit`,
+  `plugin`/`macro`, а также `wait`, `msg`, `hint`, `exit`,
   `proc`/`call`, `exec`, `load_script`, `restart_script`;
+- UI-подкоманды `log` (`clear`, `mode`, `save`, `open`, `close`);
 - `set logging ...` (меняет глобальное состояние лога и в test-режиме
   подмешивает служебный текст в `Msg`);
 - неизвестная команда (кроме меток `:name`).

@@ -4,7 +4,8 @@ unit uLegacyScriptSession;
 interface
 
 uses
-  uScanThread, uScriptTestSession, uScriptDriver;
+  Classes, SysUtils, uScanThread, uScriptTestSession, uScriptDriver,
+  uScriptSettings;
 
 type
   TLegacyScriptSession = class(TInterfacedObject, IScriptSession)
@@ -12,8 +13,14 @@ type
     FT: TScanThread;
     FDriver: TScriptDriver;
     FMaxSteps: Integer;
+    FSettings: IScriptSettings;
+    FHostCalls: TStringList;
+    FLastError: TScriptError;
+    procedure SetError(AKind: TScriptErrorKind; ALine: Integer;
+      const AMessage: string);
+    procedure SetErrorFromException(E: Exception);
   public
-    constructor Create;
+    constructor Create(const ASettings: IScriptSettings = nil);
     destructor Destroy; override;
     procedure Reset;
     function Eval(const Expr: string): string;
@@ -21,25 +28,33 @@ type
     function NumVar(const Name: string): Int64;
     function StrVar(const Name: string): string;
     function ArrCell(const Name: string; Row, Col: Integer): string;
+    function TryNumVar(const Name: string; out Value: Int64): Boolean;
+    function TryStrVar(const Name: string; out Value: string): Boolean;
+    function TryArrCell(const Name: string; Row, Col: Integer;
+      out Value: string): Boolean;
+    function LogText: string;
+    function HostCallText: string;
     function LastError: string;
+    function LastErrorInfo: TScriptError;
     property MaxSteps: Integer read FMaxSteps write FMaxSteps;
   end;
 
 implementation
 
 uses
-  Classes, SysUtils, Unit1;
+  Unit1, mySys;
 
 { Команды, которые тестовый драйвер исполняет. Внешние команды (send, mouse,
-  clipboard, window, memory, file, plugin, macro), `log`, `wait`, `msg`,
-  `hint`, `exit`, `proc`/`call`, `exec`, `load_script`, `restart_script` сюда
-  не входят: им нужен host/UI, которого в unit-тестах нет. }
+  clipboard, window, memory, file, plugin, macro), `wait`, `msg`, `hint`,
+  `exit`, `proc`/`call`, `exec`, `load_script`, `restart_script` сюда не
+  входят: им нужен host/UI, которого в unit-тестах нет. `log <text>` --
+  исключение: он пишет в наблюдаемый TestLog без UI. }
 function IsAllowedCommand(Cmd: Integer): Boolean;
 begin
   case Cmd of
     0, 1, 2, 3, 4, 5, 6, 7, 10, 11,
     32, 40, 41, 42, 43, 44, 45, 46, 47,
-    49, 110, 112, 114, 115, 116, 126, 127:
+    49, 110, 111, 112, 114, 115, 116, 126, 127:
       Result := True;
   else
     Result := False;
@@ -81,8 +96,10 @@ type
   TLegacyDriverHost = class(TInterfacedObject, IScriptDriverHost)
   private
     FT: TScanThread;
+    FCalls: TStrings;
+    procedure RecordCall(const AName: string);
   public
-    constructor Create(AT: TScanThread);
+    constructor Create(AT: TScanThread; ACalls: TStrings);
     function BeforeLine: TScriptStepResult;
     function EvalLine(const S: string): string;
     function ResolveCommand(const AName: string): Integer;
@@ -170,10 +187,17 @@ begin
   FT.RepeatCmd := Value;
 end;
 
-constructor TLegacyDriverHost.Create(AT: TScanThread);
+constructor TLegacyDriverHost.Create(AT: TScanThread; ACalls: TStrings);
 begin
   inherited Create;
   FT := AT;
+  FCalls := ACalls;
+end;
+
+procedure TLegacyDriverHost.RecordCall(const AName: string);
+begin
+  if FCalls <> nil then
+    FCalls.Add(IntToStr(FT.CurLine) + ': ' + AName);
 end;
 
 function TLegacyDriverHost.BeforeLine: TScriptStepResult;
@@ -199,26 +223,27 @@ var
   CmdName: string;
   SubCmd: string;
 begin
-  { Метка `:name`: в Execute её молча пропускает else-ветка
-    ExecScriptCommand (LogPrefix начинается с ':'). }
   if ACmd < 0 then
   begin
+    RecordCall(FT.LogPrefix);
+    { Метка `:name`: в Execute её молча пропускает else-ветка
+      ExecScriptCommand (LogPrefix начинается с ':'). }
     if Copy(FT.LogPrefix, 1, 1) = ':' then
       Exit;
     raise EScriptDriverError.CreateFmt(
       'unknown command "%s" (line %d)', [FT.LogPrefix, FT.CurLine]);
   end;
 
+  if (ACmd >= 0) and (ACmd < gCmdList2jj.Count) then
+    CmdName := gCmdList2jj[ACmd]
+  else
+    CmdName := FT.LogPrefix;
+  RecordCall(CmdName);
+
   if not IsAllowedCommand(ACmd) then
-  begin
-    if (ACmd >= 0) and (ACmd < gCmdList2jj.Count) then
-      CmdName := gCmdList2jj[ACmd]
-    else
-      CmdName := FT.LogPrefix;
     raise EScriptDriverError.CreateFmt(
       'command "%s" is not supported (line %d)',
       [CmdName, FT.CurLine]);
-  end;
 
   { `set logging` меняет глобальное состояние и в test-режиме пишет
     служебный текст в Msg, который драйвер считает ошибкой. }
@@ -231,6 +256,26 @@ begin
     if SubCmd = 'logging' then
       raise EScriptDriverError.CreateFmt(
         'set logging is not supported (line %d)', [FT.CurLine]);
+  end;
+
+  { `log <text>` в тестовом драйвере пишет в наблюдаемый TestLog, а не в
+    UI. Подкоманды, которым нужно окно лога, отклоняем. }
+  if ACmd = 111 then
+  begin
+    SubCmd := AnsiLowerCase(EvalScriptPoint(FT, FT.Line, 1));
+    if (Length(SubCmd) > 0) and (SubCmd[1] = '"') then
+      Delete(SubCmd, 1, 1);
+    if (SubCmd = 'clear') or (SubCmd = 'clear_all') or
+       (SubCmd = 'clear_current') or (SubCmd = 'save') or
+       (SubCmd = 'save_current') or (SubCmd = 'open') or
+       (SubCmd = 'close') or (SubCmd = 'mode') or
+       (SubCmd = 'off') or (SubCmd = 'on') or
+       (SubCmd = 'commands') or (SubCmd = 'level') then
+      raise EScriptDriverError.CreateFmt(
+        'log %s is not supported (line %d)', [SubCmd, FT.CurLine]);
+    FT.AppendTestLog(StripMsgNul(
+      FixLineBreaks(EvalScriptExpr(FT, FT.Line, -1))));
+    Exit;
   end;
 
   FT.Msg := '';
@@ -275,10 +320,12 @@ begin
   Result := srNext;
 end;
 
-constructor TLegacyScriptSession.Create;
+constructor TLegacyScriptSession.Create(const ASettings: IScriptSettings);
 begin
   inherited Create;
   FMaxSteps := 100000;
+  FSettings := ASettings;
+  FHostCalls := TStringList.Create;
   Reset;
 end;
 
@@ -286,19 +333,53 @@ destructor TLegacyScriptSession.Destroy;
 begin
   FreeAndNil(FDriver);
   FreeAndNil(FT);
+  FreeAndNil(FHostCalls);
   inherited Destroy;
 end;
 
-{ Таблицы команд -- глобальное состояние Unit1, поэтому их поднимают при
-  каждом создании сессии. }
+procedure TLegacyScriptSession.SetError(AKind: TScriptErrorKind; ALine: Integer;
+  const AMessage: string);
+begin
+  FLastError.Kind := AKind;
+  FLastError.Line := ALine;
+  FLastError.Message := AMessage;
+end;
+
+procedure TLegacyScriptSession.SetErrorFromException(E: Exception);
+var
+  Kind: TScriptErrorKind;
+begin
+  if Pos('step limit', E.Message) > 0 then
+    Kind := sekStepLimit
+  else if Pos('restart_script', E.Message) > 0 then
+    Kind := sekRestart
+  else if Pos('script suspended', E.Message) > 0 then
+    Kind := sekSuspended
+  else if Pos('unknown command', E.Message) > 0 then
+    Kind := sekUnknownCommand
+  else if (Pos('is not supported', E.Message) > 0) or
+          (Pos('are not supported', E.Message) > 0) then
+    Kind := sekUnsupportedCommand
+  else if Pos('script error', E.Message) > 0 then
+    Kind := sekScriptError
+  else
+    Kind := sekOther;
+  SetError(Kind, FT.CurLine, E.Message);
+end;
+
+{ Таблицы и прочее глобальное состояние движка -- глобальное состояние
+  Unit1, поэтому его сбрасывают при каждом создании сессии. }
 procedure TLegacyScriptSession.Reset;
 begin
   FreeAndNil(FDriver);
   FreeAndNil(FT);
-  InitScriptCommandTables;
-  FT := TScanThread.CreateForTest;
+  ResetGlobals;
+  FT := TScanThread.CreateForTest(FSettings);
   FDriver := TScriptDriver.Create(
-    TLegacyDriverState.Create(FT), TLegacyDriverHost.Create(FT));
+    TLegacyDriverState.Create(FT),
+    TLegacyDriverHost.Create(FT, FHostCalls));
+  FHostCalls.Clear;
+  SetError(sekNone, 0, '');
 end;
 
 { Внутренний вычислитель ожидает 'calc ' перед выражением и nv = -1:
@@ -307,7 +388,16 @@ function TLegacyScriptSession.Eval(const Expr: string): string;
 begin
   if FT = nil then
     Reset;
-  Result := EvalScriptExpr(FT, 'calc ' + Expr, -1);
+  SetError(sekNone, 0, '');
+  try
+    Result := EvalScriptExpr(FT, 'calc ' + Expr, -1);
+  except
+    on E: Exception do
+    begin
+      SetErrorFromException(E);
+      raise;
+    end;
+  end;
 end;
 
 { Загрузка сценария и сброс состояния; сам line-loop -- в uScriptDriver. }
@@ -319,6 +409,7 @@ begin
   if FT = nil then
     Reset;
 
+  SetError(sekNone, 0, '');
   LinesList := TStringList.Create;
   try
     LinesList.Text := Script;
@@ -346,13 +437,24 @@ begin
   SetLength(FT.Arr58, 0);
   FT.VarNames.Clear;
   FT.VarNames.Add('timer');
-  FT.LogLevel := 0;
+  if FSettings <> nil then
+    FT.LogLevel := FSettings.LogLevel
+  else
+    FT.LogLevel := 0;
   FT.LoggingCommands := False;
   FT.AutoStart := False;
   FT.ShowRun := False;
 
   FDriver.MaxSteps := FMaxSteps;
-  FDriver.Run;
+  try
+    FDriver.Run;
+  except
+    on E: Exception do
+    begin
+      SetErrorFromException(E);
+      raise;
+    end;
+  end;
 end;
 
 function TLegacyScriptSession.NumVar(const Name: string): Int64;
@@ -396,6 +498,88 @@ begin
   if FT = nil then
     Exit('');
   Result := StripMsgNul(FT.Msg);
+end;
+
+function TLegacyScriptSession.LastErrorInfo: TScriptError;
+begin
+  Result := FLastError;
+end;
+
+function TLegacyScriptSession.TryNumVar(const Name: string;
+  out Value: Int64): Boolean;
+var
+  I: Integer;
+  Lower: string;
+begin
+  Value := 0;
+  Result := False;
+  if FT = nil then
+    Reset;
+  Lower := AnsiLowerCase(Name);
+  for I := 0 to Length(FT.Vars) - 1 do
+    if FT.Vars[I].Name = Lower then
+    begin
+      Value := FT.Vars[I].Value;
+      Result := True;
+      Exit;
+    end;
+end;
+
+function TLegacyScriptSession.TryStrVar(const Name: string;
+  out Value: string): Boolean;
+var
+  I: Integer;
+  Lower: string;
+begin
+  Value := '';
+  Result := False;
+  if FT = nil then
+    Reset;
+  Lower := AnsiLowerCase(Name);
+  for I := 0 to Length(FT.Timers) - 1 do
+    if FT.Timers[I].Name = Lower then
+    begin
+      Value := FT.Timers[I].Value;
+      Result := True;
+      Exit;
+    end;
+end;
+
+function TLegacyScriptSession.TryArrCell(const Name: string; Row, Col: Integer;
+  out Value: string): Boolean;
+var
+  I: Integer;
+  Lower: string;
+begin
+  Value := '';
+  Result := False;
+  if (Row < 1) or (Col < 1) then
+    Exit;
+  if FT = nil then
+    Reset;
+  Lower := AnsiLowerCase(Name);
+  for I := 0 to Length(FT.Arr48) - 1 do
+    if FT.Arr48[I].Name = Lower then
+    begin
+      if (Length(FT.Arr48[I].Data) < Row) or
+         (Length(FT.Arr48[I].Data[Row - 1]) < Col) then
+        Exit;
+      Value := FT.Arr48[I].Data[Row - 1][Col - 1];
+      Result := True;
+      Exit;
+    end;
+end;
+
+function TLegacyScriptSession.LogText: string;
+begin
+  if FT = nil then
+    Exit('');
+  Result := FT.TestLogText;
+end;
+
+function TLegacyScriptSession.HostCallText: string;
+begin
+  Result := FHostCalls.Text;
 end;
 
 end.

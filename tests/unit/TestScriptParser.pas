@@ -23,12 +23,14 @@ type
     procedure TestInsertSpaceBeforeParen;
     procedure TestCutCommandAtColon;
     procedure TestEvalScriptPointWords;
+    procedure TestCreateForTestDefaultProfile;
+    procedure TestCreateForTestCustomProfile;
   end;
 
 implementation
 
 uses
-  SysUtils, Unit1;
+  SysUtils, Unit1, uScriptSettings;
 
 procedure TScriptParserTest.SetUp;
 begin
@@ -102,6 +104,38 @@ begin
   AssertEquals('beta', EvalScriptPoint(FT, S, 1));
   AssertEquals('WordPos(1)', 7, FT.WordPos);
   AssertEquals('beta gamma', EvalScriptPoint(FT, S, -1));
+end;
+
+procedure TScriptParserTest.TestCreateForTestDefaultProfile;
+begin
+  AssertEquals('default PauseCmd', '0', FT.PauseCmd);
+  AssertEquals('default PauseStr', '0', FT.PauseStr);
+  AssertEquals('default SendDelay', 0, FT.SendDelay);
+  AssertEquals('default ClickDelay', 0, FT.ClickDelay);
+  AssertEquals('default LogLevel', 0, FT.LogLevel);
+end;
+
+procedure TScriptParserTest.TestCreateForTestCustomProfile;
+var
+  Profile: IScriptSettings;
+  T: TScanThread;
+begin
+  Profile := TScriptSettings.Create;
+  Profile.PauseCmd := '7';
+  Profile.PauseStr := '8';
+  Profile.SendDelay := 9;
+  Profile.ClickDelay := 10;
+  Profile.LogLevel := 1;
+  T := TScanThread.CreateForTest(Profile);
+  try
+    AssertEquals('custom PauseCmd', '7', T.PauseCmd);
+    AssertEquals('custom PauseStr', '8', T.PauseStr);
+    AssertEquals('custom SendDelay', 9, T.SendDelay);
+    AssertEquals('custom ClickDelay', 10, T.ClickDelay);
+    AssertEquals('custom LogLevel', 1, T.LogLevel);
+  finally
+    T.Free;
+  end;
 end;
 
 initialization

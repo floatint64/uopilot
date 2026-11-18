@@ -19,7 +19,7 @@ unit uScanThread;
 
 interface
 
-uses LangClipboard, Types, geScale, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows, uScriptParser, uScriptDriver{$IFDEF FPC}, LCLType{$ENDIF};
+uses LangClipboard, Types, geScale, {$IFnDEF FPC}FastMM4,{$ENDIF} {$IFnDEF FPC}jpeg,{$ENDIF} Recorder, MyIniFiles, mySys, awMachMask, PerlRegEx, SynEditHighlighter, SynEditMiscClasses, SynEditTypes, {$IFnDEF FPC}TlHelp32,{$ENDIF} PngGDIP, GDIPAPI, GDIPOBJ, SynEdit, Unit2, lualib, ActiveX, Buttons, Classes, Clipbrd, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, IniFiles, MMSystem, Menus, Messages, Registry, ShellAPI, StdCtrls, StrUtils, SyncObjs, SysUtils, WinInet, Windows, uScriptParser, uScriptDriver, uScriptSettings{$IFDEF FPC}, LCLType{$ENDIF};
 type
   { Пользовательская переменная: одна строка. Создаётся в
     Unit1.AfterOptionsLoaded по секции CustomVariables. }
@@ -435,6 +435,7 @@ type
     Timer: TTimer;                     // интервал $FA0
     FForTest: Boolean;                 // тестовый экземпляр без UI
     FDriver: TScriptDriver;            // line-loop скрипта (core/uScriptDriver)
+    FTestLog: TStringList;             // накопленный лог в тестовом режиме
   protected
     procedure Execute; override;
   public
@@ -462,7 +463,10 @@ type
     function ScriptStrToInt(S: string): Integer;
     constructor NewScriptTab(CreateSuspended: Boolean);
 {$IFDEF UOPILOT_UNIT_TESTS}
-    constructor CreateForTest;
+    { ASettings = nil означает FastTestProfile. }
+    constructor CreateForTest(const ASettings: IScriptSettings = nil);
+    function TestLogText: string;
+    procedure AppendTestLog(const S: string);
 {$ENDIF}
     procedure SyncLogMsg;
     procedure WriteScriptLog;
@@ -2717,7 +2721,10 @@ var
   g022: Integer;
   Pad: array[1..3652] of Byte;
 label
-  Restart, Again, ScanLoop, NoLua, RunCmd, NextLine;
+  Restart, Again, ScanLoop,
+  { TODO(refactor): неиспользуемые метки (проверено: goto на них нет).
+    Оставлены до чистки Execute; удалять вместе с остатками старого loop. }
+  NoLua, RunCmd, NextLine;
   { fmSecondfj перечитывается на каждом из 13 обращений -- кэшировать его
     в локальной здесь нельзя. }
   { Разбор строки запуска процедуры (Self.Params): слова начиная со ВТОРОГО
@@ -3329,6 +3336,13 @@ var
   L: Integer;
   Tab: TScanThread;
 begin
+  if FForTest then
+  begin
+    if (FTestLog <> nil) and (LogBuf[0] <> #0) then
+      FTestLog.Add(CP1251ToUTF8(PChar(@LogBuf)));
+    FillChar(Self.LogBuf, $4000, 0);
+    Exit;
+  end;
   if Self.LogLevel >= 1 then
   begin
     if fmSecondfj.miAutoOpenLog.Checked then
@@ -3996,18 +4010,24 @@ begin
 end;
 
 {$IFDEF UOPILOT_UNIT_TESTS}
-constructor TScanThread.CreateForTest;
+constructor TScanThread.CreateForTest(const ASettings: IScriptSettings);
+var
+  Settings: IScriptSettings;
 begin
   inherited Create(True);
+  if ASettings = nil then
+    Settings := FastTestProfile
+  else
+    Settings := ASettings;
   FForTest := True;
   AutoStart := False;
   ShowRun := False;
-  LogLevel := 0;
+  LogLevel := Settings.LogLevel;
   LineBase := 0;
-  PauseCmd := '0';
-  PauseStr := '0';
-  SendDelay := 0;
-  ClickDelay := 0;
+  PauseCmd := Settings.PauseCmd;
+  PauseStr := Settings.PauseStr;
+  SendDelay := Settings.SendDelay;
+  ClickDelay := Settings.ClickDelay;
   ClVerIdx := 0;
   NtUserIdx := 0;
   StartTick := GetTickCount;
@@ -4026,8 +4046,23 @@ begin
   ParenPos := 0;
   VarNames := TStringList.Create;
   VarNames.Add('timer');
+  FTestLog := TStringList.Create;
   if not QueryPerformanceFrequency(PerfFreq) then
     PerfFreq := 0;
+end;
+
+function TScanThread.TestLogText: string;
+begin
+  if FTestLog = nil then
+    Result := ''
+  else
+    Result := FTestLog.Text;
+end;
+
+procedure TScanThread.AppendTestLog(const S: string);
+begin
+  if FTestLog <> nil then
+    FTestLog.Add(S);
 end;
 {$ENDIF}
 
@@ -4052,6 +4087,7 @@ begin
   SetLength(Arr54, 0);
   SetLength(Arr58, 0);
   SetLength(Arr48, 0);
+  FreeAndNil(FTestLog);
   for i := 0 to Length(Blocks) - 1 do
   begin
     GlobalFree(Blocks[i].Handle);
@@ -13715,6 +13751,8 @@ end;
 
 function GetWord(T: TScanThread; const S: string; N: Integer): string;
 begin
+  { TODO(refactor): заглушка. Возвращает вход без разбора; вызовов в коде
+    нет. Не использовать в characterization-тестах как поведение движка. }
   Result := S;
 end;
 
@@ -22120,6 +22158,11 @@ begin
   T.ShotBits := nil;
 end;
 
+// ===========================================================================
+// TODO(refactor): мёртвые заглушки. Ни одна не вызывается из production
+// (проверено поиском по проекту). Оставлены до Этапа C, чтобы не смешивать
+// пометку мёртвого кода с изменением поведения.
+// ===========================================================================
 procedure SetArrSize(T: TScanThread; S: string; var A, B: Integer;
   C: Integer);
 begin

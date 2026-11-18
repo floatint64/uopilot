@@ -1841,6 +1841,10 @@ function CP1251StringReplace(const S, OldPattern, NewPattern: string;
 { Заполняет gCmdListah7/gCmdList2jj именами команд. Вынесено из FormCreate,
   чтобы тестовый раннер мог поднять таблицы без главной формы. }
 procedure InitScriptCommandTables;
+{ Сбрасывает глобальное состояние движка перед изолированным прогоном
+  (unit-тесты): таблицы команд, ссылки на вкладки, random и кэши запуска.
+  Сами TScanThread не освобождает -- владелец вкладок остаётся прежним. }
+procedure ResetGlobals;
 
 var
   gStartUOThread: TStartUOThread;
@@ -3920,6 +3924,24 @@ begin
     for I := 0 to $87 do
       gCmdList2jj.Add(gCmdNames2b1[I]);
   gCmdCounteh := $120;
+end;
+
+procedure ResetGlobals;
+var
+  I: Integer;
+begin
+  for I := Low(gScriptso3) to High(gScriptso3) do
+    gScriptso3[I] := nil;
+  gProcScript := nil;
+  gScriptCount := 0;
+  gPlayCount := 0;
+  FillChar(gAutoRun, SizeOf(gAutoRun), 0);
+  FillChar(gRunCache, SizeOf(gRunCache), 0);
+  FillChar(gPausedCache, SizeOf(gPausedCache), 0);
+  Randomize;
+  gCmdListah7.Clear;
+  gCmdList2jj.Clear;
+  InitScriptCommandTables;
 end;
 
 procedure TfmSecond.FormCreate(Sender: TObject);

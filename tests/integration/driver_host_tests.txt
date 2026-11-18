@@ -1,0 +1,70 @@
+// Интеграционные проверки production-адаптера TScanDriverHost.
+// Прогоняются через реальный TScanThread.Execute (UI-цикл), а не unit-тесты.
+// Кодировка файла: UTF-8.
+//
+// Что покрыто:
+// - BeforeLine: обычный запуск через /r;
+// - WaitEmptyLine / WaitEmptyPrefix: пустые строки и строки из пробелов;
+// - WaitBeforeCommand: пауза перед каждой командой (ScriptDelayDef=100);
+// - HandleBlockComment: многострочный (* ... *);
+// - HandleLuaBlock: пустой --lua/--endlua без пользовательского кода;
+// - метки :name и gosub/return.
+//
+// Не покрыто автоматически: непустой Lua-код и WaitForInputIdle
+// (PauseSOnClientClose): им нужен внешний клиент/закрытие окна.
+
+log clear
+log mode noTime
+set #pass 0
+set #fail 0
+
+(*
+driver host block comment:
+эта строка и закрывающая скобка должны быть пропущены
+*)
+set #r 1
+if #r = 1
+  log PASS t_block_comment
+  set #pass #pass + 1
+else
+  log FAIL t_block_comment
+  set #fail #fail + 1
+end_if
+
+// Пустая строка ниже -- WaitEmptyLine.
+
+set #r 0
+gosub host_helper
+if #r = 2
+  log PASS t_gosub_label
+  set #pass #pass + 1
+else
+  log FAIL t_gosub_label
+  set #fail #fail + 1
+end_if
+
+// Строка только из пробелов -- WaitEmptyPrefix после TrimRightScriptLine.
+   
+set #r 0
+--lua
+--endlua
+set #r 1
+if #r = 1
+  log PASS t_empty_lua_block
+  set #pass #pass + 1
+else
+  log FAIL t_empty_lua_block
+  set #fail #fail + 1
+end_if
+
+log TEST RESULT PASS=#pass FAIL=#fail
+if (#fail = 0) and (#pass = 3)
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+exit
+
+:host_helper
+set #r 2
+return
