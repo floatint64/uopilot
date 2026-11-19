@@ -1,0 +1,179 @@
+// Интеграционные тесты команды записи в файл: write (<filename> <text>)
+// Кодировка файла: UTF-8.
+// write дописывает файл (создаёт, если нет); \n -> #10, \r -> #13; перевод
+// строки в конец НЕ добавляется. Относительное имя резолвится в Scripts\.
+// Проверка существования — fileexists ($f), где $f = homepath + Scripts\<name>
+// (fileexists НЕ резолвит в Scripts\ и смотрит относительно текущего каталога).
+// Проверка контента — load_array %a <name>: имя файла последний операнд и БЕЗ
+// скобок (скобки попали бы в имя), относительное имя резолвится в Scripts\ так
+// же, как write. Очистка — filedelete ($f).
+
+log clear
+log mode noTime
+
+set $p homepath
+
+set #pass 0
+set #fail 0
+
+gosub test_write_lat
+gosub test_write_cyr
+gosub test_write_mixed
+gosub test_write_escape
+gosub test_write_append
+gosub test_cleanup
+gosub test_summary
+exit
+
+
+// ===== helpers =====
+
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== A. латиница =====
+
+:test_write_lat
+set $t_name test_write_lat
+set $t_input abcdefghijklmnopqrstuvwxyz
+set $s Scripts\uop_wr_lat.txt
+set $f $p$s
+filedelete ($f)
+write (uop_wr_lat.txt abcdefghijklmnopqrstuvwxyz)
+wait 100
+set #fe fileexists ($f)
+set #t_num_actual #fe
+set #t_num_expected 1
+gosub assert_num
+load_array %a uop_wr_lat.txt
+set $t_str_actual %a[1]
+set $t_str_expected abcdefghijklmnopqrstuvwxyz
+gosub assert_str
+return
+
+
+// ===== B. кириллица =====
+
+:test_write_cyr
+set $t_name test_write_cyr
+set $t_input абвгдежзийклмнопрстуфхцчшщъыьэюя
+set $s Scripts\uop_wr_cyr.txt
+set $f $p$s
+filedelete ($f)
+write (uop_wr_cyr.txt абвгдежзийклмнопрстуфхцчшщъыьэюя)
+wait 100
+load_array %a uop_wr_cyr.txt
+set $t_str_actual %a[1]
+set $t_str_expected абвгдежзийклмнопрстуфхцчшщъыьэюя
+gosub assert_str
+return
+
+
+// ===== C. смесь =====
+
+:test_write_mixed
+set $t_name test_write_mixed
+set $t_input Привет world 123
+set $s Scripts\uop_wr_mix.txt
+set $f $p$s
+filedelete ($f)
+write (uop_wr_mix.txt Привет world 123)
+wait 100
+load_array %a uop_wr_mix.txt
+set $t_str_actual %a[1]
+set $t_str_expected Привет world 123
+gosub assert_str
+return
+
+
+// ===== D. экранирование \n =====
+
+:test_write_escape
+set $t_name test_write_escape
+set $t_input a\nb
+set $s Scripts\uop_wr_esc.txt
+set $f $p$s
+filedelete ($f)
+write (uop_wr_esc.txt a\nb)
+wait 100
+load_array %a uop_wr_esc.txt
+set $t_str_actual %a[1]
+set $t_str_expected a
+gosub assert_str
+set $t_str_actual %a[2]
+set $t_str_expected b
+gosub assert_str
+return
+
+
+// ===== E. дописывание (append) =====
+
+:test_write_append
+set $t_name test_write_append
+set $t_input line1\nline2
+set $s Scripts\uop_wr_ap.txt
+set $f $p$s
+filedelete ($f)
+write (uop_wr_ap.txt line1\n)
+write (uop_wr_ap.txt line2)
+wait 100
+load_array %a uop_wr_ap.txt
+set $t_str_actual %a[1]
+set $t_str_expected line1
+gosub assert_str
+set $t_str_actual %a[2]
+set $t_str_expected line2
+gosub assert_str
+return
+
+
+// ===== очистка =====
+
+:test_cleanup
+set $s Scripts\uop_wr_lat.txt
+set $f $p$s
+filedelete ($f)
+set $s Scripts\uop_wr_cyr.txt
+set $f $p$s
+filedelete ($f)
+set $s Scripts\uop_wr_mix.txt
+set $f $p$s
+filedelete ($f)
+set $s Scripts\uop_wr_esc.txt
+set $f $p$s
+filedelete ($f)
+set $s Scripts\uop_wr_ap.txt
+set $f $p$s
+filedelete ($f)
+return
