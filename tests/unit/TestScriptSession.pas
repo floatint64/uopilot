@@ -17,8 +17,10 @@ type
     procedure TestTryNumVarFindsExisting;
     procedure TestTryNumVarDoesNotCreateMissing;
     procedure TestTryStrVarFindsExisting;
+    procedure TestTryStrVarDoesNotCreateMissing;
     procedure TestTryArrCellFindsExisting;
     procedure TestTryArrCellRejectsMissing;
+    procedure TestTryArrCellMissingColumn;
     procedure TestHostCallTextRecordsCommands;
     procedure TestLogTextStartsEmpty;
     procedure TestLogTextCapturesCommandLog;
@@ -26,6 +28,8 @@ type
     procedure TestLogStateSubcommandsRejected;
     procedure TestStructuredUnknownCommand;
     procedure TestStructuredStepLimit;
+    procedure TestObservationsResetBetweenRuns;
+    procedure TestAllowedCommandsIncludeWaitMsgHintExit;
   end;
 
 implementation
@@ -72,6 +76,15 @@ begin
   AssertEquals('hello', Value);
 end;
 
+procedure TScriptSessionTest.TestTryStrVarDoesNotCreateMissing;
+var
+  Value: string;
+begin
+  AssertFalse('missing string variable', FSession.TryStrVar('typo', Value));
+  AssertFalse('missing string variable must stay missing',
+    FSession.TryStrVar('typo', Value));
+end;
+
 procedure TScriptSessionTest.TestTryArrCellFindsExisting;
 var
   Value: string;
@@ -89,6 +102,15 @@ begin
   FSession.RunScript('set %a [1] one');
   AssertFalse('row out of bounds', FSession.TryArrCell('a', 2, 1, Value));
   AssertFalse('column out of bounds', FSession.TryArrCell('a', 1, 2, Value));
+end;
+
+procedure TScriptSessionTest.TestTryArrCellMissingColumn;
+var
+  Value: string;
+begin
+  FSession.RunScript('set %a 1|2/3|4'#10'delete_array %a 2 1');
+  AssertFalse('deleted column is gone',
+    FSession.TryArrCell('a', 1, 2, Value));
 end;
 
 procedure TScriptSessionTest.TestHostCallTextRecordsCommands;
@@ -190,6 +212,39 @@ begin
   finally
     Session.Free;
   end;
+end;
+
+procedure TScriptSessionTest.TestObservationsResetBetweenRuns;
+begin
+  FSession.RunScript('msg one'#10'hint h1');
+  FSession.RunScript('set #r 1');
+  AssertEquals('messages reset', '', FSession.MessageText);
+  AssertEquals('hint reset', '', FSession.HintText);
+  AssertFalse('exit flag reset', FSession.ExitRequested);
+end;
+
+procedure TScriptSessionTest.TestAllowedCommandsIncludeWaitMsgHintExit;
+var
+  Allowed: TAllowedCommandIds;
+  I: Integer;
+  function HasIndex(AIndex: Integer): Boolean;
+  var
+    J: Integer;
+  begin
+    for J := 0 to High(Allowed) do
+      if Allowed[J] = AIndex then
+        Exit(True);
+    Result := False;
+  end;
+begin
+  Allowed := TestAllowedCommands;
+  for I := 0 to High(Allowed) do
+    AssertTrue('allowlist index in range: ' + IntToStr(Allowed[I]),
+      (Allowed[I] >= 0) and (Allowed[I] < 136));
+  AssertTrue('wait allowed', HasIndex(15));
+  AssertTrue('msg allowed', HasIndex(16));
+  AssertTrue('hint allowed', HasIndex(98));
+  AssertTrue('exit allowed', HasIndex(119));
 end;
 
 initialization

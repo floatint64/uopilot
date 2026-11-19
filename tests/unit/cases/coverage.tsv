@@ -1,0 +1,426 @@
+name	kind	status	priority	cases	note
+name	eval	missing	P3		not characterized yet
+gold	eval	missing	P3		not characterized yet
+wght	eval	missing	P3		not characterized yet
+armor	eval	missing	P3		not characterized yet
+hits	eval	missing	P3		not characterized yet
+mana	eval	missing	P3		not characterized yet
+stam	eval	missing	P3		not characterized yet
+lastmsg	eval	missing	P3		not characterized yet
+coordx	eval	missing	P3		not characterized yet
+coordy	eval	missing	P3		not characterized yet
+min	eval	skip	P1		clock dependent: current date/time
+hour	eval	skip	P1		clock dependent: current date/time
+sec	eval	skip	P1		clock dependent: current date/time
+str	eval	missing	P3		not characterized yet
+int	eval	missing	P3		not characterized yet
+dex	eval	missing	P3		not characterized yet
+chardir	eval	missing	P3		not characterized yet
+timer	eval	missing	P3		not characterized yet
+lastobjectid	eval	missing	P3		not characterized yet
+lastobjecttype	eval	missing	P3		not characterized yet
+lasttargetid	eval	missing	P3		not characterized yet
+lasttargetx	eval	missing	P3		not characterized yet
+lasttargety	eval	missing	P3		not characterized yet
+lasttargetz	eval	missing	P3		not characterized yet
+lasttargetkind	eval	missing	P3		not characterized yet
+lastliftedid	eval	missing	P3		not characterized yet
+lastskill	eval	missing	P3		not characterized yet
+lastspell	eval	missing	P3		not characterized yet
+laststatictype	eval	missing	P3		not characterized yet
+coordz	eval	missing	P3		not characterized yet
+target	eval	missing	P3		not characterized yet
+charposx	eval	missing	P3		not characterized yet
+charposy	eval	missing	P3		not characterized yet
+charposz	eval	missing	P3		not characterized yet
+lastobject	eval	missing	P3		not characterized yet
+lasttarget	eval	missing	P3		not characterized yet
+skills	eval	missing	P3		not characterized yet
+war	eval	missing	P3		not characterized yet
+hidden	eval	missing	P3		not characterized yet
+arun	eval	missing	P3		not characterized yet
+delimiter	eval	missing	P3		not characterized yet
+spellname	eval	missing	P3		not characterized yet
+windowpos	eval	missing	P3		not characterized yet
+findwindow	eval	missing	P3		not characterized yet
+workwindow	eval	missing	P3		not characterized yet
+random	eval	missing	P3		not characterized yet
+getwindow	eval	missing	P3		not characterized yet
+getwindowtext	eval	missing	P3		not characterized yet
+mouse_pos	eval	missing	P3		not characterized yet
+color	eval	missing	P3		not characterized yet
+number	eval	missing	P3		not characterized yet
+word	eval	missing	P3		not characterized yet
+xxx	eval	missing	P3		not characterized yet
+year	eval	skip	P1		clock dependent: current date/time
+month	eval	skip	P1		clock dependent: current date/time
+day	eval	skip	P1		clock dependent: current date/time
+priority	eval	missing	P3		not characterized yet
+prompt	eval	missing	P3		not characterized yet
+setwindowtext	eval	missing	P3		not characterized yet
+psysresist	eval	missing	P3		not characterized yet
+fireresist	eval	missing	P3		not characterized yet
+coldresist	eval	missing	P3		not characterized yet
+poisresist	eval	missing	P3		not characterized yet
+enerresist	eval	missing	P3		not characterized yet
+luck	eval	missing	P3		not characterized yet
+damage	eval	missing	P3		not characterized yet
+hitsmax	eval	missing	P3		not characterized yet
+manamax	eval	missing	P3		not characterized yet
+stammax	eval	missing	P3		not characterized yet
+wghtmax	eval	missing	P3		not characterized yet
+damagemax	eval	missing	P3		not characterized yet
+followers	eval	missing	P3		not characterized yet
+followersmax	eval	missing	P3		not characterized yet
+linedelay	eval	missing	P3		not characterized yet
+fontcolor	eval	missing	P3		not characterized yet
+findcolor	eval	missing	P3		not characterized yet
+size	eval	covered	P1	suite:ScriptsExprStrings	
+clipboard	eval	skip	P3		requires clipboard host ; get clipboard is a known bug
+logging	eval	missing	P3		not characterized yet
+getlayout	eval	missing	P3		not characterized yet
+setlayout	eval	missing	P3		not characterized yet
+windowfromcursor	eval	missing	P3		not characterized yet
+getselectedtext	eval	missing	P3		not characterized yet
+setselectedtext	eval	missing	P3		not characterized yet
+scripts	eval	missing	P3		not characterized yet
+current_script	eval	missing	P3		not characterized yet
+active_script	eval	missing	P3		not characterized yet
+hex2dec	eval	covered	P1	suite:ScriptsExprStrings	
+dec2hex	eval	skip	P1		branch 88 has suspicious Inc(p, Length(pc)); not characterized until reviewed
+findimage	eval	missing	P3		not characterized yet
+defcolor	eval	missing	P3		not characterized yet
+defx	eval	missing	P3		not characterized yet
+defy	eval	missing	P3		not characterized yet
+defxabs	eval	missing	P3		not characterized yet
+defyabs	eval	missing	P3		not characterized yet
+workwindowpid	eval	missing	P3		not characterized yet
+posex	eval	covered	P1	suite:ScriptsExprStrings	
+copy	eval	covered	P1	suite:ScriptsExprStrings	
+delete	eval	covered	P1	suite:ScriptsExprStrings	
+insert	eval	covered	P1	suite:ScriptsExprStrings	
+errorlevel	eval	missing	P3		not characterized yet
+screenheight	eval	missing	P3		not characterized yet
+screenwidth	eval	missing	P3		not characterized yet
+desktopheight	eval	missing	P3		not characterized yet
+desktopwidth	eval	missing	P3		not characterized yet
+monitorheight	eval	missing	P3		not characterized yet
+monitorwidth	eval	missing	P3		not characterized yet
+monitor	eval	missing	P3		not characterized yet
+indexof	eval	covered	P1	suite:ScriptsArray	
+fileexists	eval	missing	P3		not characterized yet
+filegetattr	eval	missing	P3		not characterized yet
+filegetdate	eval	missing	P3		not characterized yet
+windowfrompoint	eval	missing	P3		not characterized yet
+mousepos_x	eval	missing	P3		not characterized yet
+mousepos_y	eval	missing	P3		not characterized yet
+mouseposabs_x	eval	missing	P3		not characterized yet
+mouseposabs_y	eval	missing	P3		not characterized yet
+abs	eval	covered	P1	suite:ScriptsExprMath	
+round	eval	covered	P1	suite:ScriptsExprMath	
+floor	eval	covered	P1	suite:ScriptsExprMath	
+ceil	eval	covered	P1	suite:ScriptsExprMath	
+frac	eval	covered	P1	suite:ScriptsExprMath	
+sqrt	eval	covered	P1	suite:ScriptsExprMath	
+power	eval	covered	P1	suite:ScriptsExprMath	
+exp	eval	covered	P1	suite:ScriptsExprMath	
+ln	eval	covered	P1	suite:ScriptsExprMath	
+log	eval	covered	P1	suite:ScriptsExprMath	
+sin	eval	covered	P1	suite:ScriptsExprMath	
+cos	eval	covered	P1	suite:ScriptsExprMath	
+tan	eval	covered	P1	suite:ScriptsExprMath	
+arcsin	eval	covered	P1	suite:ScriptsExprMath	
+arccos	eval	covered	P1	suite:ScriptsExprMath	
+arctan	eval	covered	P1	suite:ScriptsExprMath	
+degtorad	eval	covered	P1	suite:ScriptsExprMath	
+radtodeg	eval	covered	P1	suite:ScriptsExprMath	
+trunc	eval	covered	P1	suite:ScriptsExprMath	
+pi	eval	covered	P1	suite:ScriptsExprMath	
+minx	eval	covered	P1	suite:ScriptsExprMath	
+maxx	eval	covered	P1	suite:ScriptsExprMath	
+mean	eval	covered	P1	suite:ScriptsExprMath	
+mod	eval	covered	P1	suite:ScriptsExprMath	
+point_distance	eval	covered	P1	suite:ScriptsExprMath	
+point_direction	eval	covered	P1	suite:ScriptsExprMath	
+lengthdir_x	eval	covered	P1	suite:ScriptsExprMath	
+lengthdir_y	eval	covered	P1	suite:ScriptsExprMath	
+is_real	eval	covered	P1	suite:ScriptsExprMath	
+is_string	eval	covered	P1	suite:ScriptsExprMath	
+chr	eval	covered	P1	suite:ScriptsExprStrings	
+ord	eval	covered	P1	suite:ScriptsExprStrings	
+string_replace	eval	covered	P1	suite:ScriptsExprStrings	
+string_count	eval	covered	P1	suite:ScriptsExprStrings	
+string_lower	eval	covered	P1	suite:ScriptsExprStrings	
+string_upper	eval	covered	P1	suite:ScriptsExprStrings	
+string_letters	eval	covered	P1	suite:ScriptsExprStrings	
+string_digits	eval	covered	P1	suite:ScriptsExprStrings	
+#155	eval	skip	P3		empty slot in gCmdNamesdd
+#156	eval	skip	P3		empty slot in gCmdNamesdd
+#157	eval	skip	P3		empty slot in gCmdNamesdd
+#158	eval	skip	P3		empty slot in gCmdNamesdd
+dayofweek	eval	covered	P1	suite:ScriptsExprDates	
+claqua	eval	missing	P3		not characterized yet
+clblack	eval	missing	P3		not characterized yet
+clblue	eval	missing	P3		not characterized yet
+cldkgray	eval	missing	P3		not characterized yet
+clfuchsia	eval	missing	P3		not characterized yet
+clgray	eval	missing	P3		not characterized yet
+clgreen	eval	missing	P3		not characterized yet
+cllime	eval	missing	P3		not characterized yet
+clltgray	eval	missing	P3		not characterized yet
+clmaroon	eval	missing	P3		not characterized yet
+clnavy	eval	missing	P3		not characterized yet
+clolive	eval	missing	P3		not characterized yet
+clpurple	eval	missing	P3		not characterized yet
+clred	eval	missing	P3		not characterized yet
+clsilver	eval	missing	P3		not characterized yet
+clteal	eval	missing	P3		not characterized yet
+clwhite	eval	missing	P3		not characterized yet
+clyellow	eval	missing	P3		not characterized yet
+shownames	eval	missing	P3		not characterized yet
+transparency	eval	missing	P3		not characterized yet
+pathfinding	eval	missing	P3		not characterized yet
+criminalactions	eval	missing	P3		not characterized yet
+eval	eval	missing	P3		not characterized yet
+colortorgb	eval	missing	P3		not characterized yet
+colortored	eval	missing	P3		not characterized yet
+colortogreen	eval	missing	P3		not characterized yet
+colortoblue	eval	missing	P3		not characterized yet
+ltrim	eval	covered	P1	suite:ScriptsExprStrings	
+rtrim	eval	covered	P1	suite:ScriptsExprStrings	
+trim	eval	covered	P1	suite:ScriptsExprStrings	
+showscriptprocessing	eval	missing	P3		not characterized yet
+stopscrunknowncommand	eval	skip	P3		IScriptSettings has no StopUnknownCommand field
+showtimervar	eval	missing	P3		not characterized yet
+div	eval	covered	P1	suite:ScriptsExprMath	
+regexp	eval	covered	P1	suite:ScriptsExprRegexp	
+hotkeystart	eval	missing	P3		not characterized yet
+hotkeypause	eval	missing	P3		not characterized yet
+homepath	eval	missing	P3		not characterized yet
+exefilename	eval	missing	P3		not characterized yet
+windowhandle	eval	missing	P3		not characterized yet
+rvpassword	eval	missing	P3		not characterized yet
+#201	eval	skip	P3		empty slot in gCmdNamesdd
+rvwalkcount	eval	missing	P3		not characterized yet
+rvstayinsidecave	eval	missing	P3		not characterized yet
+rvfisicalattack	eval	missing	P3		not characterized yet
+#205	eval	skip	P3		empty slot in gCmdNamesdd
+#206	eval	skip	P3		empty slot in gCmdNamesdd
+#207	eval	skip	P3		empty slot in gCmdNamesdd
+#208	eval	skip	P3		empty slot in gCmdNamesdd
+#209	eval	skip	P3		empty slot in gCmdNamesdd
+#210	eval	skip	P3		empty slot in gCmdNamesdd
+#211	eval	skip	P3		empty slot in gCmdNamesdd
+#212	eval	skip	P3		empty slot in gCmdNamesdd
+#213	eval	skip	P3		empty slot in gCmdNamesdd
+#214	eval	skip	P3		empty slot in gCmdNamesdd
+#215	eval	skip	P3		empty slot in gCmdNamesdd
+#216	eval	skip	P3		empty slot in gCmdNamesdd
+#217	eval	skip	P3		empty slot in gCmdNamesdd
+#218	eval	skip	P3		empty slot in gCmdNamesdd
+#219	eval	skip	P3		empty slot in gCmdNamesdd
+timer1	eval	missing	P3		not characterized yet
+timer2	eval	missing	P3		not characterized yet
+timer3	eval	missing	P3		not characterized yet
+timer4	eval	missing	P3		not characterized yet
+chartohex	eval	covered	P1	suite:ScriptsExprStrings	
+chartohexf	eval	covered	P1	suite:ScriptsExprStrings	
+moduleaddress	eval	missing	P3		not characterized yet
+relativeaddress2absolute	eval	missing	P3		not characterized yet
+absoluteaddress2relative	eval	missing	P3		not characterized yet
+#229	eval	skip	P3		empty slot in gCmdNamesdd
+clickoffsetx	eval	missing	P3		not characterized yet
+clickoffsety	eval	missing	P3		not characterized yet
+findoffsetx	eval	missing	P3		not characterized yet
+findoffsety	eval	missing	P3		not characterized yet
+sendexdelay	eval	missing	P3		not characterized yet
+#235	eval	skip	P3		empty slot in gCmdNamesdd
+emptylinedelay	eval	missing	P3		not characterized yet
+mouseclickdelay	eval	missing	P3		not characterized yet
+arrayaddress	eval	missing	P3		not characterized yet
+promptpos_x	eval	missing	P3		not characterized yet
+promptpos_y	eval	missing	P3		not characterized yet
+loghandle	eval	missing	P3		not characterized yet
+logautoopen	eval	missing	P3		not characterized yet
+messagesoutputto	eval	missing	P3		not characterized yet
+sendmessage	eval	missing	P3		not characterized yet
+postmessage	eval	missing	P3		not characterized yet
+getimage	eval	missing	P3		not characterized yet
+deleteimage	eval	missing	P3		not characterized yet
+loadimage	eval	missing	P3		not characterized yet
+saveimage	eval	missing	P3		not characterized yet
+getfocus	eval	missing	P3		not characterized yet
+adddate	eval	skip	P1		two-date semantics not characterized
+addyears	eval	covered	P1	suite:ScriptsExprDates	
+addmonths	eval	covered	P1	suite:ScriptsExprDates	
+adddays	eval	covered	P1	suite:ScriptsExprDates	
+addhours	eval	covered	P1	suite:ScriptsExprDates	
+addminutes	eval	covered	P1	suite:ScriptsExprDates	
+addseconds	eval	covered	P1	suite:ScriptsExprDates	
+subdate	eval	skip	P1		two-date semantics not characterized
+subyears	eval	covered	P1	suite:ScriptsExprDates	
+submonths	eval	covered	P1	suite:ScriptsExprDates	
+subdays	eval	covered	P1	suite:ScriptsExprDates	
+subhours	eval	covered	P1	suite:ScriptsExprDates	
+subminutes	eval	covered	P1	suite:ScriptsExprDates	
+subseconds	eval	covered	P1	suite:ScriptsExprDates	
+yearfromdate	eval	covered	P1	suite:ScriptsExprDates	
+monthfromdate	eval	covered	P1	suite:ScriptsExprDates	
+dayfromdate	eval	covered	P1	suite:ScriptsExprDates	
+hourfromdate	eval	covered	P1	suite:ScriptsExprDates	
+minutefromdate	eval	covered	P1	suite:ScriptsExprDates	
+secondfromdate	eval	covered	P1	suite:ScriptsExprDates	
+timestamp	eval	covered	P1	suite:ScriptsExprDates	
+datenow	eval	skip	P1		clock dependent: current date
+timenow	eval	skip	P1		clock dependent: current time
+backpack	eval	missing	P3		not characterized yet
+backpackposx	eval	missing	P3		not characterized yet
+backpackposy	eval	missing	P3		not characterized yet
+scriptpath	eval	missing	P3		not characterized yet
+scriptname	eval	missing	P3		not characterized yet
+findmemory	eval	missing	P3		not characterized yet
+terminated	eval	missing	P3		not characterized yet
+setprocesspriority	eval	missing	P3		not characterized yet
+getprocesspriority	eval	missing	P3		not characterized yet
+setprocessaffinitymask	eval	missing	P3		not characterized yet
+checkgetcolor	eval	missing	P3		not characterized yet
+version	eval	missing	P3		not characterized yet
+suspendprocess	eval	missing	P3		not characterized yet
+resumeprocess	eval	missing	P3		not characterized yet
+#288	eval	skip	P3		empty slot in gCmdNamesdd
+continue	cmd	covered	P3	suite:ScriptsFlow	
+break	cmd	covered	P3	suite:ScriptsFlow	
+for	cmd	covered	P3	suite:ScriptsFlow	
+end_for	cmd	covered	P3	suite:ScriptsFlow	
+goto	cmd	covered	P3	suite:ScriptsFlow	
+gosub	cmd	covered	P3	suite:ScriptsFlow	
+return	cmd	covered	P3	suite:ScriptsFlow	
+else	cmd	covered	P3	suite:ScriptsFlow	
+macro_load	cmd	skip	P3		requires script lifecycle/host 
+macro_play	cmd	skip	P3		requires script lifecycle/host 
+repeat	cmd	covered	P3	suite:ScriptsFlow	
+end_repeat	cmd	covered	P3	suite:ScriptsFlow	
+exec	cmd	skip	P3		requires script lifecycle/host 
+terminate	cmd	skip	P3		requires script lifecycle/host 
+waitfortarget	cmd	skip	P3		requires script lifecycle/host 
+wait	cmd	covered	P2	case:flow_wait_zero case:flow_wait_one code:TestScriptCommands.TestWaitInvalid	
+msg	cmd	covered	P2	code:TestScriptCommands.TestMsgCaptured	
+say	cmd	skip	P3		requires IScriptHost/UI 
+send	cmd	skip	P3		requires IScriptHost/UI 
+sendex	cmd	skip	P3		requires IScriptHost/UI 
+left	cmd	skip	P3		requires mouse/UI host 
+right	cmd	skip	P3		requires mouse/UI host 
+double_left	cmd	skip	P3		requires mouse/UI host 
+double_right	cmd	skip	P3		requires mouse/UI host 
+left_down	cmd	skip	P3		requires mouse/UI host 
+left_up	cmd	skip	P3		requires mouse/UI host 
+right_down	cmd	skip	P3		requires mouse/UI host 
+right_up	cmd	skip	P3		requires mouse/UI host 
+move	cmd	skip	P3		requires mouse/UI host 
+drag	cmd	skip	P3		requires mouse/UI host 
+flash	cmd	skip	P3		requires UI host 
+alarm	cmd	skip	P3		requires UI host 
+end_script	cmd	covered	P3	suite:ScriptsFlow	
+pause_script	cmd	skip	P3		requires script lifecycle/host 
+resume_script	cmd	skip	P3		requires script lifecycle/host 
+stop_script	cmd	skip	P3		requires script lifecycle/host 
+start_script	cmd	skip	P3		requires script lifecycle/host 
+call	cmd	skip	P3		spawns a separate TScanThread and tab; integration
+proc	cmd	skip	P3		spawns a separate TScanThread and tab; integration
+end_proc	cmd	skip	P3		proc lifecycle; integration
+set	cmd	covered	P2	suite:ScriptsCmdSet	
+if	cmd	covered	P3	suite:ScriptsFlow suite:ScriptsExprCompare	
+if_not	cmd	covered	P3	suite:ScriptsFlow suite:ScriptsExprCompare	
+end_if	cmd	covered	P3	suite:ScriptsFlow	
+while	cmd	covered	P3	suite:ScriptsFlow	
+while_not	cmd	covered	P3	suite:ScriptsFlow	
+end_while	cmd	covered	P3	suite:ScriptsFlow	
+:	cmd	covered	P3	suite:ScriptsFlow	
+injection	cmd	skip	P3		requires UI/client host 
+get	cmd	covered	P2	suite:ScriptsCmdGet	
+load_array	cmd	skip	P3		requires IFileHost 
+save_array	cmd	skip	P3		requires IFileHost 
+showwindow	cmd	skip	P3		requires UI/client host 
+kleft	cmd	skip	P3		requires keyboard host 
+kright	cmd	skip	P3		requires keyboard host 
+double_kleft	cmd	skip	P3		requires keyboard host 
+double_kright	cmd	skip	P3		requires keyboard host 
+kleft_down	cmd	skip	P3		requires keyboard host 
+kleft_up	cmd	skip	P3		requires keyboard host 
+kright_down	cmd	skip	P3		requires keyboard host 
+kright_up	cmd	skip	P3		requires keyboard host 
+readmem	cmd	skip	P3		requires process memory host 
+writemem	cmd	skip	P3		requires process memory host 
+printscreen	cmd	skip	P3		requires UI/client host 
+post	cmd	skip	P3		requires keyboard host 
+pleft	cmd	skip	P3		requires mouse/UI host 
+pright	cmd	skip	P3		requires mouse/UI host 
+double_pleft	cmd	skip	P3		requires mouse/UI host 
+double_pright	cmd	skip	P3		requires mouse/UI host 
+pleft_down	cmd	skip	P3		requires mouse/UI host 
+pleft_up	cmd	skip	P3		requires mouse/UI host 
+pright_down	cmd	skip	P3		requires mouse/UI host 
+pright_up	cmd	skip	P3		requires mouse/UI host 
+middle	cmd	skip	P3		requires mouse/UI host 
+double_middle	cmd	skip	P3		requires mouse/UI host 
+middle_down	cmd	skip	P3		requires mouse/UI host 
+middle_up	cmd	skip	P3		requires mouse/UI host 
+pmiddle	cmd	skip	P3		requires mouse/UI host 
+double_pmiddle	cmd	skip	P3		requires mouse/UI host 
+pmiddle_down	cmd	skip	P3		requires mouse/UI host 
+pmiddle_up	cmd	skip	P3		requires mouse/UI host 
+kmiddle	cmd	skip	P3		requires keyboard host 
+double_kmiddle	cmd	skip	P3		requires keyboard host 
+kmiddle_down	cmd	skip	P3		requires keyboard host 
+kmiddle_up	cmd	skip	P3		requires keyboard host 
+post_up	cmd	skip	P3		requires keyboard host 
+post_down	cmd	skip	P3		requires keyboard host 
+send_up	cmd	skip	P3		requires IScriptHost/UI 
+send_down	cmd	skip	P3		requires IScriptHost/UI 
+sendex_up	cmd	skip	P3		requires IScriptHost/UI 
+sendex_down	cmd	skip	P3		requires IScriptHost/UI 
+wheel_down	cmd	skip	P3		requires mouse/UI host 
+wheel_up	cmd	skip	P3		requires mouse/UI host 
+pwheel_down	cmd	skip	P3		requires mouse/UI host 
+pwheel_up	cmd	skip	P3		requires mouse/UI host 
+kwheel_down	cmd	skip	P3		requires keyboard host 
+kwheel_up	cmd	skip	P3		requires keyboard host 
+load_script	cmd	skip	P3		requires script lifecycle/host 
+hint	cmd	covered	P2	code:TestScriptCommands.TestHintCaptured	
+macro_send	cmd	skip	P3		requires script lifecycle/host 
+execandwait	cmd	skip	P3		requires script lifecycle/host 
+send217	cmd	skip	P3		requires IScriptHost/UI 
+filerename	cmd	skip	P3		requires IFileHost 
+filecopy	cmd	skip	P3		requires IFileHost 
+filedelete	cmd	skip	P3		requires IFileHost 
+filesetattr	cmd	skip	P3		requires IFileHost 
+filesetdate	cmd	skip	P3		requires IFileHost 
+dircreate	cmd	skip	P3		requires IFileHost 
+dirremove	cmd	skip	P3		requires IFileHost 
+dir	cmd	skip	P3		requires IFileHost 
+init_arr	cmd	skip	P3		no dedicated unit case; used only by load_array 
+log	cmd	covered	P2	code:TestScriptSession.TestLogTextCapturesCommandLog	
+eval	cmd	covered	P3	code:TestScriptDriver.TestEvalUnknownCommand	
+write	cmd	skip	P3		requires IFileHost 
+switch	cmd	covered	P3	suite:ScriptsFlow	
+case	cmd	covered	P3	suite:ScriptsFlow	
+end_switch	cmd	covered	P3	suite:ScriptsFlow	
+send217_up	cmd	skip	P3		requires IScriptHost/UI 
+send217_down	cmd	skip	P3		requires IScriptHost/UI 
+exit	cmd	covered	P2	case:flow_exit code:TestScriptCommands.TestExitStopsAndFlags	
+test	cmd	skip	P3		requires plugin/test host 
+pluginload	cmd	skip	P3		requires plugin/test host 
+pluginreload	cmd	skip	P3		requires plugin/test host 
+pluginunload	cmd	skip	P3		requires plugin/test host 
+run_onload	cmd	skip	P3		requires plugin/test host 
+end_run	cmd	skip	P3		requires plugin/test host 
+sort_array	cmd	covered	P2	case:array_sort_asc case:array_sort_desc	
+delete_array	cmd	covered	P2	case:array_delete_row case:array_delete_column	
+restart_script	cmd	skip	P3		requires script lifecycle/host 
+move_smooth	cmd	skip	P3		requires mouse/UI host 
+keyboard	cmd	skip	P3		requires UI host 
+mouse	cmd	skip	P3		requires UI host 
+servicegetstatus	cmd	skip	P3		requires service host 
+servicestart	cmd	skip	P3		requires service host 
+servicestop	cmd	skip	P3		requires service host 
+servicesend	cmd	skip	P3		requires service host 

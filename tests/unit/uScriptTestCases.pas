@@ -22,6 +22,12 @@ type
   end;
   TScriptTestCaseArray = array of TScriptTestCase;
 
+  TScriptCaseFile = record
+    SuiteName: string;
+    FileName: string;
+  end;
+  TScriptCaseFileArray = array of TScriptCaseFile;
+
   { Читает UTF-8 TSV: name, kind, target, script, expected, note.
     Строки `//` и пустые пропускаются, BOM снимается. }
   TScriptTestCaseSet = class
@@ -29,10 +35,40 @@ type
     class function Load(const FileName: string): TScriptTestCaseArray;
   end;
 
+{ Единый список case-файлов: его используют и регистрация тестов, и guard
+  матрицы покрытия, чтобы ссылки не разъезжались с набором. }
+function ScriptCaseFiles: TScriptCaseFileArray;
+
 implementation
 
 const
   ColumnCount = 6;
+
+function ScriptCaseFiles: TScriptCaseFileArray;
+
+  procedure Add(const SuiteName, FileName: string);
+  var
+    N: Integer;
+  begin
+    N := Length(Result);
+    SetLength(Result, N + 1);
+    Result[N].SuiteName := SuiteName;
+    Result[N].FileName := FileName;
+  end;
+
+begin
+  Result := nil;
+  Add('ScriptsExprStrings', 'expr_strings.tsv');
+  Add('ScriptsExprRegexp', 'expr_regexp.tsv');
+  Add('ScriptsExprCompare', 'expr_compare.tsv');
+  Add('ScriptsCmdSet', 'cmd_set.tsv');
+  Add('ScriptsCmdGet', 'cmd_get.tsv');
+  Add('ScriptsArray', 'arrays.tsv');
+  Add('ScriptsFlow', 'flow.tsv');
+  Add('ScriptsExprMath', 'expr_math.tsv');
+  Add('ScriptsExprDates', 'expr_dates.tsv');
+  Add('ScriptsKnownBugs', 'known_bugs.tsv');
+end;
 
 function SplitTsv(const S: string; var Fields: array of string): Integer;
 var

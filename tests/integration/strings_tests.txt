@@ -123,6 +123,10 @@ gosub test_concat_plus
 gosub test_ord_empty_0
 gosub test_chartohex_empty
 gosub test_chartohexf_E0E1
+gosub test_hex2dec_ff
+gosub test_hex2dec_0x1f
+gosub test_hex2dec_invalid
+gosub test_hex2dec_empty
 gosub test_replace_case_papa
 gosub test_replace_once_pama
 gosub test_regexp_num_18
@@ -144,6 +148,9 @@ gosub test_word_oob
 gosub test_word_zero
 gosub test_word_neg1
 gosub test_word_neg2
+gosub test_num_0x_upper
+gosub test_num_inside_word
+gosub test_word_double_spaces
 gosub test_summary
 exit
 
@@ -1538,6 +1545,39 @@ set $t_str_expected раму
 gosub assert_str
 return
 
+// Characterization: верхний 0X не распознаётся как hex.
+:test_num_0x_upper
+set $t_name test_num_0x_upper
+set $t_input 0X1F мама
+set $n_src 0X1F мама
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected -1
+gosub assert_num
+return
+
+// Characterization: буквы перед числом читаются как hex-префикс.
+:test_num_inside_word
+set $t_name test_num_inside_word
+set $t_input abc123
+set $n_src abc123
+get number #n_num #n_pos $n_src
+set #t_num_actual #n_num
+set #t_num_expected 11256099
+gosub assert_num
+return
+
+// Characterization: повторные пробелы схлопываются.
+:test_word_double_spaces
+set $t_name test_word_double_spaces
+set $t_input двойные пробелы
+set $w_src "  a   b  "
+get word $w_res 2 $w_src
+set $t_str_actual $w_res
+set $t_str_expected b
+gosub assert_str
+return
+
 
 // =========================================================
 // ===== verify-кейсы (НЕ вызываются автоматически) ========
@@ -1613,6 +1653,40 @@ else
   set #t_num_actual 0
 end_if
 set #t_num_expected 1
+gosub assert_num
+return
+
+// hex2dec: ветка 87 в uScanThread.pas. Проверяет production-исправление
+// rd := 0 (без него аргумент захватывался вместе с ')' и всегда был -1).
+:test_hex2dec_ff
+set $t_name test_hex2dec_ff
+set $t_input FF
+set #t_num_actual hex2dec("FF")
+set #t_num_expected 255
+gosub assert_num
+return
+
+:test_hex2dec_0x1f
+set $t_name test_hex2dec_0x1f
+set $t_input 0x1F
+set #t_num_actual hex2dec("0x1F")
+set #t_num_expected 31
+gosub assert_num
+return
+
+:test_hex2dec_invalid
+set $t_name test_hex2dec_invalid
+set $t_input ZZ
+set #t_num_actual hex2dec("ZZ")
+set #t_num_expected -1
+gosub assert_num
+return
+
+:test_hex2dec_empty
+set $t_name test_hex2dec_empty
+set $t_input пусто
+set #t_num_actual hex2dec("")
+set #t_num_expected -1
 gosub assert_num
 return
 

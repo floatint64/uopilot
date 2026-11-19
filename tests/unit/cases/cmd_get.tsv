@@ -19,3 +19,7 @@ get_word_out_of_range	script	$w_res	set $w_src мама мыла раму\nget w
 get_word_zero	script	$w_res	set $w_src мама мыла раму\nget word $w_res 0 $w_src		
 get_word_neg1	script	$w_res	set $w_src мама мыла раму\nget word $w_res -1 $w_src	мыла раму	
 get_word_neg2	script	$w_res	set $w_src мама мыла раму\nget word $w_res -2 $w_src	раму	
+get_num_0x_lower	script	#n_num	set $n_src 0xff мама\nget number #n_num #n_pos $n_src	255	
+get_num_0x_upper	script	#n_num	set $n_src 0X1F мама\nget number #n_num #n_pos $n_src	-1	characterization: uppercase X is not recognized
+get_num_inside_word	script	#n_num	set $n_src abc123\nget number #n_num #n_pos $n_src	11256099	characterization: leading letters are read as hex
+get_word_double_spaces	script	$w_res	set $w_src "  a   b  "\nget word $w_res 2 $w_src	b	characterization: repeated spaces collapse

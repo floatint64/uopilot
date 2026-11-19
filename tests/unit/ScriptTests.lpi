@@ -39,7 +39,7 @@
         <PackageName Value="SynEdit"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="10">
+    <Units Count="15">
       <Unit0>
         <Filename Value="ScriptTests.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -90,6 +90,31 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TestScriptSession"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="uScriptCoverage.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uScriptCoverage"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="TestScriptCoverage.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptCoverage"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="TestScriptCommands.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptCommands"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="TestScriptCommandEdges.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptCommandEdges"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="TestScriptKnownBugs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestScriptKnownBugs"/>
+      </Unit14>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

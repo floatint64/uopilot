@@ -1,0 +1,442 @@
+// Skipped cases (not executed):
+// SKIP: round_2_4 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: round_2_6 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: round_neg_2_6 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: floor_2_9 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: floor_neg_2_1 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: ceil_2_1 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: ceil_neg_2_9 — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: trunc_pos — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+// SKIP: trunc_neg — decimal separator is locale-dependent in production; covered by unit tests with a forced "."
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_abs_neg
+gosub case_abs_pos
+gosub case_abs_zero
+gosub case_abs_invalid
+gosub case_frac_7_5
+gosub case_frac_7
+gosub case_sqrt_9
+gosub case_sqrt_neg_9
+gosub case_power_2_10
+gosub case_exp_0
+gosub case_ln_1
+gosub case_log_2_8
+gosub case_sin_0
+gosub case_cos_0
+gosub case_tan_0
+gosub case_arcsin_0
+gosub case_arccos_1
+gosub case_arctan_0
+gosub case_degtorad_180
+gosub case_radtodeg_pi
+gosub case_minx
+gosub case_maxx
+gosub case_mean
+gosub case_mod_pos
+gosub case_mod_neg
+gosub case_div_pos
+gosub case_div_neg
+gosub case_point_distance
+gosub case_point_direction_0
+gosub case_point_direction_90
+gosub case_point_direction_180
+gosub case_point_direction_270
+gosub case_lengthdir_x_10_0
+gosub case_lengthdir_y_10_90
+gosub case_is_real_5
+gosub case_is_real_str
+gosub case_is_string_str
+gosub case_is_string_5
+gosub case_pi_round
+gosub case_sqrt_str
+gosub case_power_str
+gosub case_mod_str
+gosub case_div_str
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====
+
+:case_abs_neg
+set $t_name abs_neg
+set $t_input abs(-5)
+set #t_num_actual abs(-5)
+set #t_num_expected 5
+gosub assert_num
+return
+
+:case_abs_pos
+set $t_name abs_pos
+set $t_input abs(5)
+set #t_num_actual abs(5)
+set #t_num_expected 5
+gosub assert_num
+return
+
+:case_abs_zero
+set $t_name abs_zero
+set $t_input abs(0)
+set #t_num_actual abs(0)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_abs_invalid
+set $t_name abs_invalid
+set $t_input abs("abc")
+set #t_num_actual abs("abc")
+set #t_num_expected -1
+gosub assert_num
+return
+
+:case_frac_7_5
+set $t_name frac_7_5
+set $t_input frac(7.5)
+set #t_num_actual frac(7.5)
+set #t_num_expected 5
+gosub assert_num
+return
+
+:case_frac_7
+set $t_name frac_7
+set $t_input frac(7)
+set #t_num_actual frac(7)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_sqrt_9
+set $t_name sqrt_9
+set $t_input sqrt(9)
+set #t_num_actual sqrt(9)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_sqrt_neg_9
+set $t_name sqrt_neg_9
+set $t_input sqrt(-9)
+set #t_num_actual sqrt(-9)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_power_2_10
+set $t_name power_2_10
+set $t_input power(2 10)
+set #t_num_actual power(2 10)
+set #t_num_expected 1024
+gosub assert_num
+return
+
+:case_exp_0
+set $t_name exp_0
+set $t_input exp(0)
+set #t_num_actual exp(0)
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_ln_1
+set $t_name ln_1
+set $t_input ln(1)
+set #t_num_actual ln(1)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_log_2_8
+set $t_name log_2_8
+set $t_input log(2 8)
+set #t_num_actual log(2 8)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_sin_0
+set $t_name sin_0
+set $t_input sin(0)
+set #t_num_actual sin(0)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_cos_0
+set $t_name cos_0
+set $t_input cos(0)
+set #t_num_actual cos(0)
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_tan_0
+set $t_name tan_0
+set $t_input tan(0)
+set #t_num_actual tan(0)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_arcsin_0
+set $t_name arcsin_0
+set $t_input arcsin(0)
+set #t_num_actual arcsin(0)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_arccos_1
+set $t_name arccos_1
+set $t_input arccos(1)
+set #t_num_actual arccos(1)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_arctan_0
+set $t_name arctan_0
+set $t_input arctan(0)
+set #t_num_actual arctan(0)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_degtorad_180
+set $t_name degtorad_180
+set $t_input round(degtorad(180))
+set #t_num_actual round(degtorad(180))
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_radtodeg_pi
+set $t_name radtodeg_pi
+set $t_input round(radtodeg(pi))
+set #t_num_actual round(radtodeg(pi))
+set #t_num_expected 180
+gosub assert_num
+return
+
+:case_minx
+set $t_name minx
+set $t_input minx(3 1 2)
+set #t_num_actual minx(3 1 2)
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_maxx
+set $t_name maxx
+set $t_input maxx(3 1 2)
+set #t_num_actual maxx(3 1 2)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_mean
+set $t_name mean
+set $t_input mean(1 2 3)
+set #t_num_actual mean(1 2 3)
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_mod_pos
+set $t_name mod_pos
+set $t_input mod(10 3)
+set #t_num_actual mod(10 3)
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_mod_neg
+set $t_name mod_neg
+set $t_input mod(-10 3)
+set #t_num_actual mod(-10 3)
+set #t_num_expected -1
+gosub assert_num
+return
+
+:case_div_pos
+set $t_name div_pos
+set $t_input div(10 3)
+set #t_num_actual div(10 3)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_div_neg
+set $t_name div_neg
+set $t_input div(-10 3)
+set #t_num_actual div(-10 3)
+set #t_num_expected -3
+gosub assert_num
+return
+
+:case_point_distance
+set $t_name point_distance
+set $t_input point_distance(0 0 3 4)
+set #t_num_actual point_distance(0 0 3 4)
+set #t_num_expected 5
+gosub assert_num
+return
+
+:case_point_direction_0
+set $t_name point_direction_0
+set $t_input point_direction(0 0 1 0)
+set #t_num_actual point_direction(0 0 1 0)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_point_direction_90
+set $t_name point_direction_90
+set $t_input point_direction(0 0 0 1)
+set #t_num_actual point_direction(0 0 0 1)
+set #t_num_expected 90
+gosub assert_num
+return
+
+:case_point_direction_180
+set $t_name point_direction_180
+set $t_input point_direction(0 0 -1 0)
+set #t_num_actual point_direction(0 0 -1 0)
+set #t_num_expected 180
+gosub assert_num
+return
+
+:case_point_direction_270
+set $t_name point_direction_270
+set $t_input point_direction(0 0 0 -1)
+set #t_num_actual point_direction(0 0 0 -1)
+set #t_num_expected 270
+gosub assert_num
+return
+
+:case_lengthdir_x_10_0
+set $t_name lengthdir_x_10_0
+set $t_input lengthdir_x(10 0)
+set #t_num_actual lengthdir_x(10 0)
+set #t_num_expected 10
+gosub assert_num
+return
+
+:case_lengthdir_y_10_90
+set $t_name lengthdir_y_10_90
+set $t_input round(lengthdir_y(10 90))
+set #t_num_actual round(lengthdir_y(10 90))
+set #t_num_expected 10
+gosub assert_num
+return
+
+:case_is_real_5
+set $t_name is_real_5
+set $t_input is_real(5)
+set #t_num_actual is_real(5)
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_is_real_str
+set $t_name is_real_str
+set $t_input is_real("abc")
+set #t_num_actual is_real("abc")
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_is_string_str
+set $t_name is_string_str
+set $t_input is_string("abc")
+set #t_num_actual is_string("abc")
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_is_string_5
+set $t_name is_string_5
+set $t_input is_string(5)
+set #t_num_actual is_string(5)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_pi_round
+set $t_name pi_round
+set $t_input round(pi)
+set #t_num_actual round(pi)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_sqrt_str
+set $t_name sqrt_str
+set $t_input sqrt("abc")
+set #t_num_actual sqrt("abc")
+set #t_num_expected -1
+gosub assert_num
+return
+
+:case_power_str
+set $t_name power_str
+set $t_input power("a" 2)
+set #t_num_actual power("a" 2)
+set #t_num_expected -1
+gosub assert_num
+return
+
+:case_mod_str
+set $t_name mod_str
+set $t_input mod(1 "a")
+set #t_num_actual mod(1 "a")
+set #t_num_expected -1
+gosub assert_num
+return
+
+:case_div_str
+set $t_name div_str
+set $t_input div(1 "a")
+set #t_num_actual div(1 "a")
+set #t_num_expected -1
+gosub assert_num
+return

@@ -11,6 +11,7 @@ type
   private
     FCase: TScriptTestCase;
     FSession: IScriptSession;
+    FBackend: TScriptBackend;
     function ReadTarget(const Target: string): string;
     function ReadArrayCell(const Target: string): string;
   protected
@@ -19,7 +20,7 @@ type
     procedure RunTest; override;
   public
     constructor CreateWithCase(const C: TScriptTestCase;
-      const ASuiteName: string);
+      const ASuiteName: string; ABackend: TScriptBackend = sbLegacy);
   end;
 
 implementation
@@ -28,15 +29,16 @@ uses
   SysUtils, Classes;
 
 constructor TScriptCaseTest.CreateWithCase(const C: TScriptTestCase;
-  const ASuiteName: string);
+  const ASuiteName: string; ABackend: TScriptBackend);
 begin
   inherited CreateWith(C.Name, ASuiteName);
   FCase := C;
+  FBackend := ABackend;
 end;
 
 procedure TScriptCaseTest.SetUp;
 begin
-  FSession := CreateSession(sbLegacy);
+  FSession := CreateSession(FBackend);
 end;
 
 procedure TScriptCaseTest.TearDown;
@@ -114,6 +116,14 @@ var
   Actual, Expected: string;
   ExpNum, ActNum: Int64;
 begin
+  { Runtime-бэкенд ещё не перенесён: кейс остаётся видимым в --list, но
+    помечается Ignored с причиной, а не притворяется зелёным. }
+  if (FBackend = sbRuntime) and not CoreSupports(FCase.Name) then
+  begin
+    Ignore('runtime backend is not migrated yet');
+    Exit;
+  end;
+
   case FCase.Kind of
     ckSkip:
       Ignore(FCase.Note);
@@ -151,21 +161,27 @@ begin
     raise EFOpenError.CreateFmt('case file not found: %s', [FileName]);
   Cases := TScriptTestCaseSet.Load(FileName);
   for I := 0 to Length(Cases) - 1 do
-    RegisterTest(SuiteName, TScriptCaseTest.CreateWithCase(Cases[I], SuiteName));
+  begin
+    RegisterTest(SuiteName,
+      TScriptCaseTest.CreateWithCase(Cases[I], SuiteName, sbLegacy));
+    { Параллельный runtime-набор: пока все кейсы Ignored через CoreSupports,
+      но набор уже виден в --list. }
+    RegisterTest(SuiteName + 'Runtime',
+      TScriptCaseTest.CreateWithCase(Cases[I], SuiteName + 'Runtime',
+        sbRuntime));
+  end;
 end;
 
 procedure RegisterAllCases;
 var
   Dir: string;
+  Files: TScriptCaseFileArray;
+  I: Integer;
 begin
   Dir := ExtractFilePath(ExpandFileName(ParamStr(0))) + CasesDirName + PathDelim;
-  RegisterCaseFile('ScriptsExprStrings', Dir + 'expr_strings.tsv');
-  RegisterCaseFile('ScriptsExprRegexp', Dir + 'expr_regexp.tsv');
-  RegisterCaseFile('ScriptsExprCompare', Dir + 'expr_compare.tsv');
-  RegisterCaseFile('ScriptsCmdSet', Dir + 'cmd_set.tsv');
-  RegisterCaseFile('ScriptsCmdGet', Dir + 'cmd_get.tsv');
-  RegisterCaseFile('ScriptsArray', Dir + 'arrays.tsv');
-  RegisterCaseFile('ScriptsFlow', Dir + 'flow.tsv');
+  Files := ScriptCaseFiles;
+  for I := 0 to Length(Files) - 1 do
+    RegisterCaseFile(Files[I].SuiteName, Dir + Files[I].FileName);
 end;
 
 initialization

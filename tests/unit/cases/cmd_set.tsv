@@ -14,3 +14,7 @@ set_num_to_num	script	#r	set #a 7\nset #r #a	7
 set_str_to_str	script	$r	set $a мир\nset $r $a	мир	
 set_arithmetic	script	#r	set #r 2 + 3	5	
 set_negative	script	#r	set #r -5	-5	
+set_quoted_comment	script	$r	set $r "a // b"	a // b	
+set_paren_arith	script	#r	set #r (2 + 3) * 2	10	
+set_array_pipe_cell	skip		set %a 1|2/3|4\nset $r %a[2][2]		array cell references in expressions are not supported (history_en: 'reference index array elements ... is not supported')
+set_spaces_quoted	script	$r	set $r "  "	  	

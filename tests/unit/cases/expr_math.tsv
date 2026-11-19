@@ -1,0 +1,53 @@
+name	kind	target	script	expected	note
+abs_neg	eval		abs(-5)	5	
+abs_pos	eval		abs(5)	5	
+abs_zero	eval		abs(0)	0	
+abs_invalid	eval		abs("abc")	-1	
+round_2_4	eval		round(2.4)	2	
+round_2_6	eval		round(2.6)	3	
+round_neg_2_6	eval		round(-2.6)	-3	
+floor_2_9	eval		floor(2.9)	2	
+floor_neg_2_1	eval		floor(-2.1)	-3	
+ceil_2_1	eval		ceil(2.1)	3	
+ceil_neg_2_9	eval		ceil(-2.9)	-2	
+frac_7_5	eval		frac(7.5)	5	
+frac_7	eval		frac(7)	0	
+sqrt_9	eval		sqrt(9)	3	
+sqrt_neg_9	eval		sqrt(-9)	3	
+power_2_10	eval		power(2 10)	1024	
+exp_0	eval		exp(0)	1	
+ln_1	eval		ln(1)	0	
+log_2_8	eval		log(2 8)	3	
+sin_0	eval		sin(0)	0	
+cos_0	eval		cos(0)	1	
+tan_0	eval		tan(0)	0	
+arcsin_0	eval		arcsin(0)	0	
+arccos_1	eval		arccos(1)	0	
+arctan_0	eval		arctan(0)	0	
+degtorad_180	eval		round(degtorad(180))	3	
+radtodeg_pi	eval		round(radtodeg(pi))	180	
+trunc_pos	eval		trunc(3.9)	3	
+trunc_neg	eval		trunc(-3.9)	-3	
+minx	eval		minx(3 1 2)	1	
+maxx	eval		maxx(3 1 2)	3	
+mean	eval		mean(1 2 3)	2	
+mod_pos	eval		mod(10 3)	1	
+mod_neg	eval		mod(-10 3)	-1	
+div_pos	eval		div(10 3)	3	
+div_neg	eval		div(-10 3)	-3	
+point_distance	eval		point_distance(0 0 3 4)	5	
+point_direction_0	eval		point_direction(0 0 1 0)	0	
+point_direction_90	eval		point_direction(0 0 0 1)	90	
+point_direction_180	eval		point_direction(0 0 -1 0)	180	
+point_direction_270	eval		point_direction(0 0 0 -1)	270	
+lengthdir_x_10_0	eval		lengthdir_x(10 0)	10	
+lengthdir_y_10_90	eval		round(lengthdir_y(10 90))	10	
+is_real_5	eval		is_real(5)	1	
+is_real_str	eval		is_real("abc")	0	
+is_string_str	eval		is_string("abc")	1	
+is_string_5	eval		is_string(5)	0	
+pi_round	eval		round(pi)	3	
+sqrt_str	eval		sqrt("abc")	-1	
+power_str	eval		power("a" 2)	-1	
+mod_str	eval		mod(1 "a")	-1	
+div_str	eval		div(1 "a")	-1	

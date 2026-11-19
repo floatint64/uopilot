@@ -1,0 +1,237 @@
+// Skipped cases (not executed):
+// SKIP: set_array_pipe_cell — array cell references in expressions are not supported (history_en: 'reference index array elements ... is not supported')
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_set_scalar_num
+gosub case_set_scalar_str
+gosub case_set_quoted_spaces
+gosub case_set_concat_subst
+gosub case_set_concat_num
+gosub case_set_concat_plus
+gosub case_set_overwrite_num
+gosub case_set_overwrite_str
+gosub case_set_case_insensitive_str
+gosub case_set_case_insensitive_num
+gosub case_set_empty_quoted
+gosub case_set_num_to_num
+gosub case_set_str_to_str
+gosub case_set_arithmetic
+gosub case_set_negative
+gosub case_set_quoted_comment
+gosub case_set_paren_arith
+gosub case_set_spaces_quoted
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====
+
+:case_set_scalar_num
+set $t_name set_scalar_num
+set $t_input set_scalar_num
+set #r 42
+set #t_num_actual #r
+set #t_num_expected 42
+gosub assert_num
+return
+
+:case_set_scalar_str
+set $t_name set_scalar_str
+set $t_input set_scalar_str
+set $r привет
+set $t_str_actual $r
+set $t_str_expected "привет"
+gosub assert_str
+return
+
+:case_set_quoted_spaces
+set $t_name set_quoted_spaces
+set $t_input set_quoted_spaces
+set $r "hello world"
+set $t_str_actual $r
+set $t_str_expected "hello world"
+gosub assert_str
+return
+
+:case_set_concat_subst
+set $t_name set_concat_subst
+set $t_input set_concat_subst
+set $a привет
+set $b мир
+set $r $a$b
+set $t_str_actual $r
+set $t_str_expected "приветмир"
+gosub assert_str
+return
+
+:case_set_concat_num
+set $t_name set_concat_num
+set $t_input set_concat_num
+set #n 5
+set $r привет#n
+set $t_str_actual $r
+set $t_str_expected "привет5"
+gosub assert_str
+return
+
+:case_set_concat_plus
+set $t_name set_concat_plus
+set $t_input set_concat_plus
+set $a привет
+set $b мир
+set $r $a + $b
+set $t_str_actual $r
+set $t_str_expected "привет + мир"
+gosub assert_str
+return
+
+:case_set_overwrite_num
+set $t_name set_overwrite_num
+set $t_input set_overwrite_num
+set #r 1
+set #r 2
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_set_overwrite_str
+set $t_name set_overwrite_str
+set $t_input set_overwrite_str
+set $r a
+set $r b
+set $t_str_actual $r
+set $t_str_expected "b"
+gosub assert_str
+return
+
+:case_set_case_insensitive_str
+set $t_name set_case_insensitive_str
+set $t_input set_case_insensitive_str
+set $Abc 5
+set $t_str_actual $abc
+set $t_str_expected "5"
+gosub assert_str
+return
+
+:case_set_case_insensitive_num
+set $t_name set_case_insensitive_num
+set $t_input set_case_insensitive_num
+set #Count 9
+set #t_num_actual #count
+set #t_num_expected 9
+gosub assert_num
+return
+
+:case_set_empty_quoted
+set $t_name set_empty_quoted
+set $t_input set_empty_quoted
+set $r ""
+set $t_str_actual $r
+set #t_num_actual ord($t_str_actual)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_set_num_to_num
+set $t_name set_num_to_num
+set $t_input set_num_to_num
+set #a 7
+set #r #a
+set #t_num_actual #r
+set #t_num_expected 7
+gosub assert_num
+return
+
+:case_set_str_to_str
+set $t_name set_str_to_str
+set $t_input set_str_to_str
+set $a мир
+set $r $a
+set $t_str_actual $r
+set $t_str_expected "мир"
+gosub assert_str
+return
+
+:case_set_arithmetic
+set $t_name set_arithmetic
+set $t_input set_arithmetic
+set #r 2 + 3
+set #t_num_actual #r
+set #t_num_expected 5
+gosub assert_num
+return
+
+:case_set_negative
+set $t_name set_negative
+set $t_input set_negative
+set #r -5
+set #t_num_actual #r
+set #t_num_expected -5
+gosub assert_num
+return
+
+:case_set_quoted_comment
+set $t_name set_quoted_comment
+set $t_input set_quoted_comment
+set $r "a // b"
+set $t_str_actual $r
+set $t_str_expected "a // b"
+gosub assert_str
+return
+
+:case_set_paren_arith
+set $t_name set_paren_arith
+set $t_input set_paren_arith
+set #r (2 + 3) * 2
+set #t_num_actual #r
+set #t_num_expected 10
+gosub assert_num
+return
+
+:case_set_spaces_quoted
+set $t_name set_spaces_quoted
+set $t_input set_spaces_quoted
+set $r "  "
+set $t_str_actual $r
+set $t_str_expected "  "
+gosub assert_str
+return

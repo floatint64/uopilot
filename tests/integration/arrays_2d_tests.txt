@@ -1,0 +1,107 @@
+// Косвенные интеграционные проверки двумерных массивов.
+// Ячейки %a[i][j] в production-выражениях не читаются, поэтому порядок строк
+// после sort_array проверяется так: удаляем первую строку и смотрим minx
+// оставшейся. Остальные 2D-кейсы (size/minx/maxx/delete_row) уже покрыты
+// сгенерированным arrays_tests.txt.
+// Кодировка файла: UTF-8.
+
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_sort_rows_asc
+gosub case_sort_rows_desc
+gosub case_delete_column
+gosub test_summary
+exit
+
+
+// ===== помощники ассертов =====
+
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:assert_str
+// Точное сравнение строк без size(): size("") падает (см. BUGS.md).
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== кейсы =====
+
+:case_sort_rows_asc
+// После asc-сортировки первой становится строка 1|2; удаляем её и ждём 3|4.
+set $t_name array_sort_rows_asc
+set $t_input 3|4/1|2 sort 1
+delete_array %a -1 100
+set %a 3|4/1|2
+sort_array %a 1
+delete_array %a -1 1
+set #t_num_actual size(%a)
+set #t_num_expected 1
+gosub assert_num
+set $t_str_actual minx(%a)
+set $t_str_expected "3|4"
+gosub assert_str
+return
+
+:case_sort_rows_desc
+// После desc-сортировки первой становится строка 3|4; удаляем её и ждём 1|2.
+set $t_name array_sort_rows_desc
+set $t_input 1|2/3|4 sort 1 d
+delete_array %a -1 100
+set %a 1|2/3|4
+sort_array %a 1 d
+delete_array %a -1 1
+set #t_num_actual size(%a)
+set #t_num_expected 1
+gosub assert_num
+set $t_str_actual minx(%a)
+set $t_str_expected "1|2"
+gosub assert_str
+return
+
+:case_delete_column
+set $t_name array_delete_column
+set $t_input 1|2/3|4 delete 2 1
+delete_array %a -1 100
+set %a 1|2/3|4
+delete_array %a 2 1
+set #t_num_actual size(%a)
+set #t_num_expected 2
+gosub assert_num
+set $t_str_actual minx(%a)
+set $t_str_expected "1"
+gosub assert_str
+set $t_str_actual maxx(%a)
+set $t_str_expected "3"
+gosub assert_str
+return

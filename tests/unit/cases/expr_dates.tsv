@@ -1,0 +1,24 @@
+name	kind	target	script	expected	note
+year_from_date	eval		yearfromdate(timestamp("2024-01-02 00:00:00"))	2024	
+month_from_date	eval		monthfromdate(timestamp("2024-01-02 00:00:00"))	1	
+day_from_date	eval		dayfromdate(timestamp("2024-01-02 00:00:00"))	2	
+hour_from_date	eval		hourfromdate(timestamp("2024-01-02 03:04:05"))	3	
+minute_from_date	eval		minutefromdate(timestamp("2024-01-02 03:04:05"))	4	
+second_from_date	eval		secondfromdate(timestamp("2024-01-02 03:04:05"))	5	
+addyears_one	eval		yearfromdate(addyears(timestamp("2024-01-02 03:04:05") 1))	2025	
+subyears_one	eval		yearfromdate(subyears(timestamp("2024-01-02 03:04:05") 1))	2023	
+addmonths_one	eval		monthfromdate(addmonths(timestamp("2024-01-02 03:04:05") 1))	2	
+submonths_one_month	eval		monthfromdate(submonths(timestamp("2024-01-02 03:04:05") 1))	12	
+submonths_one_year	eval		yearfromdate(submonths(timestamp("2024-01-02 03:04:05") 1))	2023	
+adddays_30	eval		dayfromdate(adddays(timestamp("2024-01-02 00:00:00") 30))	1	
+addhours_2	eval		hourfromdate(addhours(timestamp("2024-01-02 03:04:05") 2))	5	
+subhours_4_hour	eval		hourfromdate(subhours(timestamp("2024-01-02 03:04:05") 4))	23	
+subhours_4_day	eval		dayfromdate(subhours(timestamp("2024-01-02 03:04:05") 4))	1	
+addminutes_10	eval		minutefromdate(addminutes(timestamp("2024-01-02 03:04:05") 10))	14	
+subminutes_5_minute	eval		minutefromdate(subminutes(timestamp("2024-01-02 03:04:05") 5))	59	
+subminutes_5_hour	eval		hourfromdate(subminutes(timestamp("2024-01-02 03:04:05") 5))	2	
+addseconds_10	eval		secondfromdate(addseconds(timestamp("2024-01-02 03:04:05") 10))	15	
+subseconds_5_second	eval		secondfromdate(subseconds(timestamp("2024-01-02 03:04:05") 5))	0	
+subseconds_5_minute	eval		minutefromdate(subseconds(timestamp("2024-01-02 03:04:05") 5))	4	characterization: 05s - 5s stays in minute 04
+
+dayofweek_2024	eval		dayofweek(2024 1 2)	2	

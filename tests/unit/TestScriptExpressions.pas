@@ -19,7 +19,6 @@ type
     procedure TestCopyCyrillic;
     procedure TestOrdChr;
     procedure TestCommandTablesInitialized;
-    procedure TestKnownBugSizeEmpty;
   end;
 
 implementation
@@ -67,13 +66,6 @@ begin
   AssertEquals('command names count', 136, gCmdList2jj.Count);
   AssertEquals('size index', 76, gCmdListah7.IndexOf('size'));
   AssertEquals('set index', 40, gCmdList2jj.IndexOf('set'));
-end;
-
-{ size("") -- не исключение, а доступ за границу строки (BUGS.md), поэтому
-  движок здесь не вызывается: тест документирует баг и ждёт исправления. }
-procedure TScriptExprTest.TestKnownBugSizeEmpty;
-begin
-  raise EIgnoredTest.Create('BUGS.md: size("") -> V[0] access violation');
 end;
 
 initialization

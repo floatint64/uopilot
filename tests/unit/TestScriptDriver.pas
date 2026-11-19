@@ -107,17 +107,24 @@ begin
 end;
 
 procedure TScriptDriverTest.TestExternalCommandRejected;
+const
+  Scripts: array[0..4] of string = (
+    'send hello', 'write data', 'proc p', 'call p', 'save_array %a');
 var
+  I: Integer;
   Raised: Boolean;
 begin
-  Raised := False;
-  try
-    FSession.RunScript('send hello');
-  except
-    on E: EScriptDriverError do
-      Raised := True;
+  for I := 0 to High(Scripts) do
+  begin
+    Raised := False;
+    try
+      FSession.RunScript(Scripts[I]);
+    except
+      on E: EScriptDriverError do
+        Raised := True;
+    end;
+    AssertTrue(Scripts[I] + ' must be rejected by allowlist', Raised);
   end;
-  AssertTrue('send must be rejected by allowlist', Raised);
 end;
 
 procedure TScriptDriverTest.TestLuaBlockRejected;

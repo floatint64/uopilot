@@ -1,0 +1,359 @@
+// Skipped cases (not executed):
+// SKIP: flow_end_script — stops the script; covered by unit tests only
+// SKIP: flow_exit — stops the process; covered by unit tests only
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_flow_if_true
+gosub case_flow_if_false
+gosub case_flow_if_not_true
+gosub case_flow_if_not_false
+gosub case_flow_nested_if
+gosub case_flow_for_sum
+gosub case_flow_for_down
+gosub case_flow_for_step2
+gosub case_flow_for_zero_iterations
+gosub case_flow_while_count
+gosub case_flow_while_not_count
+gosub case_flow_repeat_count
+gosub case_flow_repeat_zero
+gosub case_flow_gosub_return
+gosub case_flow_goto_forward
+gosub case_flow_goto_backward
+gosub case_flow_break
+gosub case_flow_continue
+gosub case_flow_switch_match
+gosub case_flow_switch_no_match
+gosub case_flow_wait_zero
+gosub case_flow_wait_one
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====
+
+:case_flow_if_true
+set $t_name flow_if_true
+set $t_input flow_if_true
+if 1 = 1
+set #r 1
+else
+set #r 0
+end_if
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_flow_if_false
+set $t_name flow_if_false
+set $t_input flow_if_false
+if 1 = 2
+set #r 1
+else
+set #r 0
+end_if
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_flow_if_not_true
+set $t_name flow_if_not_true
+set $t_input flow_if_not_true
+if_not 1 = 2
+set #r 1
+else
+set #r 0
+end_if
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_flow_if_not_false
+set $t_name flow_if_not_false
+set $t_input flow_if_not_false
+if_not 1 = 1
+set #r 1
+else
+set #r 0
+end_if
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_flow_nested_if
+set $t_name flow_nested_if
+set $t_input flow_nested_if
+set #r 0
+if 1 = 2
+if 1 = 1
+set #r 1
+end_if
+else
+set #r 2
+end_if
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_flow_for_sum
+set $t_name flow_for_sum
+set $t_input flow_for_sum
+set #r 0
+for #i 1 5
+set #r #r + #i
+end_for
+set #t_num_actual #r
+set #t_num_expected 15
+gosub assert_num
+return
+
+:case_flow_for_down
+set $t_name flow_for_down
+set $t_input flow_for_down
+set #r 0
+for #i 5 1 -1
+set #r #r + #i
+end_for
+set #t_num_actual #r
+set #t_num_expected 15
+gosub assert_num
+return
+
+:case_flow_for_step2
+set $t_name flow_for_step2
+set $t_input flow_for_step2
+set #r 0
+for #i 1 5 2
+set #r #r + #i
+end_for
+set #t_num_actual #r
+set #t_num_expected 9
+gosub assert_num
+return
+
+:case_flow_for_zero_iterations
+set $t_name flow_for_zero_iterations
+set $t_input flow_for_zero_iterations
+set #r 0
+for #i 5 1
+set #r #r + 1
+end_for
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_flow_while_count
+set $t_name flow_while_count
+set $t_input flow_while_count
+set #i 0
+while #i < 3
+set #i #i + 1
+end_while
+set #r #i
+set #t_num_actual #r
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_flow_while_not_count
+set $t_name flow_while_not_count
+set $t_input flow_while_not_count
+set #i 0
+while_not #i = 3
+set #i #i + 1
+end_while
+set #r #i
+set #t_num_actual #r
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_flow_repeat_count
+set $t_name flow_repeat_count
+set $t_input flow_repeat_count
+set #r 0
+repeat 3
+set #r #r + 1
+end_repeat
+set #t_num_actual #r
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_flow_repeat_zero
+set $t_name flow_repeat_zero
+set $t_input flow_repeat_zero
+set #r 0
+repeat 0
+set #r #r + 1
+end_repeat
+set #t_num_actual #r
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_flow_gosub_return
+set $t_name flow_gosub_return
+set $t_input flow_gosub_return
+set #r 0
+gosub case_flow_gosub_return_add_one
+set #r #r + 10
+goto case_flow_gosub_return_end
+:case_flow_gosub_return_add_one
+set #r #r + 1
+return
+:case_flow_gosub_return_end
+set #t_num_actual #r
+set #t_num_expected 11
+gosub assert_num
+return
+
+:case_flow_goto_forward
+set $t_name flow_goto_forward
+set $t_input flow_goto_forward
+set #r 0
+goto case_flow_goto_forward_skip
+set #r 1
+:case_flow_goto_forward_skip
+set #r 2
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_flow_goto_backward
+set $t_name flow_goto_backward
+set $t_input flow_goto_backward
+set #i 0
+:case_flow_goto_backward_loop
+set #i #i + 1
+if #i < 3
+goto case_flow_goto_backward_loop
+end_if
+set #r #i
+set #t_num_actual #r
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_flow_break
+set $t_name flow_break
+set $t_input flow_break
+set #r 0
+for #i 1 5
+set #r #r + 1
+if #i = 2
+break
+end_if
+end_for
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_flow_continue
+set $t_name flow_continue
+set $t_input flow_continue
+set #r 0
+for #i 1 5
+if #i = 3
+continue
+end_if
+set #r #r + 1
+end_for
+set #t_num_actual #r
+set #t_num_expected 4
+gosub assert_num
+return
+
+:case_flow_switch_match
+set $t_name flow_switch_match
+set $t_input flow_switch_match
+set #r 0
+switch 2
+case 1: set #r 1
+case 2: set #r 2
+end_switch
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_flow_switch_no_match
+set $t_name flow_switch_no_match
+set $t_input flow_switch_no_match
+set #r 0
+switch 9
+case 1: set #r 1
+case 2: set #r 2
+end_switch
+set #r #r + 10
+set #t_num_actual #r
+set #t_num_expected 10
+gosub assert_num
+return
+
+:case_flow_wait_zero
+set $t_name flow_wait_zero
+set $t_input flow_wait_zero
+set #r 1
+wait 0
+set #r 2
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_flow_wait_one
+set $t_name flow_wait_one
+set $t_input flow_wait_one
+set #r 1
+wait 1
+set #r 2
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return

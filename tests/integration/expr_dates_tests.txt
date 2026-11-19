@@ -1,0 +1,76 @@
+// Skipped cases (not executed):
+// SKIP: year_from_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: month_from_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: day_from_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: hour_from_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: minute_from_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: second_from_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: addyears_one — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subyears_one — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: addmonths_one — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: submonths_one_month — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: submonths_one_year — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: adddays_30 — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: addhours_2 — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subhours_4_hour — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subhours_4_day — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: addminutes_10 — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subminutes_5_minute — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subminutes_5_hour — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: addseconds_10 — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subseconds_5_second — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subseconds_5_minute — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_dayofweek_2024
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====
+
+:case_dayofweek_2024
+set $t_name dayofweek_2024
+set $t_input dayofweek(2024 1 2)
+set #t_num_actual dayofweek(2024 1 2)
+set #t_num_expected 2
+gosub assert_num
+return

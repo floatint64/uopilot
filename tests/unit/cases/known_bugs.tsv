@@ -1,0 +1,5 @@
+name	kind	target	script	expected	note
+known_size_empty	skip		size("")		BUGS.md: size("") reads V[0] and crashes
+known_lua_markers_spaces	skip		 --lua 		BUGS.md: lua markers are not trimmed
+known_get_clipboard_array	skip		get clipboard %a		BUGS.md: clipboard words go to columns
+known_hexpair	skip		hex2dec("4g")		BUGS.md: HexPairToByte accepts a too-wide low nibble

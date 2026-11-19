@@ -20,3 +20,6 @@ flow_continue	script	#r	set #r 0\nfor #i 1 5\nif #i = 3\ncontinue\nend_if\nset #
 flow_switch_match	script	#r	set #r 0\nswitch 2\ncase 1: set #r 1\ncase 2: set #r 2\nend_switch	2	
 flow_switch_no_match	script	#r	set #r 0\nswitch 9\ncase 1: set #r 1\ncase 2: set #r 2\nend_switch\nset #r #r + 10	10	
 flow_end_script	script	#r	set #r 1\nend_script\nset #r 2	1	
+flow_wait_zero	script	#r	set #r 1\nwait 0\nset #r 2	2	
+flow_wait_one	script	#r	set #r 1\nwait 1\nset #r 2	2	
+flow_exit	script	#r	set #r 1\nexit\nset #r 2	1	

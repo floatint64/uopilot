@@ -7,6 +7,24 @@
 [Проверки production-адаптера TScanDriverHost](./driver_host_tests.txt)
 [Конфиг пилота для запуска тестов](./uopilot.ini)
 
+Тесты движка, сгенерированные из `tests/unit/cases/*.tsv`
+(подробности ниже). Строки, regexp, сравнения и `get number`/`get word`
+остаются в `strings_tests.txt`: генерировать их повторно не нужно.
+
+[Математика](./expr_math_tests.txt)
+[Даты](./expr_dates_tests.txt)
+[Команда set](./cmd_set_tests.txt)
+[Массивы](./arrays_tests.txt)
+[Поток управления](./flow_tests.txt)
+[Известные баги](./known_bugs_tests.txt)
+
+Ручные дополнения (генератор их не покрывает):
+
+[2D-массивы: sort/delete column](./arrays_2d_tests.txt)
+[Edge-кейсы команд](./commands_edges_tests.txt)
+
+[Генератор integration-тестов движка](./tools/gen_integration_tests.ps1)
+
 ## Запуск
 
 ```shell
@@ -28,6 +46,70 @@ start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\clipbo
 ```shell
 start /wait uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\driver_host_tests.txt /r0
 ```
+
+Бинарник из `lazbuild uopilot.lpi` лежит в `lib\i386-win32\uopilot.exe`;
+команды выше предполагают, что он доступен как `uopilot.exe`, либо
+используйте полный путь (см. пример для `expr_math_tests.txt` ниже).
+
+Приложение при выходе сохраняет `Last_scriptN`/`LastScripts` в
+`uopilot.ini`. Это runtime-состояние, а не часть тестов: перед коммитом
+восстанавливайте файл:
+
+```shell
+git checkout -- tests\integration\uopilot.ini
+```
+
+## Интеграционные тесты движка из юнит тестов
+
+`tests/integration/*_tests.txt` для math/dates/cmd_set/arrays/flow/known_bugs
+не редактируются руками: их собирает `tools\gen_integration_tests.ps1` из
+`tests/unit/cases/*.tsv`. Скрипт — обычный UoPilot-скрипт, который
+прогоняется через реальное приложение (сборка без `-dUOPILOT_UNIT_TESTS`),
+а не через in-process бэкенд unit-тестов.
+
+Уникальные кейсы из этих
+TSV перенесены туда же руками: `hex2dec_ff/0x1f/invalid/empty`,
+`get_num_0x_upper`, `get_num_inside_word`, `get_word_double_spaces`.
+
+```powershell
+# перегенерировать .txt после правки TSV
+powershell -ExecutionPolicy Bypass -File tests\integration\tools\gen_integration_tests.ps1
+
+# проверить, что checked-in .txt соответствуют TSV (exit code 1 при drift)
+powershell -ExecutionPolicy Bypass -File tests\integration\tools\gen_integration_tests.ps1 -Check
+```
+
+Запуск одного файла (production-бинарник из `lib\i386-win32`):
+
+```shell
+start /wait lib\i386-win32\uopilot.exe /h%CD%\tests\integration /s%CD%\tests\integration\expr_math_tests.txt /r0
+```
+
+`-Check` обязателен перед коммитом: иначе легко поправить TSV и забыть
+перегенерировать `.txt`. Skip-кейсы перечислены в начале файла с причиной и в
+`PASS`/`FAIL` не входят.
+
+Что осознанно не переносится в integration:
+
+- `msg`, `hint`, `exit`-флаг и прочие test-hooks — это unit-наблюдения,
+  а не production; при `OutputMessagesTo=2` любой `msg`/error-path открывает
+  модальное окно и вешает прогон;
+- `div`/`mod` на ноль, `get number` без целей, `get word #...`, `size("")` и
+  прочие известные баги — валят приложение или требуют message box;
+- `flow_end_script` и `flow_exit` — останавливают скрипт/процесс; в
+  `flow_tests.txt` вместо них остаются только `wait 0/1`;
+- ячейки `%a[i][j]` (`j > 1`) в выражениях production не читаются, поэтому
+  сортировка/удаление столбца двумерного массива проверяются косвенно в
+  `arrays_2d_tests.txt`; обычные 2D-проверки (`size`, `minx`, `maxx`,
+  `delete_row`) — в `arrays_tests.txt`;
+- math-кейсы с десятичной точкой (`round(2.4)` и т.п.) и все `timestamp(...)`:
+  production разбирает числа и даты системной локалью, а unit-бинарник
+  принудительно ставит `.`/`yyyy-mm-dd`. На машине с `ru-RU` эти кейсы
+  помечены `// SKIP locale`; `dayofweek(2024 1 2)` от локали не зависит и
+  исполняется.
+
+`known_bugs_tests.txt` содержит только skip-комментарии (`PASS=0 FAIL=0`):
+баги остаются в unit-тестах, но список фиксируется и в integration.
 
 ## Результаты прогона 2026-11-18
 

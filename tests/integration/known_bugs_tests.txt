@@ -1,0 +1,50 @@
+// Skipped cases (not executed):
+// SKIP: known_size_empty — BUGS.md: size("") reads V[0] and crashes
+// SKIP: known_lua_markers_spaces — BUGS.md: lua markers are not trimmed
+// SKIP: known_get_clipboard_array — BUGS.md: clipboard words go to columns
+// SKIP: known_hexpair — BUGS.md: HexPairToByte accepts a too-wide low nibble
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====

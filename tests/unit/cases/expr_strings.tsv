@@ -54,3 +54,7 @@ ltrim_spaces	eval		ltrim("  привет")	привет
 rtrim_spaces	eval		rtrim("привет  ")	привет	
 trim_noop	eval		trim("абв")	абв	
 trim_empty	eval		trim("")		
+hex2dec_ff	eval		hex2dec("FF")	255	
+hex2dec_0x1f	eval		hex2dec("0x1F")	31	
+hex2dec_invalid	eval		hex2dec("ZZ")	-1	
+hex2dec_empty	eval		hex2dec("")	-1	

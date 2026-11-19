@@ -436,6 +436,11 @@ type
     FForTest: Boolean;                 // тестовый экземпляр без UI
     FDriver: TScriptDriver;            // line-loop скрипта (core/uScriptDriver)
     FTestLog: TStringList;             // накопленный лог в тестовом режиме
+{$IFDEF UOPILOT_UNIT_TESTS}
+    FTestMessages: TStringList;        // сообщения `msg` в тестовом режиме
+    FTestHint: string;                 // текст `hint` в тестовом режиме
+    FTestExitRequested: Boolean;       // был `exit` в тестовом режиме
+{$ENDIF}
   protected
     procedure Execute; override;
   public
@@ -467,6 +472,12 @@ type
     constructor CreateForTest(const ASettings: IScriptSettings = nil);
     function TestLogText: string;
     procedure AppendTestLog(const S: string);
+    function TestMessageText: string;
+    procedure AppendTestMessage(const S: string);
+    function TestHintText: string;
+    procedure AppendTestHint(const S: string);
+    function TestExitRequested: Boolean;
+    procedure ClearTestObservations;
 {$ENDIF}
     procedure SyncLogMsg;
     procedure WriteScriptLog;
@@ -4034,6 +4045,10 @@ begin
   LineCount := 0;
   Name := 'test';
   Title := 'test';
+  { В production SelfRef выставляется при создании вкладки; тестовому
+    экземпляру он нужен для веток, которые работают с массивом текущего
+    скрипта (minx/maxx и т.п.). }
+  SelfRef := Pointer(Self);
   StopRequested := False;
   Paused := False;
   Flag91 := False;
@@ -4047,6 +4062,9 @@ begin
   VarNames := TStringList.Create;
   VarNames.Add('timer');
   FTestLog := TStringList.Create;
+  FTestMessages := TStringList.Create;
+  FTestHint := '';
+  FTestExitRequested := False;
   if not QueryPerformanceFrequency(PerfFreq) then
     PerfFreq := 0;
 end;
@@ -4063,6 +4081,52 @@ procedure TScanThread.AppendTestLog(const S: string);
 begin
   if FTestLog <> nil then
     FTestLog.Add(S);
+end;
+
+{ `msg` в тестовом режиме не показывается, а складывается сюда. Движок
+  оставляет завершающий #0 -- снимаем ровно один, как это делает
+  TLegacyScriptSession.LastError. }
+function TScanThread.TestMessageText: string;
+begin
+  if FTestMessages = nil then
+    Result := ''
+  else
+    Result := FTestMessages.Text;
+end;
+
+procedure TScanThread.AppendTestMessage(const S: string);
+var
+  Text: string;
+begin
+  if FTestMessages = nil then
+    Exit;
+  Text := S;
+  if (Length(Text) > 0) and (Text[Length(Text)] = #0) then
+    Delete(Text, Length(Text), 1);
+  FTestMessages.Add(Text);
+end;
+
+function TScanThread.TestHintText: string;
+begin
+  Result := FTestHint;
+end;
+
+procedure TScanThread.AppendTestHint(const S: string);
+begin
+  FTestHint := S;
+end;
+
+function TScanThread.TestExitRequested: Boolean;
+begin
+  Result := FTestExitRequested;
+end;
+
+procedure TScanThread.ClearTestObservations;
+begin
+  if FTestMessages <> nil then
+    FTestMessages.Clear;
+  FTestHint := '';
+  FTestExitRequested := False;
 end;
 {$ENDIF}
 
@@ -4088,6 +4152,9 @@ begin
   SetLength(Arr58, 0);
   SetLength(Arr48, 0);
   FreeAndNil(FTestLog);
+{$IFDEF UOPILOT_UNIT_TESTS}
+  FreeAndNil(FTestMessages);
+{$ENDIF}
   for i := 0 to Length(Blocks) - 1 do
   begin
     GlobalFree(Blocks[i].Handle);
@@ -10593,6 +10660,7 @@ begin
       end;
       if ok then begin
         ok := False;
+        rd := 0;
         a := qq;
         while Cardinal(Length(ts)) >= Cardinal(a) do begin
           case ts[a] of
@@ -21615,6 +21683,10 @@ begin
     begin
     T.Msg := EvalScriptExpr(T, 'msg ' + S, -1) + #0;
     Delete(T.Msg, 1, 4);
+{$IFDEF UOPILOT_UNIT_TESTS}
+    if TScanThread(T).FForTest then
+      TScanThread(T).AppendTestMessage(TScanThread(T).Msg);
+{$ENDIF}
     ShowScriptMsg(T);
     end;
   98:
@@ -21657,6 +21729,13 @@ begin
       end
       else
         TScanThread(T).Hint.Text := EvalScriptExpr(T, S, -1);
+{$IFDEF UOPILOT_UNIT_TESTS}
+      if TScanThread(T).FForTest then
+      begin
+        TScanThread(T).AppendTestHint(TScanThread(T).Hint.Text);
+        Exit;
+      end;
+{$ENDIF}
       TScanThread(T).Synchronize(T.SyncShowHint);
 
     end;
@@ -21741,6 +21820,14 @@ begin
     end;
   119:
     begin
+{$IFDEF UOPILOT_UNIT_TESTS}
+    if TScanThread(T).FForTest then
+    begin
+      TScanThread(T).FTestExitRequested := True;
+      TScanThread(T).StopRequested := True;
+      Exit;
+    end;
+{$ENDIF}
     PostMessage(fmSecondfj.Handle, WM_CLOSE, 0, 0);
     end;
   48:

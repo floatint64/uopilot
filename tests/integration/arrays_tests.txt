@@ -1,0 +1,190 @@
+// Skipped cases (not executed):
+// SKIP: array_pipe_cell_12 — array cell references are not supported in production expressions
+// SKIP: array_pipe_cell_21 — two-dimensional array; covered indirectly by arrays_2d.txt
+// SKIP: array_mean — mean does not accept an array (EZeroDivide); scalar mean is covered in expr_math_tests.txt
+// SKIP: array_sort_asc — two-dimensional array; covered indirectly by arrays_2d.txt
+// SKIP: array_sort_desc — two-dimensional array; covered indirectly by arrays_2d.txt
+// SKIP: array_delete_column — two-dimensional array; covered indirectly by arrays_2d.txt
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_array_cell_first
+gosub case_array_cell_second
+gosub case_array_size
+gosub case_array_overwrite
+gosub case_array_size_after_overwrite
+gosub case_array_indexof
+gosub case_array_pipe_size
+gosub case_array_minx
+gosub case_array_maxx
+gosub case_array_delete_row
+gosub case_array_indexof_missing
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====
+
+:case_array_cell_first
+set $t_name array_cell_first
+set $t_input array_cell_first
+delete_array %a -1 100
+set %a [1] один
+set %a [2] два
+set $t_str_actual %a[1]
+set $t_str_expected "один"
+gosub assert_str
+return
+
+:case_array_cell_second
+set $t_name array_cell_second
+set $t_input array_cell_second
+delete_array %a -1 100
+set %a [1] один
+set %a [2] два
+set $t_str_actual %a[2]
+set $t_str_expected "два"
+gosub assert_str
+return
+
+:case_array_size
+set $t_name array_size
+set $t_input array_size
+delete_array %a -1 100
+set %a [1] один
+set %a [2] два
+set #r size(%a)
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_array_overwrite
+set $t_name array_overwrite
+set $t_input array_overwrite
+delete_array %a -1 100
+set %a [1] один
+set %a [2] два
+set %a [2] три
+set $t_str_actual %a[2]
+set $t_str_expected "три"
+gosub assert_str
+return
+
+:case_array_size_after_overwrite
+set $t_name array_size_after_overwrite
+set $t_input array_size_after_overwrite
+delete_array %a -1 100
+set %a [1] один
+set %a [2] два
+set %a [2] три
+set #r size(%a)
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_array_indexof
+set $t_name array_indexof
+set $t_input array_indexof
+delete_array %a -1 100
+set %a [1] один
+set %a [2] два
+set #r indexof(%a noabs (дв))
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_array_pipe_size
+set $t_name array_pipe_size
+set $t_input array_pipe_size
+delete_array %a -1 100
+set %a 1|2/3|4
+set #r size(%a)
+set #t_num_actual #r
+set #t_num_expected 2
+gosub assert_num
+return
+
+:case_array_minx
+set $t_name array_minx
+set $t_input array_minx
+delete_array %a -1 100
+set %a 1|2/3|4
+set $r minx(%a)
+set $t_str_actual $r
+set $t_str_expected "1|2"
+gosub assert_str
+return
+
+:case_array_maxx
+set $t_name array_maxx
+set $t_input array_maxx
+delete_array %a -1 100
+set %a 1|2/3|4
+set $r maxx(%a)
+set $t_str_actual $r
+set $t_str_expected "3|4"
+gosub assert_str
+return
+
+:case_array_delete_row
+set $t_name array_delete_row
+set $t_input array_delete_row
+delete_array %a -1 100
+set %a 1|2/3|4
+delete_array %a -2 1
+set #r size(%a)
+set #t_num_actual #r
+set #t_num_expected 1
+gosub assert_num
+return
+
+:case_array_indexof_missing
+set $t_name array_indexof_missing
+set $t_input array_indexof_missing
+delete_array %a -1 100
+set %a 1|2/3|4
+set #r indexof(%a noabs (zzz))
+set #t_num_actual #r
+set #t_num_expected -1
+gosub assert_num
+return

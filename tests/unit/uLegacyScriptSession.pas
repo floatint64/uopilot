@@ -8,6 +8,8 @@ uses
   uScriptSettings;
 
 type
+  TAllowedCommandIds = array of Integer;
+
   TLegacyScriptSession = class(TInterfacedObject, IScriptSession)
   private
     FT: TScanThread;
@@ -34,31 +36,52 @@ type
       out Value: string): Boolean;
     function LogText: string;
     function HostCallText: string;
+    function MessageText: string;
+    function HintText: string;
+    function ExitRequested: Boolean;
     function LastError: string;
     function LastErrorInfo: TScriptError;
     property MaxSteps: Integer read FMaxSteps write FMaxSteps;
   end;
+
+{ Команды, которые тестовый драйвер исполняет. Внешние команды (send, mouse,
+  clipboard, window, memory, file, plugin, macro), `proc`/`call`, `exec`,
+  `load_script`, `restart_script` сюда не входят: им нужен host/UI, которого
+  в unit-тестах нет. `log <text>` -- исключение: он пишет в наблюдаемый
+  TestLog без UI. }
+function TestAllowedCommands: TAllowedCommandIds;
+function IsTestCommandAllowed(Cmd: Integer): Boolean;
 
 implementation
 
 uses
   Unit1, mySys;
 
-{ Команды, которые тестовый драйвер исполняет. Внешние команды (send, mouse,
-  clipboard, window, memory, file, plugin, macro), `wait`, `msg`, `hint`,
-  `exit`, `proc`/`call`, `exec`, `load_script`, `restart_script` сюда не
-  входят: им нужен host/UI, которого в unit-тестах нет. `log <text>` --
-  исключение: он пишет в наблюдаемый TestLog без UI. }
-function IsAllowedCommand(Cmd: Integer): Boolean;
-begin
-  case Cmd of
+const
+  { Индексы в gCmdList2jj. Порядок -- как в движке, чтобы TestAllowedCommands
+    был стабильным. }
+  TestAllowedCommandIds: array[0..31] of Integer = (
     0, 1, 2, 3, 4, 5, 6, 7, 10, 11,
-    32, 40, 41, 42, 43, 44, 45, 46, 47,
-    49, 110, 111, 112, 114, 115, 116, 126, 127:
-      Result := True;
-  else
-    Result := False;
-  end;
+    15, 16, 32, 40, 41, 42, 43, 44, 45, 46, 47,
+    49, 98, 110, 111, 112, 114, 115, 116, 119, 126, 127);
+
+function TestAllowedCommands: TAllowedCommandIds;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(TestAllowedCommandIds));
+  for I := 0 to High(TestAllowedCommandIds) do
+    Result[I] := TestAllowedCommandIds[I];
+end;
+
+function IsTestCommandAllowed(Cmd: Integer): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to High(TestAllowedCommandIds) do
+    if TestAllowedCommandIds[I] = Cmd then
+      Exit(True);
+  Result := False;
 end;
 
 { ShowScriptMsg в тестовом режиме не дописывает завершающий #0, но многие
@@ -240,7 +263,7 @@ begin
     CmdName := FT.LogPrefix;
   RecordCall(CmdName);
 
-  if not IsAllowedCommand(ACmd) then
+  if not IsTestCommandAllowed(ACmd) then
     raise EScriptDriverError.CreateFmt(
       'command "%s" is not supported (line %d)',
       [CmdName, FT.CurLine]);
@@ -280,6 +303,10 @@ begin
 
   FT.Msg := '';
   ExecScriptCommand(FT, ACmd, FT.Line);
+  { `msg` кладёт текст в Msg, а в тестовом режиме он уже записан в
+    TestMessageText. Иначе драйвер принял бы сообщение за ошибку скрипта. }
+  if ACmd = 16 then
+    FT.Msg := '';
   if FT.Msg <> '' then
     raise EScriptDriverError.Create('script error: ' + StripMsgNul(FT.Msg));
 end;
@@ -379,6 +406,7 @@ begin
     TLegacyDriverState.Create(FT),
     TLegacyDriverHost.Create(FT, FHostCalls));
   FHostCalls.Clear;
+  FT.ClearTestObservations;
   SetError(sekNone, 0, '');
 end;
 
@@ -444,6 +472,8 @@ begin
   FT.LoggingCommands := False;
   FT.AutoStart := False;
   FT.ShowRun := False;
+  FHostCalls.Clear;
+  FT.ClearTestObservations;
 
   FDriver.MaxSteps := FMaxSteps;
   try
@@ -580,6 +610,27 @@ end;
 function TLegacyScriptSession.HostCallText: string;
 begin
   Result := FHostCalls.Text;
+end;
+
+function TLegacyScriptSession.MessageText: string;
+begin
+  if FT = nil then
+    Reset;
+  Result := FT.TestMessageText;
+end;
+
+function TLegacyScriptSession.HintText: string;
+begin
+  if FT = nil then
+    Reset;
+  Result := FT.TestHintText;
+end;
+
+function TLegacyScriptSession.ExitRequested: Boolean;
+begin
+  if FT = nil then
+    Reset;
+  Result := FT.TestExitRequested;
 end;
 
 end.
