@@ -58,11 +58,13 @@ echo %ERRORLEVEL%
 
 | Suite | Файл кейсов | Что проверяется |
 |---|---|---|
-| `ScriptsExprStrings` | `cases/expr_strings.tsv` | `size`, `posex`, `copy`, `delete`, `insert`, `ord`, `chr`, `chartohex`, `chartohexf`, `hex2dec`, `string_*`, `trim`/`ltrim`/`rtrim`, пустые строки |
+| `ScriptsExprStrings` | `cases/expr_strings.tsv` | `size`, `posex`, `copy`, `delete`, `insert`, `ord`, `chr`, `chartohex`, `chartohexf`, `hex2dec`, `dec2hex`, `string_*`, `trim`/`ltrim`/`rtrim`, пустые строки |
 | `ScriptsExprRegexp` | `cases/expr_regexp.tsv` | `regexp` через скрипт; `#r`, `#pos`, `$hit` — отдельные кейсы |
 | `ScriptsExprCompare` | `cases/expr_compare.tsv` | `=`, `==`, `<>`, `<`, `>`, `<=`, `>=`, `<-`, `->` в `if`/`else` |
 | `ScriptsExprMath` | `cases/expr_math.tsv` | `abs`, `round`/`floor`/`ceil`/`trunc`, `sqrt`/`power`/`log`, тригонометрия, `minx`/`maxx`/`mean`, `mod`/`div`, точки, `lengthdir_*`, `is_real`/`is_string`; invalid-аргументы |
-| `ScriptsExprDates` | `cases/expr_dates.tsv` | `timestamp`/`*fromdate`, `add*`/`sub*`, `dayofweek`; `datenow`/`timenow` — `skip` |
+| `ScriptsExprDates` | `cases/expr_dates.tsv` | `timestamp`/`*fromdate`, `add*`/`sub*`, `adddate`/`subdate`, `dayofweek`; однодатовый `subdate` — `skip` |
+| `ScriptsExprClock` | `cases/expr_clock.tsv` | `min`/`hour`/`sec`, `year`/`month`/`day`, `datenow`/`timenow` на фиксированных часах `2024-01-02 03:04:05` |
+| `ScriptsExprConstants` | `cases/expr_constants.tsv` | `cl*`, `version`, `eval(expr)`, `colortorgb`/`colortored`/`colortogreen`/`colortoblue` |
 | `ScriptsCmdSet` | `cases/cmd_set.tsv` | скалярные `set #`/`set $`: кавычки, подстановка, перезапись, регистр, арифметика, комментарий внутри кавычек |
 | `ScriptsCmdGet` | `cases/cmd_get.tsv` | `get number`, `get word`; negative/edge (hex, слово с числом, двойные пробелы) |
 | `ScriptsArray` | `cases/arrays.tsv` | `set %a [N]` и `1|2/3|4`, `size(%a)`, `minx`/`maxx`, `sort_array`, `delete_array`, `indexof`, доступ к ячейке |
@@ -76,7 +78,8 @@ echo %ERRORLEVEL%
 
 Остальные unit-тесты:
 
-- `TestScriptExpressions` — smoke/white-box выражения и таблицы команд;
+- `TestScriptExpressions` — smoke/white-box выражения и таблицы команд,
+  файловые `fileexists`/`filegetattr`/`filegetdate` на временном файле;
 - `TestScriptParser` — `StripScriptComment`, `TrimRightScriptLine`,
   `InsertSpaceBeforeParen`, `CutCommandAtColon`, `EvalScriptPoint`;
 - `TestScriptDriver` — ошибки драйвера: неизвестная/внешняя команда, `--lua`,
@@ -88,7 +91,7 @@ echo %ERRORLEVEL%
 - `TestScriptSession` — наблюдаемость сессии: `TryNumVar`/`TryStrVar`/
   `TryArrCell` (не создают переменную), `HostCallText`, `LogText`,
   `MessageText`/`HintText`/`ExitRequested`, структурированный `LastErrorInfo`,
-  allowlist;
+  `SetNow`, allowlist;
 - `TestScriptCommands` — code-тесты `msg`/`hint`/`exit`/`wait`, потому что TSV
   умеет читать только переменные;
 - `TestScriptCommandEdges` — negative/edge: деление на ноль, `set #r` без
@@ -129,6 +132,24 @@ Data-driven наборы читают target через `Try...`: если ск�
 ```powershell
 .\tests\unit\ScriptTests.exe --suite=ScriptsFlow --sparse
 ```
+
+## Фиксированные часы
+
+`IScriptSession.SetNow(AValue)` задаёт и дату, и время для eval-веток
+(`min`/`hour`/`sec`, `year`/`month`/`day`, `datenow`/`timenow`, `timestamp`,
+`adddate`/`subdate`). `TLegacyScriptSession.Reset` по умолчанию ставит
+`2024-01-02 03:04:05`; `TRuntimeScriptSession.SetNow` пока поднимает
+`EScriptRuntimeNotImplemented`.
+
+В движке под `-dUOPILOT_UNIT_TESTS` это `TScanThread.SetTestNow` и
+`ScriptNow`/`ScriptDate`/`ScriptTime`; без флага они возвращают штатные
+`Now`/`Date`/`Time`, поэтому production-поведение не меняется. Локальный кэш
+`fRead[]` в `EvalScriptExpr` теперь обнуляется на каждом вызове: раньше
+стековый мусор мог пропустить первое чтение ветки.
+
+`cases/expr_clock.tsv` — unit-only: его нет в `$fileMap` генератора
+интеграционных тестов (в production часы реальные). `cases/expr_constants.tsv`
+локаль-независим и попадает в `expr_constants_tests.txt` (24 кейса).
 
 ## Формат TSV
 
@@ -205,14 +226,15 @@ Guard проверяет: точное соответствие живым им�
 Отложено осознанно (в матрице `skip` с причиной): `proc`/`call` (отдельный
 `TScanThread` и вкладка), `write`/`load_script`/`save_array`/`load_array` и
 прочие внешние команды (нужен `IScriptHost`/`IFileHost`),
-`StopUnknownCommand=0` (поля нет в `IScriptSettings`), `dec2hex` (ветка 88 с
-подозрительным `Inc(p, Length(pc))`).
+`StopUnknownCommand=0` (поля нет в `IScriptSettings`).
 
-Characterization выявил ещё два ограничения, которые тоже помечены `skip`:
-`mean(%a)` не принимает массив (`EZeroDivide`; скалярный `mean` покрыт в
-`expr_math`), а ссылки на ячейку массива в выражениях (`set $r %a[2][2]`)
-движок не поддерживает (так написано в `res/history_en.txt`). `indexof` с
-отсутствующим значением возвращает `-1`, а не `0`, как предполагалось в плане.
+Characterization выявил ещё несколько ограничений, которые тоже помечены
+`skip`: `mean(%a)` не принимает массив (`EZeroDivide`; скалярный `mean` покрыт
+в `expr_math`), ссылки на ячейку массива в выражениях (`set $r %a[2][2]`)
+движок не поддерживает (так написано в `res/history_en.txt`), однодатовый
+`subdate(<date>)` вычитает дату из себя и уходит в год 0 (`EConvertError`,
+см. `BUGS.md`). `indexof` с отсутствующим значением возвращает `-1`, а не `0`,
+как предполагалось в плане.
 
 ## Локаль тестов
 
@@ -330,7 +352,8 @@ message box, hint-окна и `PostMessage(WM_CLOSE)`. Production-ветки н�
   кейсами не переиспользуются.
 - `TScanThread.CreateForTest` выставляет `SelfRef` на себя: без этого ветки,
   работающие с массивом текущего скрипта (`minx`/`maxx`), падали в unit-тестах.
-- `hex2dec`: в ветке 87 не сбрасывался `rd`, поэтому
-  аргумент захватывался вместе с `)` и функция всегда возвращала `-1`.
-  `dec2hex` (ветка 88) не характеризован: там отдельный подозрительный
-  `Inc(p, Length(pc))`.
+- `hex2dec`/`dec2hex`: в обеих ветках не сбрасывался `rd`, поэтому аргумент
+  захватывался вместе с `)` и функция возвращала `-1` (или падала). `rd`
+  сбрасывается; в `dec2hex` вдобавок `Inc(p, Length(pc))` заменён на
+  `Inc(p, Length(V))` (`pc` в этой ветке не инициализирован). Число совпадает с
+  2.42, включая 16-значный `dec2hex(-1)` = `0xFFFFFFFFFFFFFFFF`.

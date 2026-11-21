@@ -13,6 +13,7 @@
 
 [Математика](./expr_math_tests.txt)
 [Даты](./expr_dates_tests.txt)
+[Константы](./expr_constants_tests.txt)
 [Команда set](./cmd_set_tests.txt)
 [Массивы](./arrays_tests.txt)
 [Поток управления](./flow_tests.txt)
@@ -87,7 +88,10 @@ start /wait lib\i386-win32\uopilot.exe /h%CD%\tests\integration /s%CD%\tests\int
 
 `-Check` обязателен перед коммитом: иначе легко поправить TSV и забыть
 перегенерировать `.txt`. Skip-кейсы перечислены в начале файла с причиной и в
-`PASS`/`FAIL` не входят.
+`PASS`/`FAIL` не входят. Генератор собирает только файлы из `$fileMap`;
+`expr_clock.tsv` — unit-only (в production часы реальные), поэтому отдельного
+`.txt` для него нет. Константы и `version` локаль-независимы и генерируются в
+`expr_constants_tests.txt`.
 
 Что осознанно не переносится в integration:
 

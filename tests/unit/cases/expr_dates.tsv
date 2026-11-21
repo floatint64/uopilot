@@ -22,3 +22,10 @@ subseconds_5_second	eval		secondfromdate(subseconds(timestamp("2024-01-02 03:04:
 subseconds_5_minute	eval		minutefromdate(subseconds(timestamp("2024-01-02 03:04:05") 5))	4	characterization: 05s - 5s stays in minute 04
 
 dayofweek_2024	eval		dayofweek(2024 1 2)	2	
+
+adddate_two_years	script	#r	set $a timestamp("2024-01-02 03:04:05")\nset $b timestamp("2000-01-01 00:00:00")\nset #r yearfromdate(adddate($a $b))	4024	
+adddate_two_hours	script	#r	set $a timestamp("2024-01-02 03:04:05")\nset $b timestamp("2000-01-01 02:00:00")\nset #r hourfromdate(adddate($a $b))	5	
+subdate_two_years	script	#r	set $a timestamp("2024-01-02 03:04:05")\nset $b timestamp("2000-01-01 00:00:00")\nset #r yearfromdate(subdate($a $b))	23	characterization: subtracts year, month and day, so year 23
+subdate_two_hours	script	#r	set $a timestamp("2024-01-02 03:04:05")\nset $b timestamp("2000-01-01 02:00:00")\nset #r hourfromdate(subdate($a $b))	1	
+adddate_one_date	script	#r	set $a timestamp("2024-01-02 03:04:05")\nset #r yearfromdate(adddate($a))	4048	characterization: one-date form self-adds (CmdList[1] aliases CmdParts[0])
+subdate_one_date	skip				one-date form subtracts the date from itself and underflows to year 0 (EConvertError)

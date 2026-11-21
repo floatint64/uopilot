@@ -9,9 +9,9 @@ stam	eval	missing	P3		not characterized yet
 lastmsg	eval	missing	P3		not characterized yet
 coordx	eval	missing	P3		not characterized yet
 coordy	eval	missing	P3		not characterized yet
-min	eval	skip	P1		clock dependent: current date/time
-hour	eval	skip	P1		clock dependent: current date/time
-sec	eval	skip	P1		clock dependent: current date/time
+min	eval	covered	P1	suite:ScriptsExprClock	
+hour	eval	covered	P1	suite:ScriptsExprClock	
+sec	eval	covered	P1	suite:ScriptsExprClock	
 str	eval	missing	P3		not characterized yet
 int	eval	missing	P3		not characterized yet
 dex	eval	missing	P3		not characterized yet
@@ -52,9 +52,9 @@ color	eval	missing	P3		not characterized yet
 number	eval	missing	P3		not characterized yet
 word	eval	missing	P3		not characterized yet
 xxx	eval	missing	P3		not characterized yet
-year	eval	skip	P1		clock dependent: current date/time
-month	eval	skip	P1		clock dependent: current date/time
-day	eval	skip	P1		clock dependent: current date/time
+year	eval	covered	P1	suite:ScriptsExprClock	
+month	eval	covered	P1	suite:ScriptsExprClock	
+day	eval	covered	P1	suite:ScriptsExprClock	
 priority	eval	missing	P3		not characterized yet
 prompt	eval	missing	P3		not characterized yet
 setwindowtext	eval	missing	P3		not characterized yet
@@ -87,7 +87,7 @@ scripts	eval	missing	P3		not characterized yet
 current_script	eval	missing	P3		not characterized yet
 active_script	eval	missing	P3		not characterized yet
 hex2dec	eval	covered	P1	suite:ScriptsExprStrings	
-dec2hex	eval	skip	P1		branch 88 has suspicious Inc(p, Length(pc)); not characterized until reviewed
+dec2hex	eval	covered	P1	case:dec2hex_zero case:dec2hex_255 case:dec2hex_negative case:dec2hex_invalid	
 findimage	eval	missing	P3		not characterized yet
 defcolor	eval	missing	P3		not characterized yet
 defx	eval	missing	P3		not characterized yet
@@ -108,9 +108,9 @@ monitorheight	eval	missing	P3		not characterized yet
 monitorwidth	eval	missing	P3		not characterized yet
 monitor	eval	missing	P3		not characterized yet
 indexof	eval	covered	P1	suite:ScriptsArray	
-fileexists	eval	missing	P3		not characterized yet
-filegetattr	eval	missing	P3		not characterized yet
-filegetdate	eval	missing	P3		not characterized yet
+fileexists	eval	covered	P3	code:TestScriptExpressions.TestFileExistsTempFile code:TestScriptExpressions.TestFileExistsMissing	
+filegetattr	eval	covered	P3	code:TestScriptExpressions.TestFileGetAttrReadOnly code:TestScriptExpressions.TestFileGetAttrMissing	
+filegetdate	eval	covered	P3	code:TestScriptExpressions.TestFileGetDateTempFile code:TestScriptExpressions.TestFileGetDateMissing	
 windowfrompoint	eval	missing	P3		not characterized yet
 mousepos_x	eval	missing	P3		not characterized yet
 mousepos_y	eval	missing	P3		not characterized yet
@@ -159,33 +159,33 @@ string_digits	eval	covered	P1	suite:ScriptsExprStrings
 #157	eval	skip	P3		empty slot in gCmdNamesdd
 #158	eval	skip	P3		empty slot in gCmdNamesdd
 dayofweek	eval	covered	P1	suite:ScriptsExprDates	
-claqua	eval	missing	P3		not characterized yet
-clblack	eval	missing	P3		not characterized yet
-clblue	eval	missing	P3		not characterized yet
-cldkgray	eval	missing	P3		not characterized yet
-clfuchsia	eval	missing	P3		not characterized yet
-clgray	eval	missing	P3		not characterized yet
-clgreen	eval	missing	P3		not characterized yet
-cllime	eval	missing	P3		not characterized yet
-clltgray	eval	missing	P3		not characterized yet
-clmaroon	eval	missing	P3		not characterized yet
-clnavy	eval	missing	P3		not characterized yet
-clolive	eval	missing	P3		not characterized yet
-clpurple	eval	missing	P3		not characterized yet
-clred	eval	missing	P3		not characterized yet
-clsilver	eval	missing	P3		not characterized yet
-clteal	eval	missing	P3		not characterized yet
-clwhite	eval	missing	P3		not characterized yet
-clyellow	eval	missing	P3		not characterized yet
+claqua	eval	covered	P3	suite:ScriptsExprConstants	
+clblack	eval	covered	P3	suite:ScriptsExprConstants	
+clblue	eval	covered	P3	suite:ScriptsExprConstants	
+cldkgray	eval	covered	P3	suite:ScriptsExprConstants	
+clfuchsia	eval	covered	P3	suite:ScriptsExprConstants	
+clgray	eval	covered	P3	suite:ScriptsExprConstants	
+clgreen	eval	covered	P3	suite:ScriptsExprConstants	
+cllime	eval	covered	P3	suite:ScriptsExprConstants	
+clltgray	eval	covered	P3	suite:ScriptsExprConstants	
+clmaroon	eval	covered	P3	suite:ScriptsExprConstants	
+clnavy	eval	covered	P3	suite:ScriptsExprConstants	
+clolive	eval	covered	P3	suite:ScriptsExprConstants	
+clpurple	eval	covered	P3	suite:ScriptsExprConstants	
+clred	eval	covered	P3	suite:ScriptsExprConstants	
+clsilver	eval	covered	P3	suite:ScriptsExprConstants	
+clteal	eval	covered	P3	suite:ScriptsExprConstants	
+clwhite	eval	covered	P3	suite:ScriptsExprConstants	
+clyellow	eval	covered	P3	suite:ScriptsExprConstants	
 shownames	eval	missing	P3		not characterized yet
 transparency	eval	missing	P3		not characterized yet
 pathfinding	eval	missing	P3		not characterized yet
 criminalactions	eval	missing	P3		not characterized yet
-eval	eval	missing	P3		not characterized yet
-colortorgb	eval	missing	P3		not characterized yet
-colortored	eval	missing	P3		not characterized yet
-colortogreen	eval	missing	P3		not characterized yet
-colortoblue	eval	missing	P3		not characterized yet
+eval	eval	covered	P3	suite:ScriptsExprConstants	
+colortorgb	eval	covered	P3	suite:ScriptsExprConstants	
+colortored	eval	covered	P3	suite:ScriptsExprConstants	
+colortogreen	eval	covered	P3	suite:ScriptsExprConstants	
+colortoblue	eval	covered	P3	suite:ScriptsExprConstants	
 ltrim	eval	covered	P1	suite:ScriptsExprStrings	
 rtrim	eval	covered	P1	suite:ScriptsExprStrings	
 trim	eval	covered	P1	suite:ScriptsExprStrings	
@@ -250,14 +250,14 @@ deleteimage	eval	missing	P3		not characterized yet
 loadimage	eval	missing	P3		not characterized yet
 saveimage	eval	missing	P3		not characterized yet
 getfocus	eval	missing	P3		not characterized yet
-adddate	eval	skip	P1		two-date semantics not characterized
+adddate	eval	covered	P1	suite:ScriptsExprDates	
 addyears	eval	covered	P1	suite:ScriptsExprDates	
 addmonths	eval	covered	P1	suite:ScriptsExprDates	
 adddays	eval	covered	P1	suite:ScriptsExprDates	
 addhours	eval	covered	P1	suite:ScriptsExprDates	
 addminutes	eval	covered	P1	suite:ScriptsExprDates	
 addseconds	eval	covered	P1	suite:ScriptsExprDates	
-subdate	eval	skip	P1		two-date semantics not characterized
+subdate	eval	covered	P1	suite:ScriptsExprDates	
 subyears	eval	covered	P1	suite:ScriptsExprDates	
 submonths	eval	covered	P1	suite:ScriptsExprDates	
 subdays	eval	covered	P1	suite:ScriptsExprDates	
@@ -271,8 +271,8 @@ hourfromdate	eval	covered	P1	suite:ScriptsExprDates
 minutefromdate	eval	covered	P1	suite:ScriptsExprDates	
 secondfromdate	eval	covered	P1	suite:ScriptsExprDates	
 timestamp	eval	covered	P1	suite:ScriptsExprDates	
-datenow	eval	skip	P1		clock dependent: current date
-timenow	eval	skip	P1		clock dependent: current time
+datenow	eval	covered	P1	suite:ScriptsExprClock	
+timenow	eval	covered	P1	suite:ScriptsExprClock	
 backpack	eval	missing	P3		not characterized yet
 backpackposx	eval	missing	P3		not characterized yet
 backpackposy	eval	missing	P3		not characterized yet
@@ -284,7 +284,7 @@ setprocesspriority	eval	missing	P3		not characterized yet
 getprocesspriority	eval	missing	P3		not characterized yet
 setprocessaffinitymask	eval	missing	P3		not characterized yet
 checkgetcolor	eval	missing	P3		not characterized yet
-version	eval	missing	P3		not characterized yet
+version	eval	covered	P3	suite:ScriptsExprConstants	
 suspendprocess	eval	missing	P3		not characterized yet
 resumeprocess	eval	missing	P3		not characterized yet
 #288	eval	skip	P3		empty slot in gCmdNamesdd

@@ -30,6 +30,7 @@ type
     procedure TestStructuredStepLimit;
     procedure TestObservationsResetBetweenRuns;
     procedure TestAllowedCommandsIncludeWaitMsgHintExit;
+    procedure TestSetNowControlsClockNames;
   end;
 
 implementation
@@ -245,6 +246,14 @@ begin
   AssertTrue('msg allowed', HasIndex(16));
   AssertTrue('hint allowed', HasIndex(98));
   AssertTrue('exit allowed', HasIndex(119));
+end;
+
+procedure TScriptSessionTest.TestSetNowControlsClockNames;
+begin
+  FSession.SetNow(EncodeDate(1999, 12, 31) + EncodeTime(23, 58, 57, 0));
+  AssertEquals('year', '1999', FSession.Eval('year'));
+  AssertEquals('datenow', '1999-12-31', FSession.Eval('datenow'));
+  AssertEquals('timenow', '23:58:57', FSession.Eval('timenow'));
 end;
 
 initialization

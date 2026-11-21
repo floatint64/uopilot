@@ -440,6 +440,8 @@ type
     FTestMessages: TStringList;        // сообщения `msg` в тестовом режиме
     FTestHint: string;                 // текст `hint` в тестовом режиме
     FTestExitRequested: Boolean;       // был `exit` в тестовом режиме
+    FTestNow: TDateTime;               // подменённые часы тестового режима
+    FTestNowSet: Boolean;              // FTestNow задан явно
 {$ENDIF}
   protected
     procedure Execute; override;
@@ -470,6 +472,9 @@ type
 {$IFDEF UOPILOT_UNIT_TESTS}
     { ASettings = nil означает FastTestProfile. }
     constructor CreateForTest(const ASettings: IScriptSettings = nil);
+    { Задаёт часы тестового экземпляра: eval-ветки читают их через
+      ScriptNow/ScriptDate/ScriptTime вместо Now/Date/Time. }
+    procedure SetTestNow(const AValue: TDateTime);
     function TestLogText: string;
     procedure AppendTestLog(const S: string);
     function TestMessageText: string;
@@ -4065,8 +4070,16 @@ begin
   FTestMessages := TStringList.Create;
   FTestHint := '';
   FTestExitRequested := False;
+  FTestNow := 0;
+  FTestNowSet := False;
   if not QueryPerformanceFrequency(PerfFreq) then
     PerfFreq := 0;
+end;
+
+procedure TScanThread.SetTestNow(const AValue: TDateTime);
+begin
+  FTestNow := AValue;
+  FTestNowSet := True;
 end;
 
 function TScanThread.TestLogText: string;
@@ -7008,6 +7021,35 @@ begin
   Result := 0;
 end;
 
+{ Часы вычислителя. В тестовом режиме подменяются через SetTestNow, иначе --
+  штатные системные Now/Date/Time; production-ветка не меняется. }
+function ScriptNow(T: TScanThread): TDateTime;
+begin
+{$IFDEF UOPILOT_UNIT_TESTS}
+  if T.FForTest and T.FTestNowSet then
+    Exit(T.FTestNow);
+{$ENDIF}
+  Result := Now;
+end;
+
+function ScriptDate(T: TScanThread): TDateTime;
+begin
+{$IFDEF UOPILOT_UNIT_TESTS}
+  if T.FForTest and T.FTestNowSet then
+    Exit(DateOf(T.FTestNow));
+{$ENDIF}
+  Result := Date;
+end;
+
+function ScriptTime(T: TScanThread): TDateTime;
+begin
+{$IFDEF UOPILOT_UNIT_TESTS}
+  if T.FForTest and T.FTestNowSet then
+    Exit(TimeOf(T.FTestNow));
+{$ENDIF}
+  Result := Time;
+end;
+
 function EvalScriptExpr(T: TScanThread; sv: string; nv: Integer): string;
 label
   NextChar;                     { Выход подстановки к Inc(k) }
@@ -7364,6 +7406,9 @@ begin
   wcnt := 0;
   ts := '';
   quo := False;
+  { Кэш чтений -- локальный для вызова, но в оригинале не обнулялся:
+    стековая память могла прийти с мусором и ветка чтения пропускалась. }
+  FillChar(fRead, SizeOf(fRead), 0);
   for k := 1 to Length(sv) do
   begin
     if sv[k] = '"' then
@@ -7677,7 +7722,7 @@ begin
           10..12:
             begin { min,hour,sec }
       if not fRead[10] then begin
-        tt := TimeToStr(Time);
+        tt := TimeToStr(ScriptTime(T));
         sEe := Copy(tt, 1, Pos(':', tt) - 1);
         sB := Copy(tt, Pos(':', tt) + 1, 2);
         sA := Copy(tt, Pos(':', tt) + 4, 2);
@@ -7694,7 +7739,7 @@ begin
           53..55:
             begin { year,month,day }
       if not fRead[53] then begin
-        tt := FormatDateTime('dd.mm.yyyy', Now);
+        tt := FormatDateTime('dd.mm.yyyy', ScriptNow(T));
         sB := Copy(tt, 1, 2);
         sEe := Copy(tt, 4, 2);
         sA := Copy(tt, 7, 4);
@@ -10699,6 +10744,7 @@ begin
       end;
       if ok then begin
         ok := False;
+        rd := 0;
         a := qq;
         while Cardinal(Length(ts)) >= Cardinal(a) do begin
           case ts[a] of
@@ -10718,7 +10764,7 @@ begin
             TScanThread(T).Msg := 'Convert error' + #0;
         end;
         Insert(V, ts, p);
-        Inc(p, Length(pc));
+        Inc(p, Length(V));
       end else if TScanThread(T).IsProc then
         TScanThread(T).Msg := 'Wrong parameter specified' + #0;
       if TScanThread(T).IsProc then
@@ -12834,7 +12880,7 @@ begin
             if Pos(':', TScanThread(T).CmdParts[0]) > 0 then
             begin
               quo := True;
-              ts2 := DateTimeToTimeStamp(StrToDateTime(DateToStr(Date) + ' ' +
+              ts2 := DateTimeToTimeStamp(StrToDateTime(DateToStr(ScriptDate(T)) + ' ' +
                        TScanThread(T).CmdParts[0]));
             end
             else
@@ -12846,7 +12892,7 @@ begin
                 if ts2.Date = 0 then
                 begin
                   quo := True;
-                  ts2.Date := DateTimeToTimeStamp(Date).Date;
+                  ts2.Date := DateTimeToTimeStamp(ScriptDate(T)).Date;
                 end;
               end;
         i1 := ts2.Date;
@@ -12870,7 +12916,7 @@ begin
                   if Pos(':', s1) > 0 then
                   begin
                     bFlag := True;
-                    ts2 := DateTimeToTimeStamp(StrToDateTime(DateToStr(Date) +
+                    ts2 := DateTimeToTimeStamp(StrToDateTime(DateToStr(ScriptDate(T)) +
                              ' ' + s1));
                   end
                   else
@@ -13001,7 +13047,7 @@ begin
                            TScanThread(T).CmdParts[0]))
                 else
                   if Pos(':', TScanThread(T).CmdParts[0]) > 0 then
-                    ts2 := DateTimeToTimeStamp(StrToDateTime(DateToStr(Date) +
+                    ts2 := DateTimeToTimeStamp(StrToDateTime(DateToStr(ScriptDate(T)) +
                              ' ' + TScanThread(T).CmdParts[0]))
                   else
                     if TryStrToInt64(TScanThread(T).CmdParts[0], i1) then
@@ -13015,7 +13061,7 @@ begin
               begin
                 if ts2.Date = 0 then
                 begin
-                  ts2.Date := DateTimeToTimeStamp(Date).Date;
+                  ts2.Date := DateTimeToTimeStamp(ScriptDate(T)).Date;
                   nm := TimeToStr(TimeStampToDateTime(ts2));
                 end
                 else
@@ -13056,13 +13102,13 @@ begin
             end;
           272:
             begin { datenow }
-      V := DateToStr(Date);
+      V := DateToStr(ScriptDate(T));
       Insert(V, ts, p);
       Inc(p, Length(V));
             end;
           273:
             begin { timenow }
-      V := TimeToStr(Time);
+      V := TimeToStr(ScriptTime(T));
       Insert(V, ts, p);
       Inc(p, Length(V));
             end;

@@ -58,3 +58,7 @@ hex2dec_ff	eval		hex2dec("FF")	255
 hex2dec_0x1f	eval		hex2dec("0x1F")	31	
 hex2dec_invalid	eval		hex2dec("ZZ")	-1	
 hex2dec_empty	eval		hex2dec("")	-1	
+dec2hex_zero	eval		dec2hex(0)	0x00000000	
+dec2hex_255	eval		dec2hex(255)	0x000000FF	
+dec2hex_negative	eval		dec2hex(-1)	0xFFFFFFFFFFFFFFFF	matches 2.42: IntToHex(Int64) is 16 digits
+dec2hex_invalid	eval		dec2hex("abc")	-1	

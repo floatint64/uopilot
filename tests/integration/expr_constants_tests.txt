@@ -1,0 +1,265 @@
+log clear
+log mode noTime
+set linedelay 0
+set #pass 0
+set #fail 0
+
+gosub case_cl_aqua
+gosub case_cl_black
+gosub case_cl_blue
+gosub case_cl_dkgray
+gosub case_cl_fuchsia
+gosub case_cl_gray
+gosub case_cl_green
+gosub case_cl_lime
+gosub case_cl_ltgray
+gosub case_cl_maroon
+gosub case_cl_navy
+gosub case_cl_olive
+gosub case_cl_purple
+gosub case_cl_red
+gosub case_cl_silver
+gosub case_cl_teal
+gosub case_cl_white
+gosub case_cl_yellow
+gosub case_version_const
+gosub case_eval_expression
+gosub case_colortored_value
+gosub case_colortogreen_value
+gosub case_colortoblue_value
+gosub case_colortorgb_row
+
+gosub test_summary
+exit
+
+
+// ===== assertion helpers =====
+:assert_num
+if #t_num_actual = #t_num_expected
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=#t_num_actual expected=#t_num_expected
+  set #fail #fail + 1
+end_if
+return
+
+:assert_str
+set #t_p1 posex($t_str_expected $t_str_actual)
+set #t_p2 posex($t_str_actual $t_str_expected)
+if (#t_p1 = 1) and (#t_p2 = 1)
+  log PASS $t_name
+  set #pass #pass + 1
+else
+  log FAIL $t_name input=$t_input actual=$t_str_actual expected=$t_str_expected
+  set #fail #fail + 1
+end_if
+return
+
+:test_summary
+log TEST RESULT PASS=#pass FAIL=#fail
+if #fail = 0
+  log ALL TESTS PASSED
+else
+  log SOME TESTS FAILED
+end_if
+return
+
+
+// ===== cases =====
+
+:case_cl_aqua
+set $t_name cl_aqua
+set $t_input claqua
+set #t_num_actual claqua
+set #t_num_expected 16776960
+gosub assert_num
+return
+
+:case_cl_black
+set $t_name cl_black
+set $t_input clblack
+set #t_num_actual clblack
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_cl_blue
+set $t_name cl_blue
+set $t_input clblue
+set #t_num_actual clblue
+set #t_num_expected 16711680
+gosub assert_num
+return
+
+:case_cl_dkgray
+set $t_name cl_dkgray
+set $t_input cldkgray
+set #t_num_actual cldkgray
+set #t_num_expected 8421504
+gosub assert_num
+return
+
+:case_cl_fuchsia
+set $t_name cl_fuchsia
+set $t_input clfuchsia
+set #t_num_actual clfuchsia
+set #t_num_expected 16711935
+gosub assert_num
+return
+
+:case_cl_gray
+set $t_name cl_gray
+set $t_input clgray
+set #t_num_actual clgray
+set #t_num_expected 8421504
+gosub assert_num
+return
+
+:case_cl_green
+set $t_name cl_green
+set $t_input clgreen
+set #t_num_actual clgreen
+set #t_num_expected 32768
+gosub assert_num
+return
+
+:case_cl_lime
+set $t_name cl_lime
+set $t_input cllime
+set #t_num_actual cllime
+set #t_num_expected 65280
+gosub assert_num
+return
+
+:case_cl_ltgray
+set $t_name cl_ltgray
+set $t_input clltgray
+set #t_num_actual clltgray
+set #t_num_expected 12632256
+gosub assert_num
+return
+
+:case_cl_maroon
+set $t_name cl_maroon
+set $t_input clmaroon
+set #t_num_actual clmaroon
+set #t_num_expected 128
+gosub assert_num
+return
+
+:case_cl_navy
+set $t_name cl_navy
+set $t_input clnavy
+set #t_num_actual clnavy
+set #t_num_expected 8388608
+gosub assert_num
+return
+
+:case_cl_olive
+set $t_name cl_olive
+set $t_input clolive
+set #t_num_actual clolive
+set #t_num_expected 32896
+gosub assert_num
+return
+
+:case_cl_purple
+set $t_name cl_purple
+set $t_input clpurple
+set #t_num_actual clpurple
+set #t_num_expected 8388736
+gosub assert_num
+return
+
+:case_cl_red
+set $t_name cl_red
+set $t_input clred
+set #t_num_actual clred
+set #t_num_expected 255
+gosub assert_num
+return
+
+:case_cl_silver
+set $t_name cl_silver
+set $t_input clsilver
+set #t_num_actual clsilver
+set #t_num_expected 12632256
+gosub assert_num
+return
+
+:case_cl_teal
+set $t_name cl_teal
+set $t_input clteal
+set #t_num_actual clteal
+set #t_num_expected 8421376
+gosub assert_num
+return
+
+:case_cl_white
+set $t_name cl_white
+set $t_input clwhite
+set #t_num_actual clwhite
+set #t_num_expected 16777215
+gosub assert_num
+return
+
+:case_cl_yellow
+set $t_name cl_yellow
+set $t_input clyellow
+set #t_num_actual clyellow
+set #t_num_expected 65535
+gosub assert_num
+return
+
+:case_version_const
+set $t_name version_const
+set $t_input version
+set $t_str_actual version
+set $t_str_expected "2.42|r|0|0/"
+gosub assert_str
+return
+
+:case_eval_expression
+set $t_name eval_expression
+set $t_input eval(1 + 2)
+set #t_num_actual eval(1 + 2)
+set #t_num_expected 3
+gosub assert_num
+return
+
+:case_colortored_value
+set $t_name colortored_value
+set $t_input colortored(16711935)
+set #t_num_actual colortored(16711935)
+set #t_num_expected 255
+gosub assert_num
+return
+
+:case_colortogreen_value
+set $t_name colortogreen_value
+set $t_input colortogreen(16711935)
+set #t_num_actual colortogreen(16711935)
+set #t_num_expected 0
+gosub assert_num
+return
+
+:case_colortoblue_value
+set $t_name colortoblue_value
+set $t_input colortoblue(16711935)
+set #t_num_actual colortoblue(16711935)
+set #t_num_expected 255
+gosub assert_num
+return
+
+:case_colortorgb_row
+set $t_name colortorgb_row
+set $t_input colortorgb_row
+delete_array %c -1 100
+set %c [1] 16711935
+set #r colortorgb(16711935 %c[1])
+set $r minx(%c)
+set $t_str_actual $r
+set $t_str_expected "255|0|255"
+gosub assert_str
+return

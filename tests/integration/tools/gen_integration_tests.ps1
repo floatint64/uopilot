@@ -44,6 +44,7 @@ $localeMathSkips = @(
 $fileMap = @(
   @{ Tsv = 'expr_math.tsv';  Txt = 'expr_math_tests.txt' },
   @{ Tsv = 'expr_dates.tsv'; Txt = 'expr_dates_tests.txt' },
+  @{ Tsv = 'expr_constants.tsv'; Txt = 'expr_constants_tests.txt' },
   @{ Tsv = 'cmd_set.tsv';    Txt = 'cmd_set_tests.txt' },
   @{ Tsv = 'arrays.tsv';     Txt = 'arrays_tests.txt' },
   @{ Tsv = 'flow.tsv';       Txt = 'flow_tests.txt' },
@@ -230,7 +231,7 @@ function Get-SkipReason($rec) {
       return 'array cell references are not supported in production expressions'
     }
     if (Test-ArrayScriptIs2D $rec.Script) {
-      return 'two-dimensional array; covered indirectly by engine_arrays_2d.txt'
+      return 'two-dimensional array; covered indirectly by arrays_2d_tests.txt'
     }
   }
   return $null

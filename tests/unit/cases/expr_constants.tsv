@@ -1,0 +1,25 @@
+name	kind	target	script	expected	note
+cl_aqua	eval		claqua	16776960	
+cl_black	eval		clblack	0	
+cl_blue	eval		clblue	16711680	
+cl_dkgray	eval		cldkgray	8421504	
+cl_fuchsia	eval		clfuchsia	16711935	
+cl_gray	eval		clgray	8421504	
+cl_green	eval		clgreen	32768	
+cl_lime	eval		cllime	65280	
+cl_ltgray	eval		clltgray	12632256	
+cl_maroon	eval		clmaroon	128	
+cl_navy	eval		clnavy	8388608	
+cl_olive	eval		clolive	32896	
+cl_purple	eval		clpurple	8388736	
+cl_red	eval		clred	255	
+cl_silver	eval		clsilver	12632256	
+cl_teal	eval		clteal	8421376	
+cl_white	eval		clwhite	16777215	
+cl_yellow	eval		clyellow	65535	
+version_const	eval		version	2.42|r|0|0/	
+eval_expression	eval		eval(1 + 2)	3	
+colortored_value	eval		colortored(16711935)	255	
+colortogreen_value	eval		colortogreen(16711935)	0	
+colortoblue_value	eval		colortoblue(16711935)	255	
+colortorgb_row	script	$r	set %c [1] 16711935\nset #r colortorgb(16711935 %c[1])\nset $r minx(%c)	255|0|255	row holds R|G|B; minx(%c) joins the columns for both backends

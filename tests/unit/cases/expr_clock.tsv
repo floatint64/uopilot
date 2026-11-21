@@ -1,0 +1,9 @@
+name	kind	target	script	expected	note
+clock_min	script	#r	set #r min	4	
+clock_hour	script	#r	set #r hour	3	
+clock_sec	script	#r	set #r sec	5	
+clock_year	script	#r	set #r year	2024	
+clock_month	script	#r	set #r month	1	
+clock_day	script	#r	set #r day	2	
+clock_datenow	script	$r	set $r datenow	2024-01-02	
+clock_timenow	script	$r	set $r timenow	03:04:05	

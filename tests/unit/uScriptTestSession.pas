@@ -33,6 +33,8 @@ type
   IScriptSession = interface
     ['{6F1C7D2A-6C2B-4A4E-9A7F-2C5E1B8D3A41}']
     procedure Reset;
+    { Фиксирует часы сессии (и дату, и время) для eval-веток движка. }
+    procedure SetNow(const AValue: TDateTime);
     function  Eval(const Expr: string): string;
     procedure RunScript(const Script: string);
     function  NumVar(const Name: string): Int64;
@@ -68,6 +70,7 @@ type
   TRuntimeScriptSession = class(TInterfacedObject, IScriptSession)
   public
     procedure Reset;
+    procedure SetNow(const AValue: TDateTime);
     function  Eval(const Expr: string): string;
     procedure RunScript(const Script: string);
     function  NumVar(const Name: string): Int64;
@@ -101,6 +104,12 @@ begin
 end;
 
 procedure TRuntimeScriptSession.Reset;
+begin
+  raise EScriptRuntimeNotImplemented.Create(
+    'runtime backend is not implemented yet');
+end;
+
+procedure TRuntimeScriptSession.SetNow(const AValue: TDateTime);
 begin
   raise EScriptRuntimeNotImplemented.Create(
     'runtime backend is not implemented yet');

@@ -25,6 +25,7 @@ type
     constructor Create(const ASettings: IScriptSettings = nil);
     destructor Destroy; override;
     procedure Reset;
+    procedure SetNow(const AValue: TDateTime);
     function Eval(const Expr: string): string;
     procedure RunScript(const Script: string);
     function NumVar(const Name: string): Int64;
@@ -91,6 +92,13 @@ begin
   Result := S;
   if (Length(Result) > 0) and (Result[Length(Result)] = #0) then
     Delete(Result, Length(Result), 1);
+end;
+
+{ Фиксированные часы по умолчанию: clock-кейсы не должны зависеть от
+  реального времени машины. }
+function DefaultTestNow: TDateTime;
+begin
+  Result := EncodeDate(2024, 1, 2) + EncodeTime(3, 4, 5, 0);
 end;
 
 type
@@ -402,12 +410,20 @@ begin
   FreeAndNil(FT);
   ResetGlobals;
   FT := TScanThread.CreateForTest(FSettings);
+  FT.SetTestNow(DefaultTestNow);
   FDriver := TScriptDriver.Create(
     TLegacyDriverState.Create(FT),
     TLegacyDriverHost.Create(FT, FHostCalls));
   FHostCalls.Clear;
   FT.ClearTestObservations;
   SetError(sekNone, 0, '');
+end;
+
+procedure TLegacyScriptSession.SetNow(const AValue: TDateTime);
+begin
+  if FT = nil then
+    Reset;
+  FT.SetTestNow(AValue);
 end;
 
 { Внутренний вычислитель ожидает 'calc ' перед выражением и nv = -1:

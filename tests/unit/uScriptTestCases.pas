@@ -67,6 +67,8 @@ begin
   Add('ScriptsFlow', 'flow.tsv');
   Add('ScriptsExprMath', 'expr_math.tsv');
   Add('ScriptsExprDates', 'expr_dates.tsv');
+  Add('ScriptsExprClock', 'expr_clock.tsv');
+  Add('ScriptsExprConstants', 'expr_constants.tsv');
   Add('ScriptsKnownBugs', 'known_bugs.tsv');
 end;
 

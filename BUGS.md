@@ -58,3 +58,19 @@
   Тест `test_arr_word` в `tests/integration/clipboard_tests.txt` из-за этого
   удалён из автоматического прогона.
 - Статус: не исправлено.
+
+## `adddate`/`subdate`: однодатовая форма читает `CmdList[a]` за границей массива
+
+- Файл: `uScanThread.pas`, ветка `adddate`/`subdate` (case `251..271`).
+- Суть: `CmdList` объявлен как `array[0..0] of string[255]`, а операнд берётся
+  как `CmdList[a]`, где `a` — число аргументов из `SplitCmdLine`. При `a = 1`
+  чтение выходит за границу массива и попадает в начало следующего поля
+  `CmdParts`, то есть `CmdList[1]` фактически алиасит `CmdParts[0]`.
+- Следствие: `adddate(<date>)` прибавляет дату саму к себе (`2024` → `4048`),
+  а `subdate(<date>)` вычитает её из себя и уходит в год 0:
+  `EConvertError: Invalid date/timestamp : "0000-01-02 00:00:00.000"`.
+  Двухдатовая форма (`adddate(date1 date2)`) идёт по `a = 4` и использует
+  `CmdParts[2]`/`CmdParts[3]`, поэтому работает штатно.
+- Следствие для тестов: `subdate_one_date` в `cases/expr_dates.tsv` помечен
+  `skip`; однодатовый `adddate` зафиксирован characterization-кейсом.
+- Статус: не исправлено (поведение 2.42 сохранено).

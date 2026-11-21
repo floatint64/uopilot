@@ -20,6 +20,12 @@
 // SKIP: addseconds_10 — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
 // SKIP: subseconds_5_second — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
 // SKIP: subseconds_5_minute — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: adddate_two_years — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: adddate_two_hours — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subdate_two_years — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subdate_two_hours — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: adddate_one_date — timestamp parsing uses the system locale (StrToDateTime); covered by unit tests with a forced locale
+// SKIP: subdate_one_date — one-date form subtracts the date from itself and underflows to year 0 (EConvertError)
 log clear
 log mode noTime
 set linedelay 0
